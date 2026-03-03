@@ -1,5 +1,6 @@
 import { apiUrl, fetchOptions, postOptions } from '../../../api/config';
-import DownloadService from '../../../shared/services/dataDownload/downloadService';
+import fetchWithAuth from '../../../api/fetchWithAuth';
+import { fetchPreviewFromLocalDb } from './localPreviewAdapter';
 
 /**
  * Collections API Client
@@ -124,7 +125,7 @@ collectionsAPI.getCollectionById = async (id, params = {}) => {
   const queryString = searchParams.toString();
   const endpoint = `${apiUrl}/api/collections/${id}${queryString ? `?${queryString}` : ''}`;
 
-  return await fetch(endpoint, fetchOptions);
+  return await fetchWithAuth(endpoint, fetchOptions);
 };
 
 /**
@@ -147,7 +148,7 @@ collectionsAPI.getCollection = collectionsAPI.getCollectionById;
  * @param {Object} data - Collection creation data
  * @param {string} data.collectionName - Collection name (required, 1-200 characters)
  * @param {string} [data.description] - Collection description (optional, 0-500 characters)
- * @param {boolean} [data.private=true] - Whether collection is private (default true)
+ * @param {boolean} [data.isPublic=false] - Whether collection is publicly visible (default false)
  * @param {string[]} [data.datasets] - Array of dataset short names to add to collection
  * @returns {Promise<Response>} Response body: Complete collection object with all metadata
  * @throws {Error} 401: Unauthorized, 500: Server error
@@ -160,7 +161,7 @@ collectionsAPI.getCollection = collectionsAPI.getCollectionById;
 collectionsAPI.createCollection = async (data) => {
   const endpoint = `${apiUrl}/api/collections`;
 
-  return await fetch(endpoint, {
+  return await fetchWithAuth(endpoint, {
     ...postOptions,
     method: 'POST',
     body: JSON.stringify(data),
@@ -178,7 +179,7 @@ collectionsAPI.createCollection = async (data) => {
 collectionsAPI.deleteCollection = async (id) => {
   const endpoint = `${apiUrl}/api/collections/${id}`;
 
-  return await fetch(endpoint, {
+  return await fetchWithAuth(endpoint, {
     ...fetchOptions,
     method: 'DELETE',
   });
@@ -190,7 +191,7 @@ collectionsAPI.deleteCollection = async (id) => {
  * @param {Object} data - Collection update data
  * @param {string} data.collectionName - Collection name (required, 5-200 characters)
  * @param {string} data.description - Collection description (required, 0-500 characters)
- * @param {boolean} data.private - Whether collection is private (required)
+ * @param {boolean} data.isPublic - Whether collection is publicly visible (required)
  * @param {string[]} data.datasets - Array of dataset short names (required, can be empty)
  * @returns {Promise<Response>} Response body: Complete collection object with all metadata
  * @throws {Error} 400: Validation errors, 401: Unauthorized, 403: Not collection owner, 404: Collection not found, 409: Name conflict, 500: Server error
@@ -204,7 +205,7 @@ collectionsAPI.deleteCollection = async (id) => {
 collectionsAPI.updateCollection = async (id, data) => {
   const endpoint = `${apiUrl}/api/collections/${id}`;
 
-  return await fetch(endpoint, {
+  return await fetchWithAuth(endpoint, {
     ...postOptions,
     method: 'PATCH',
     body: JSON.stringify(data),
@@ -231,7 +232,7 @@ collectionsAPI.verifyCollectionName = async (name, collectionId) => {
 
   const endpoint = `${apiUrl}/api/collections/verify-name?${searchParams.toString()}`;
 
-  return await fetch(endpoint, fetchOptions);
+  return await fetchWithAuth(endpoint, fetchOptions);
 };
 
 /**
@@ -252,7 +253,7 @@ collectionsAPI.verifyCollectionName = async (name, collectionId) => {
 collectionsAPI.copyCollection = async (id) => {
   const endpoint = `${apiUrl}/api/collections/${id}/copy`;
 
-  return await fetch(endpoint, {
+  return await fetchWithAuth(endpoint, {
     ...postOptions,
     method: 'POST',
   });
@@ -307,78 +308,67 @@ collectionsAPI.copyCollection = async (id) => {
  *   "isInvalid": true
  * }
  */
-collectionsAPI.getCollectionPreview = async (
-  datasetShortNames,
-  collectionId,
-) => {
-  const searchParams = new URLSearchParams();
-
-  // Add each dataset as a separate parameter, filtering out undefined/null values
-  datasetShortNames.forEach((name) => {
-    if (name !== undefined && name !== null && name !== '') {
-      searchParams.append('datasets', name);
-    }
-  });
-
-  // Add collectionId if provided for views tracking
-  if (collectionId !== undefined && collectionId !== null) {
-    searchParams.append('collectionId', collectionId);
-  }
-
-  const endpoint = `${apiUrl}/api/collections/preview?${searchParams.toString()}`;
-
-  return await fetch(endpoint, fetchOptions);
+collectionsAPI.getCollectionPreview = async (datasetShortNames) => {
+  return await fetchPreviewFromLocalDb(datasetShortNames);
 };
 
 /**
- * Download datasets as a zip file directly without filters
- * @param {Array<string>} datasetShortNames - Array of dataset short names to download
- * @param {number} [collectionId] - Optional collection ID for tracking download statistics
- * @returns {Promise<void>}
- * @throws {Error} 413: Request too large, other errors for server issues
- * @description Triggers a direct download of multiple datasets as a zip file.
- * This is a simplified version without filter support, intended for collections download.
- * If collectionId is provided, the backend may track download statistics.
+ * @param {number} collectionId - ID of the collection being viewed
+ * @returns {Promise<Response>} Response body: { collectionId, views }
+ * @description Increments the view count for a collection. 
  */
-collectionsAPI.downloadDatasets = async (datasetShortNames, collectionId) => {
-  const endpoint = apiUrl + `/api/data/bulk-download`;
+collectionsAPI.trackCollectionView = async (collectionId) => {
+  const endpoint = `${apiUrl}/api/collections/${collectionId}/view`;
 
-  const requestBody = { shortNames: datasetShortNames };
-
-  if (collectionId !== null && collectionId !== undefined) {
-    const parsedId = parseInt(collectionId, 10);
-    if (isNaN(parsedId) || parsedId <= 0) {
-      throw new Error('collectionId must be a positive integer');
-    }
-    requestBody.collectionId = parsedId;
-  }
-
-  const response = await fetch(endpoint, {
+  return await fetch(endpoint, {
     ...postOptions,
-    body: JSON.stringify(requestBody),
+    method: 'POST',
   });
+};
 
-  if (!response.ok) {
-    if (response.status === 413) {
-      const error = new Error(
-        'Request too large. Please select fewer datasets to download.',
-      );
-      error.status = 413;
-      throw error;
-    }
-    throw new Error(
-      `Download failed: ${response.status} ${response.statusText}`,
-    );
-  }
+/**
+ * Follow a public collection
+ * @param {number} collectionId - ID of the collection to follow
+ * @returns {Promise<Response>} Response body: { collectionId, followDate, collection }
+ * @throws {Error} 400: Cannot follow own collection or private collection, 401: Unauthorized, 404: Collection not found, 409: Already following, 500: Server error
+ * @description Creates a follow relationship between the authenticated user and a public collection.
+ * Returns 201 on success with the collection info and follow date.
+ */
+collectionsAPI.followCollection = async (collectionId) => {
+  const endpoint = `${apiUrl}/api/collections/${collectionId}/follow`;
 
-  // Get the blob from the response
-  const blob = await response.blob();
+  return await fetchWithAuth(endpoint, {
+    ...postOptions,
+    method: 'POST',
+  });
+};
 
-  // Generate a filename with timestamp
-  const filename = `datasets_${Date.now()}.zip`;
+/**
+ * Unfollow a collection
+ * @param {number} collectionId - ID of the collection to unfollow
+ * @returns {Promise<Response>} Response body: { collectionId, unfollowed: true }
+ * @throws {Error} 401: Unauthorized, 404: Not following this collection, 500: Server error
+ * @description Removes the follow relationship between the authenticated user and a collection.
+ */
+collectionsAPI.unfollowCollection = async (collectionId) => {
+  const endpoint = `${apiUrl}/api/collections/${collectionId}/follow`;
 
-  // Trigger the download using shared service
-  DownloadService.downloadBlob(blob, filename);
+  return await fetchWithAuth(endpoint, {
+    ...fetchOptions,
+    method: 'DELETE',
+  });
+};
+
+/**
+ * Get user's followed collections
+ * @returns {Promise<Response>} Response body: Array of FollowedCollection objects
+ * @throws {Error} 401: Unauthorized, 500: Server error
+ * @description Returns all collections the authenticated user is following.
+ */
+collectionsAPI.getFollowedCollections = async () => {
+  const endpoint = `${apiUrl}/api/collections/followed`;
+
+  return await fetchWithAuth(endpoint, fetchOptions);
 };
 
 export default collectionsAPI;

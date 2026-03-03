@@ -6,8 +6,12 @@ import GetAppIcon from '@material-ui/icons/GetApp';
 import AccountCircleIcon from '@material-ui/icons/AccountCircle';
 import UniversalButton from '../../../shared/components/UniversalButton';
 import useMultiDatasetDownloadStore from '../stores/multiDatasetDownloadStore';
-import useRowCountStore from '../stores/useRowCountStore';
+import { useDownloadThreshold } from '../stores/useDownloadThreshold';
+import { DOWNLOAD_LIMITS } from '../../../shared/constants/downloadConstants';
 import { showLoginDialog, snackbarOpen } from '../../../Redux/actions/ui';
+import logInit from '../../../Services/log-service';
+
+const log = logInit('DownloadButton');
 
 const useStyles = makeStyles((theme) => ({
   downloadButton: {
@@ -16,24 +20,22 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-const DownloadButton = ({ subsetFiltering, onDownloadComplete }) => {
+const DownloadButton = ({ subsetFiltering, onDownloadComplete, isSubsetValid = true }) => {
   const classes = useStyles();
   const dispatch = useDispatch();
   const { selectedDatasets, isDownloading, downloadDatasets } =
     useMultiDatasetDownloadStore();
-  const { isAnyRowCountLoading, isOverThreshold, getThresholdConfig } =
-    useRowCountStore();
+  const {
+    isLoading: isRowCountsLoading,
+    isOverThreshold: isOverRowThreshold,
+    hasStaleDatasets,
+    canDownload,
+  } = useDownloadThreshold(selectedDatasets);
 
   const user = useSelector((state) => state.user);
-
-  const isRowCountsLoading = isAnyRowCountLoading();
-  const isOverRowThreshold = isOverThreshold(selectedDatasets);
-  const isDisabled =
-    selectedDatasets.size === 0 ||
-    isDownloading ||
-    isRowCountsLoading ||
-    isOverRowThreshold;
   const selectedCount = selectedDatasets.size;
+
+  const isDisabled = selectedCount === 0 || isDownloading || !canDownload || !isSubsetValid;
 
   const handleDownload = async () => {
     if (!user) {
@@ -50,11 +52,25 @@ const DownloadButton = ({ subsetFiltering, onDownloadComplete }) => {
         onDownloadComplete({ success: true });
       }
     } catch (error) {
-      if (error.status === 413) {
-        dispatch(snackbarOpen(error.message));
+      log.error('Download failed', { error });
+
+      let errorMessage;
+      if (error.message === 'Failed to fetch') {
+        errorMessage = 'Your download started but couldn\'t be completed. Please try again.';
       } else {
-        console.error('Download failed:', error);
+        errorMessage = error.message || 'Download failed';
+        if (error.status !== 413) {
+          errorMessage += '. Please try again or contact support if the issue persists.';
+        }
       }
+
+      dispatch(
+        snackbarOpen(errorMessage, {
+          position: 'top',
+          severity: 'error',
+        }),
+      );
+
       // Call callback on failed download
       if (onDownloadComplete) {
         onDownloadComplete({ success: false, error });
@@ -72,10 +88,20 @@ const DownloadButton = ({ subsetFiltering, onDownloadComplete }) => {
     if (isRowCountsLoading) {
       return 'Calculating...';
     }
+    if (!isSubsetValid) {
+      return 'Fix Validation Errors to Download';
+    }
     if (isOverRowThreshold) {
-      const { maxRowThreshold } = getThresholdConfig();
-      const formattedThreshold = (maxRowThreshold / 1000000).toFixed(0);
+      const formattedThreshold = (
+        DOWNLOAD_LIMITS.MAX_ROW_THRESHOLD / 1000000
+      ).toFixed(0);
+      if (hasStaleDatasets) {
+        return `Exceeds ${formattedThreshold}M limit - Recalculate`;
+      }
       return `Selection exceeds ${formattedThreshold}M row limit`;
+    }
+    if (hasStaleDatasets && !canDownload) {
+      return 'Recalculate to Download';
     }
     if (selectedCount === 0) {
       return 'Select Datasets to Download';

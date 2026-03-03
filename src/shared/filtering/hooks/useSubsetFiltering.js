@@ -1,10 +1,39 @@
 import { useState, useMemo, useEffect } from 'react';
 import {
-  dateToDateString,
+  dateToUTCDateString,
   extractDateFromString,
   getIsMonthlyClimatology,
   getInitialRangeValues,
+  parseUTCDateString,
 } from '../utils/dateHelpers';
+import { floorToStep, ceilToStep } from '../utils/rangeValidation';
+
+const SLIDER_STEP = 0.1;
+
+const initializeSliderEndpoints = (dataset) => {
+  if (!dataset) {
+    return {
+      latMin: null,
+      latMax: null,
+      lonMin: null,
+      lonMax: null,
+      depthMin: null,
+      depthMax: null,
+      timeMin: null,
+      timeMax: null,
+    };
+  }
+  return {
+    latMin: dataset.Lat_Min != null ? floorToStep(dataset.Lat_Min, SLIDER_STEP) : null,
+    latMax: dataset.Lat_Max != null ? ceilToStep(dataset.Lat_Max, SLIDER_STEP) : null,
+    lonMin: dataset.Lon_Min != null ? floorToStep(dataset.Lon_Min, SLIDER_STEP) : null,
+    lonMax: dataset.Lon_Max != null ? ceilToStep(dataset.Lon_Max, SLIDER_STEP) : null,
+    depthMin: dataset.Depth_Min != null ? floorToStep(dataset.Depth_Min, SLIDER_STEP) : null,
+    depthMax: dataset.Depth_Max != null ? ceilToStep(dataset.Depth_Max, SLIDER_STEP) : null,
+    timeMin: dataset.Time_Min ? parseUTCDateString(dataset.Time_Min) : null,
+    timeMax: dataset.Time_Max ? parseUTCDateString(dataset.Time_Max) : null,
+  };
+};
 
 /**
  * Pure filtering hook for managing subset filter parameters
@@ -42,6 +71,10 @@ const useSubsetFiltering = (dataset) => {
   const [depthStart, setDepthStart] = useState(depth.start);
   const [depthEnd, setDepthEnd] = useState(depth.end);
 
+  const [sliderEndpoints, setSliderEndpoints] = useState(() =>
+    initializeSliderEndpoints(dataset),
+  );
+
   // Fix for React state initialization race condition:
   // ISSUE: useState(lat.start) captures initial values, but when isFiltered useMemo runs,
   // it compares state values against potentially updated lat.start values from a later render.
@@ -64,7 +97,9 @@ const useSubsetFiltering = (dataset) => {
     setTimeEnd(time.end);
     setDepthStart(depth.start);
     setDepthEnd(depth.end);
+    setSliderEndpoints(initializeSliderEndpoints(dataset));
   }, [
+    dataset,
     lat.start,
     lat.end,
     lon.start,
@@ -86,9 +121,9 @@ const useSubsetFiltering = (dataset) => {
     if (!dataset?.Time_Min || !dataset?.Time_Max) return () => true;
 
     return (date) => {
-      const tmin = dateToDateString(dataset.Time_Min);
-      const tmax = dateToDateString(dataset.Time_Max);
-      const d = dateToDateString(date);
+      const tmin = dateToUTCDateString(dataset.Time_Min);
+      const tmax = dateToUTCDateString(dataset.Time_Max);
+      const d = dateToUTCDateString(date);
       return d >= tmin && d <= tmax;
     };
   }, [dataset?.Time_Min, dataset?.Time_Max]);
@@ -160,8 +195,8 @@ const useSubsetFiltering = (dataset) => {
       latEnd !== lat.end ||
       lonStart !== lon.start ||
       lonEnd !== lon.end ||
-      timeStart !== time.start ||
-      timeEnd !== time.end ||
+      dateToUTCDateString(timeStart) > dateToUTCDateString(time.start) ||
+      dateToUTCDateString(timeEnd) < dateToUTCDateString(time.end) ||
       depthStart !== depth.start ||
       depthEnd !== depth.end
     );
@@ -227,6 +262,7 @@ const useSubsetFiltering = (dataset) => {
       setLonEnd,
       setDepthStart,
       setDepthEnd,
+      setSliderEndpoints,
     }),
     [],
   );
@@ -235,17 +271,16 @@ const useSubsetFiltering = (dataset) => {
     // Core data objects
     filterValues,
     filterSetters,
-
-    // Logical groupings for SubsetControls
+    sliderEndpoints,
     datasetFilterBounds: {
-      latMin: dataset?.Lat_Min,
-      latMax: dataset?.Lat_Max,
-      lonMin: dataset?.Lon_Min,
-      lonMax: dataset?.Lon_Max,
-      depthMin: dataset?.Depth_Min,
-      depthMax: dataset?.Depth_Max,
-      timeMin: dataset?.Time_Min ? new Date(dataset.Time_Min) : null,
-      timeMax: dataset?.Time_Max ? new Date(dataset.Time_Max) : null,
+      latMin: dataset?.Lat_Min != null ? floorToStep(dataset.Lat_Min, SLIDER_STEP) : null,
+      latMax: dataset?.Lat_Max != null ? ceilToStep(dataset.Lat_Max, SLIDER_STEP) : null,
+      lonMin: dataset?.Lon_Min != null ? floorToStep(dataset.Lon_Min, SLIDER_STEP) : null,
+      lonMax: dataset?.Lon_Max != null ? ceilToStep(dataset.Lon_Max, SLIDER_STEP) : null,
+      depthMin: dataset?.Depth_Min != null ? floorToStep(dataset.Depth_Min, SLIDER_STEP) : null,
+      depthMax: dataset?.Depth_Max != null ? ceilToStep(dataset.Depth_Max, SLIDER_STEP) : null,
+      timeMin: dataset?.Time_Min ? parseUTCDateString(dataset.Time_Min) : null,
+      timeMax: dataset?.Time_Max ? parseUTCDateString(dataset.Time_Max) : null,
     },
 
     dateHandling: {

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useMemo } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { Box, Typography } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
@@ -6,6 +6,7 @@ import { AccountCircle } from '@material-ui/icons';
 import { showLoginDialog } from '../../../Redux/actions/ui';
 import useCollectionsStore from '../state/collectionsStore';
 import CollectionCard from './CollectionCard';
+import FollowedCollectionCard from './FollowedCollectionCard';
 import CollectionStatistics from '../components/CollectionStatistics';
 import { PaginationController } from '../../../shared/pagination';
 import {
@@ -17,6 +18,7 @@ import { useSorting } from '../../../shared/sorting/state/useSorting';
 import SortDropdown from '../../../shared/sorting/components/SortDropdown';
 import FilterDropdown from '../components/FilterDropdown';
 import UniversalButton from '../../../shared/components/UniversalButton';
+import { createPriorityComparator } from '../../../shared/sorting/utils/priorityComparator';
 
 const useStyles = makeStyles((theme) => ({
   container: {
@@ -79,13 +81,13 @@ const sortConfig = {
     {
       key: 'modified',
       type: 'date',
-      label: 'Sort by Modified Date',
-      path: 'modifiedDate',
+      label: 'Sort by Date',
+      path: 'sortDate',
     },
   ],
   defaultSort: {
-    field: 'name',
-    direction: 'asc',
+    field: 'modified',
+    direction: 'desc',
   },
   uiPattern: 'dropdown-headers',
 };
@@ -93,8 +95,9 @@ const sortConfig = {
 // Visibility filter options
 const VISIBILITY_FILTERS = [
   { value: 'all', label: 'All Collections' },
-  { value: 'public', label: 'Public Only' },
-  { value: 'private', label: 'Private Only' },
+  { value: 'public', label: 'Public' },
+  { value: 'private', label: 'Private' },
+  { value: 'following', label: 'Following' },
 ];
 
 // Inner component that uses filtered items from UniversalSearch
@@ -105,23 +108,60 @@ const MyCollectionsContent = ({ visibilityFilter, setVisibilityFilter }) => {
   const pendingDeletions = useCollectionsStore(
     (state) => state.pendingDeletions,
   );
+  const followPendingIds = useCollectionsStore(
+    (state) => state.followPendingIds,
+  );
+  const justCreatedId = useCollectionsStore((state) => state.justCreatedId);
+  const clearJustCreated = useCollectionsStore(
+    (state) => state.clearJustCreated,
+  );
 
-  // Sort the filtered collections
-  const sortedCollections = [...filteredCollections].sort(comparator);
+  // Clear justCreatedId on unmount
+  useEffect(() => {
+    return () => {
+      clearJustCreated();
+    };
+  }, [clearJustCreated]);
+
+  // Wrap comparator with priority comparator if justCreatedId exists
+  const finalComparator = createPriorityComparator(comparator, justCreatedId);
+
+  // Sort the filtered collections with priority
+  const sortedCollections = [...filteredCollections].sort(finalComparator);
+
+  // Handle sort change - clear justCreatedId when user explicitly changes sort
+  const handleSortChange = (field) => {
+    setSort(field);
+    clearJustCreated();
+  };
+
+  const renderCollectionCard = (collection) => {
+    if (collection.isFollowed) {
+      return (
+        <FollowedCollectionCard
+          key={`followed-${collection.id}`}
+          collection={collection}
+          isPending={followPendingIds.has(collection.id)}
+        />
+      );
+    }
+    return (
+      <CollectionCard
+        key={collection.id}
+        collection={collection}
+        isPending={pendingDeletions.has(collection.id)}
+      />
+    );
+  };
 
   return (
     <>
       <Box className={classes.searchSection}>
         <Box className={classes.searchInput}>
           <SearchInput
-            placeholder="Search collections by name, description, or creator..."
-            enableAutocomplete={true}
-            getOptionLabel={(collection) => collection.name || ''}
-            onSelect={(collection) => {
-              // Optional: handle collection selection from dropdown
-              console.log('Selected collection:', collection);
-            }}
+            placeholder="Search collections by name, description, or creator (use * for wildcards)..."
             controlsAlign="left"
+            showEngineToggle={false}
           />
         </Box>
         <Box className={classes.filterDropdown}>
@@ -136,7 +176,7 @@ const MyCollectionsContent = ({ visibilityFilter, setVisibilityFilter }) => {
           <SortDropdown
             fields={sortConfig.fields}
             activeField={activeSort.field}
-            onFieldChange={setSort}
+            onFieldChange={handleSortChange}
             label=""
           />
         </Box>
@@ -145,13 +185,7 @@ const MyCollectionsContent = ({ visibilityFilter, setVisibilityFilter }) => {
       <PaginationController
         data={sortedCollections}
         itemsPerPage={9}
-        renderItem={(collection) => (
-          <CollectionCard
-            key={collection.id}
-            collection={collection}
-            isPending={pendingDeletions.has(collection.id)}
-          />
-        )}
+        renderItem={renderCollectionCard}
         renderContainer={(children, pagination) => (
           <>
             <Box className={classes.collectionsGrid}>{children}</Box>
@@ -161,11 +195,14 @@ const MyCollectionsContent = ({ visibilityFilter, setVisibilityFilter }) => {
         emptyComponent={
           <Box className={classes.emptyState}>
             <Typography variant="h6" gutterBottom>
-              No Collections Found
+              {visibilityFilter === 'following'
+                ? 'No Followed Collections'
+                : 'No Collections Found'}
             </Typography>
             <Typography variant="body1" color="textSecondary">
-              You haven't created any collections yet. Start by creating your
-              first collection to organize your datasets.
+              {visibilityFilter === 'following'
+                ? 'You are not following any collections yet. Browse public collections to find ones to follow.'
+                : "You haven't created any collections yet. Start by creating your first collection to organize your datasets."}
             </Typography>
           </Box>
         }
@@ -185,12 +222,39 @@ const MyCollectionsTab = () => {
   const filteredUserCollections = useCollectionsStore(
     (state) => state.filteredUserCollections,
   );
+  const followedCollections = useCollectionsStore(
+    (state) => state.followedCollections,
+  );
   const visibilityFilter = useCollectionsStore(
     (state) => state.visibilityFilter,
   );
   const setVisibilityFilter = useCollectionsStore(
     (state) => state.setVisibilityFilter,
   );
+
+  const mergedCollections = useMemo(() => {
+    const userCollectionsWithSortDate = filteredUserCollections.map((c) => ({
+      ...c,
+      sortDate: c.modifiedDate,
+    }));
+
+    const markedFollowed = followedCollections.map((c) => ({
+      ...c,
+      isFollowed: true,
+      isPublic: true,
+      sortDate: c.followDate || c.modifiedDate,
+    }));
+
+    if (visibilityFilter === 'following') {
+      return markedFollowed;
+    }
+
+    if (visibilityFilter === 'public' || visibilityFilter === 'private') {
+      return userCollectionsWithSortDate;
+    }
+
+    return [...userCollectionsWithSortDate, ...markedFollowed];
+  }, [filteredUserCollections, followedCollections, visibilityFilter]);
 
   const handleLoginClick = () => {
     dispatch(showLoginDialog());
@@ -274,8 +338,9 @@ const MyCollectionsTab = () => {
       </Box>
 
       <SearchProvider
-        items={filteredUserCollections}
-        searchKeys={['name', 'description', 'creatorName']}
+        items={mergedCollections}
+        searchKeys={['name', 'description', 'ownerName', 'ownerAffiliation']}
+        activationThreshold={2}
       >
         <MyCollectionsContent
           visibilityFilter={visibilityFilter}

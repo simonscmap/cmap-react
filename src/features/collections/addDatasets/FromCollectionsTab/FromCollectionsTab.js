@@ -1,9 +1,9 @@
 import React from 'react';
 import { Box } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
-import CollectionSearchSection from './CollectionSearchSection';
-import CollectionSummaryCard from './CollectionSummaryCard';
-import DatasetsTableSection from './DatasetsTableSection';
+import CollectionSearchSection from '../components/CollectionSearchSection';
+import CollectionSummaryCard from '../components/CollectionSummaryCard';
+import DatasetsTableSection from '../components/DatasetsTableSection';
 import UniversalButton from '../../../../shared/components/UniversalButton';
 import { SearchProvider } from '../../../../shared/UniversalSearch';
 
@@ -202,7 +202,8 @@ const FromCollectionsTab = ({
         <Box className={classes.searchContainer}>
           <SearchProvider
             items={collections}
-            searchKeys={['name', 'description']}
+            searchKeys={['name', 'description', 'ownerName', 'ownerAffiliation']}
+            activationThreshold={2}
           >
             <CollectionSearchSection
               collections={collections}
@@ -239,6 +240,7 @@ const FromCollectionsTab = ({
         currentCollectionDatasetIds={currentCollectionDatasetIds}
         onToggleSelection={onToggleSelection}
         isLoading={isLoadingDatasets}
+        emptyMessage="Search and select a collection above, then click 'LOAD COLLECTION' to see its datasets."
       />
     </>
   );

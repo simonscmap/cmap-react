@@ -26,10 +26,15 @@ SQLite-based client-side catalog search with Web Worker architecture.
 ```
 catalogSearch/
 ├── api/
-│   └── catalogSearchApi.js          # Backend API calls
-├── services/
-│   ├── dbLoader.js                  # Database download & caching
-│   └── searchService.js             # Worker lifecycle management
+│   ├── catalogDbApi.js              # Database download & IndexedDB caching
+│   ├── searchDatabaseApi.js         # Worker lifecycle management
+│   ├── queries/                     # Query construction
+│   │   ├── SearchQueryBuilder.js
+│   │   ├── querySchema.js
+│   │   └── index.js
+│   └── transformers/                # Result transformation
+│       ├── searchResultTransformer.js
+│       └── index.js
 ├── state/
 │   └── catalogSearchStore.js        # Zustand store
 └── pages/
@@ -130,30 +135,30 @@ The SQLite database includes:
 - Indexes on spatial, temporal, and depth bounds
 - BM25 ranking with porter stemming
 
-See `api/catalogSearchApi.js` for complete schema documentation.
+See `api/catalogDbApi.js` for complete schema documentation.
 
 ## Debugging
 
 ### Clear Database Cache
 
 ```javascript
-import { clearDatabaseCache } from 'features/catalogSearch/services/dbLoader';
-clearDatabaseCache();
+import { clearCache } from 'features/catalogSearch/api/catalogDbApi';
+clearCache();
 ```
 
 ### Reset Search Service
 
 ```javascript
-import { resetSearchService } from 'features/catalogSearch/services/searchService';
-resetSearchService();
+import { resetSearchDatabaseApi } from 'features/catalogSearch/api/searchDatabaseApi';
+resetSearchDatabaseApi();
 ```
 
 ### Check Worker Status
 
 ```javascript
-import { getSearchService } from 'features/catalogSearch/services/searchService';
-const service = getSearchService();
-console.log(service.getStatus());
+import { getSearchDatabaseApi } from 'features/catalogSearch/api/searchDatabaseApi';
+const api = getSearchDatabaseApi();
+console.log(api.getStatus());
 ```
 
 ## Performance

@@ -162,6 +162,10 @@ export const refreshLogin = () => ({
   type: userActionTypes.REFRESH_LOGIN,
 });
 
+export const refreshLoginWithMessage = () => ({
+  type: userActionTypes.REFRESH_LOGIN_WITH_MESSAGE,
+});
+
 export const updateUserInfoRequestSend = (userInfo) => ({
   type: userActionTypes.UPDATE_USER_INFO_REQUEST_SEND,
   payload: {

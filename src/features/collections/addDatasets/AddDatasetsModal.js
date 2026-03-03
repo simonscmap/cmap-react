@@ -16,10 +16,13 @@ import zIndex from '../../../enums/zIndex';
 import { useAddDatasetsStore } from './state/addDatasetsStore';
 import useCollectionsStore from '../state/collectionsStore';
 import useCatalogSearchStore from '../../catalogSearch/state/catalogSearchStore';
+import useSpatialTemporalSearchStore from './SpatialTemporalTab/store/spatialTemporalSearchStore';
+import { clearRowCounts } from '../../rowCount';
 import ConfirmationDialog from '../../../shared/components/ConfirmationDialog';
 import UniversalButton from '../../../shared/components/UniversalButton';
-import CatalogSearchSection from '../../catalogSearch/components/CatalogSearchSection';
-import FromCollectionsTab from './components/FromCollectionsTab';
+import CatalogSearchSection from './CatalogSearchTab/CatalogSearchSection';
+import FromCollectionsTab from './FromCollectionsTab/FromCollectionsTab';
+import SpatialTemporalTab from './SpatialTemporalTab';
 
 const useStyles = makeStyles((theme) => ({
   dialogPaper: {
@@ -42,6 +45,8 @@ const useStyles = makeStyles((theme) => ({
     fontSize: '1.5rem',
     color: '#8bc34a',
     flex: 1,
+    minWidth: 0,
+    overflowWrap: 'break-word',
   },
   closeButton: {
     position: 'absolute',
@@ -115,10 +120,32 @@ const AddDatasetsModal = ({
   const [activeTab, setActiveTab] = useState(0);
   const [showCloseWarning, setShowCloseWarning] = useState(false);
   const [catalogResultsCount, setCatalogResultsCount] = useState(0);
+  const [spatialTemporalResultsCount, setSpatialTemporalResultsCount] =
+    useState(0);
+  const [spatialTemporalConstraints, setSpatialTemporalConstraints] = useState({
+    temporalEnabled: false,
+    depthEnabled: false,
+  });
 
   // Get resetSearch from catalog search store to reset filters and results
   const resetCatalogSearch = useCatalogSearchStore(
     (state) => state.resetSearch,
+  );
+
+  // Get reset functions for consistent cleanup across all tabs
+  const resetFromCollections = useAddDatasetsStore(
+    (state) => state.resetFromCollections,
+  );
+  const resetSpatialTemporal = useSpatialTemporalSearchStore(
+    (state) => state.reset,
+  );
+
+  // Get spatial-temporal store initialization state for tab enable/disable
+  const spatialTemporalInitialized = useSpatialTemporalSearchStore(
+    (state) => state.isInitialized,
+  );
+  const initializeSpatialTemporal = useSpatialTemporalSearchStore(
+    (state) => state.initialize,
   );
 
   // Map defaultTab string to tab index
@@ -179,6 +206,7 @@ const AddDatasetsModal = ({
           name: collection.name,
           datasetCount: collection.datasetCount || 0,
           isPublic: collection.isPublic || false,
+          isOwner: collection.isOwner || false,
           // Include additional metadata for CollectionSummaryCard
           ownerName: collection.ownerName,
           ownerAffiliation: collection.ownerAffiliation,
@@ -196,15 +224,38 @@ const AddDatasetsModal = ({
     if (open) {
       openModal(currentCollectionDatasets);
       loadFullCatalog();
+      // Initialize spatial-temporal search if not already initialized
+      if (!spatialTemporalInitialized) {
+        initializeSpatialTemporal();
+      }
     }
-  }, [open, currentCollectionDatasets, openModal, loadFullCatalog]);
+  }, [
+    open,
+    currentCollectionDatasets,
+    openModal,
+    loadFullCatalog,
+    spatialTemporalInitialized,
+    initializeSpatialTemporal,
+  ]);
 
-  // Effect: Reset catalog search (filters and results) when modal closes
+  // Effect: Reset all tabs when modal closes (consistent declarative cleanup)
   React.useEffect(() => {
     if (!open) {
+      // Tab 0: Catalog Filtering
       resetCatalogSearch();
+      // Tab 1: From Collections
+      resetFromCollections();
+      // Tab 2: Spatial Temporal
+      resetSpatialTemporal();
+      clearRowCounts();
     }
-  }, [open, resetCatalogSearch]);
+  }, [
+    open,
+    resetCatalogSearch,
+    resetFromCollections,
+    resetSpatialTemporal,
+    clearRowCounts,
+  ]);
 
   const handleTabChange = (event, newValue) => {
     setActiveTab(newValue);
@@ -320,6 +371,25 @@ const AddDatasetsModal = ({
     });
   };
 
+  // Handler for receiving constraint state updates from SpatialTemporalTab
+  const handleConstraintsChange = (constraints) => {
+    setSpatialTemporalConstraints(constraints);
+  };
+
+  // Build dynamic constraint description for spatial-temporal tab
+  const getSpatialTemporalConstraintText = () => {
+    const constraints = [];
+    constraints.push('spatial region');
+    if (spatialTemporalConstraints.temporalEnabled) {
+      constraints.push('time period');
+    }
+    if (spatialTemporalConstraints.depthEnabled) {
+      constraints.push('depth range');
+    }
+
+    return constraints.join(', ').replace(/, ([^,]*)$/, ' and $1');
+  };
+
   if (!open) {
     return null;
   }
@@ -363,7 +433,11 @@ const AddDatasetsModal = ({
         >
           <Tab label="Catalog Filtering" id="add-datasets-tab-0" />
           <Tab label="From Collections" id="add-datasets-tab-1" />
-          <Tab label="Spatial-Temporal" id="add-datasets-tab-2" disabled />
+          <Tab
+            label="Spatial-Temporal"
+            id="add-datasets-tab-2"
+            disabled={!spatialTemporalInitialized}
+          />
         </Tabs>
 
         <TabPanel value={activeTab} index={0}>
@@ -394,9 +468,13 @@ const AddDatasetsModal = ({
         </TabPanel>
 
         <TabPanel value={activeTab} index={2}>
-          <Typography>
-            Spatial-temporal overlap will be available in a future release
-          </Typography>
+          <SpatialTemporalTab
+            selectedDatasetIds={selectedDatasetIds}
+            currentCollectionDatasetIds={currentCollectionDatasetIds}
+            onToggleSelection={handleToggleDataset}
+            onResultsChange={setSpatialTemporalResultsCount}
+            onConstraintsChange={handleConstraintsChange}
+          />
         </TabPanel>
       </DialogContent>
 
@@ -409,6 +487,14 @@ const AddDatasetsModal = ({
               {' '}
               of {catalogResultsCount} dataset
               {catalogResultsCount !== 1 ? 's' : ''} found
+            </>
+          )}
+          {activeTab === 2 && spatialTemporalResultsCount > 0 && (
+            <>
+              {' '}
+              of {spatialTemporalResultsCount} dataset
+              {spatialTemporalResultsCount !== 1 ? 's' : ''} with overlap in the
+              specified {getSpatialTemporalConstraintText()}
             </>
           )}
         </Typography>

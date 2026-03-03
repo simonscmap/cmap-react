@@ -14,6 +14,7 @@ import colors from '../../../enums/colors';
 import MetadataRow from './MetadataRow';
 import DeleteButton from '../components/DeleteButton';
 import UniversalButton from '../../../shared/components/UniversalButton';
+import CollectionDownloadButton from '../shared/CollectionDownloadButton';
 import useCollectionsStore from '../state/collectionsStore';
 import CollectionDownloadModal from './CollectionDownloadModal';
 import EditCollectionModal from '../editCollection/EditCollectionModal';
@@ -24,12 +25,13 @@ const useStyles = makeStyles((theme) => ({
   cardContainer: {
     position: 'relative',
     height: '100%',
+    minWidth: 0,
   },
   card: {
     height: '100%',
     display: 'flex',
     flexDirection: 'column',
-    border: `1px solid ${colors.secondary}`,
+    border: `1px solid ${colors.teal}`,
     '&:hover': {
       boxShadow: theme.shadows[4],
     },
@@ -81,7 +83,8 @@ const useStyles = makeStyles((theme) => ({
     flexGrow: 1,
     minWidth: 0,
     fontSize: '1.4em',
-    color: 'rgb(105, 255, 242)',
+    color: colors.teal,
+    overflowWrap: 'break-word',
   },
   statusChips: {
     display: 'flex',
@@ -110,8 +113,12 @@ const CollectionCard = ({ collection, isPending = false }) => {
   const deleteCollection = useCollectionsStore(
     (state) => state.deleteCollection,
   );
+  const justCreatedId = useCollectionsStore((state) => state.justCreatedId);
   const [downloadModalOpen, setDownloadModalOpen] = useState(false);
   const [editModalOpen, setEditModalOpen] = useState(false);
+
+  // Check if this collection is the newly created one
+  const isNew = collection.id === justCreatedId;
 
   const formatDate = (dateString) => {
     const date = new Date(dateString);
@@ -153,7 +160,7 @@ const CollectionCard = ({ collection, isPending = false }) => {
       await deleteCollection(collection.id);
       dispatch(
         snackbarOpen(`Collection "${collection.name}" deleted successfully`, {
-          position: 'bottom',
+          position: 'top',
           severity: 'success',
         }),
       );
@@ -164,7 +171,7 @@ const CollectionCard = ({ collection, isPending = false }) => {
         : 'Failed to delete collection';
       dispatch(
         snackbarOpen(errorMessage, {
-          position: 'bottom',
+          position: 'top',
           severity: 'error',
         }),
       );
@@ -180,7 +187,10 @@ const CollectionCard = ({ collection, isPending = false }) => {
               {collection.name}
             </Typography>
             <Box className={classes.statusChips}>
-              <CollectionStatusBadge isPublic={collection.isPublic} />
+              <CollectionStatusBadge
+                isPublic={collection.isPublic}
+                isNew={isNew}
+              />
             </Box>
           </Box>
 
@@ -219,6 +229,7 @@ const CollectionCard = ({ collection, isPending = false }) => {
           <DeleteButton
             title="Delete Collection?"
             message="Are you sure you want to delete this collection? This action is permanent and cannot be undone."
+            followerCount={collection.followerCount}
             onDelete={handleDelete}
           />
           <Box style={{ flexGrow: 1, marginLeft: 'auto' }}>
@@ -239,16 +250,11 @@ const CollectionCard = ({ collection, isPending = false }) => {
             >
               EDIT
             </UniversalButton>
-            <UniversalButton
-              variant="primary"
-              size="medium"
+            <CollectionDownloadButton
+              disabled={!collection.datasetCount}
               onClick={handleDownload}
-              disabled={
-                !collection.datasetCount || collection.datasetCount === 0
-              }
-            >
-              DOWNLOAD
-            </UniversalButton>
+              size="medium"
+            />
           </Box>
         </CardActions>
 

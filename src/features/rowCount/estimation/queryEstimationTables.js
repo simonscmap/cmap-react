@@ -1,0 +1,149 @@
+/**
+ * Query Estimation Tables
+ *
+ * Provides interface to query SQLite catalog database estimation tables.
+ * These tables support frontend row count estimation for datasets with
+ * regular spatial/temporal resolution.
+ *
+ * Tables queried:
+ * - spatial_resolution_mappings: resolution → {value (degrees), units} (units null for irregular)
+ * - temporal_resolution_mappings: resolution → {value (seconds), units} (units null for irregular)
+ * - dataset_depth_models: dataset short name → depth model (darwin/pisces)
+ * - darwin_depth: Darwin depth levels
+ * - pisces_depth: PISCES depth levels
+ *
+ * All functions use the catalog search Web Worker's executeSql interface.
+ */
+
+
+/**
+ * Query spatial resolution mapping table
+ * @param {Object} searchDatabaseApi - Initialized SearchDatabaseApi instance
+ * @param {string} resolution - Spatial resolution string (e.g., "1/2° X 1/2°")
+ * @returns {Promise<{value: number|null, units: string|null}|null>} Object with numeric degree value and units, or null if not found
+ */
+export async function querySpatialResolutionMapping(
+  searchDatabaseApi,
+  resolution,
+) {
+  try {
+    const sql =
+      'SELECT value, units FROM spatial_resolution_mappings WHERE resolution = ?';
+    const bindings = [resolution];
+
+    const results = await searchDatabaseApi.executeSql(sql, bindings);
+
+    if (results.length === 0) {
+      return null;
+    }
+
+    return {
+      value: results[0].value,
+      units: results[0].units,
+    };
+  } catch (error) {
+    console.error('Error querying spatial resolution mapping:', resolution, error.message);
+    return null;
+  }
+}
+
+/**
+ * Query temporal resolution mapping table
+ * @param {Object} searchDatabaseApi - Initialized SearchDatabaseApi instance
+ * @param {string} resolution - Temporal resolution string (e.g., "Weekly")
+ * @returns {Promise<{value: number|null, units: string|null}|null>} Object with numeric seconds value and units, or null if not found
+ */
+export async function queryTemporalResolutionMapping(
+  searchDatabaseApi,
+  resolution,
+) {
+  try {
+    const sql =
+      'SELECT value, units FROM temporal_resolution_mappings WHERE resolution = ?';
+    const bindings = [resolution];
+
+    const results = await searchDatabaseApi.executeSql(sql, bindings);
+
+    if (results.length === 0) {
+      return null;
+    }
+
+    return {
+      value: results[0].value,
+      units: results[0].units,
+    };
+  } catch (error) {
+    console.error('Error querying temporal resolution mapping:', resolution, error.message);
+    return null;
+  }
+}
+
+/**
+ * Query dataset depth model table
+ * @param {Object} searchDatabaseApi - Initialized SearchDatabaseApi instance
+ * @param {string} shortName - Dataset short name
+ * @returns {Promise<string|null>} Depth model ("darwin" or "pisces") or null if not found
+ */
+export async function queryDatasetDepthModel(searchDatabaseApi, shortName) {
+  try {
+    const sql =
+      'SELECT depth_model FROM dataset_depth_models WHERE short_name = ?';
+    const bindings = [shortName];
+
+    const results = await searchDatabaseApi.executeSql(sql, bindings);
+
+    if (results.length === 0) {
+      return null;
+    }
+
+    return results[0].depth_model;
+  } catch (error) {
+    console.error('Error querying dataset depth model:', shortName, error.message);
+    return null;
+  }
+}
+
+/**
+ * Count depth levels for a given depth model, optionally within a range.
+ * If minDepth and maxDepth are not provided, returns total count of all depth levels.
+ * @param {Object} searchDatabaseApi - Initialized SearchDatabaseApi instance
+ * @param {string} depthModel - Depth model name ('darwin', 'pisces', or 'woa')
+ * @param {number} [minDepth] - Optional minimum depth in meters
+ * @param {number} [maxDepth] - Optional maximum depth in meters
+ * @returns {Promise<number>} Count of depth levels
+ */
+export async function queryDepthCount(
+  searchDatabaseApi,
+  depthModel,
+  minDepth,
+  maxDepth,
+) {
+  const tableMap = {
+    darwin: 'darwin_depth',
+    pisces: 'pisces_depth',
+    woa: 'woa_depth',
+  };
+
+  const tableName = tableMap[depthModel];
+  if (!tableName) {
+    return 1;
+  }
+
+  const hasRange = minDepth !== undefined && maxDepth !== undefined;
+
+  try {
+    const sql = hasRange
+      ? 'SELECT COUNT(*) as count FROM ' +
+        tableName +
+        ' WHERE depth_level BETWEEN ? AND ?'
+      : 'SELECT COUNT(*) as count FROM ' + tableName;
+    const bindings = hasRange ? [minDepth, maxDepth] : [];
+
+    const results = await searchDatabaseApi.executeSql(sql, bindings);
+
+    return results[0].count;
+  } catch (error) {
+    console.error('Error querying depth count:', depthModel, minDepth, maxDepth, error.message);
+    return 1;
+  }
+}

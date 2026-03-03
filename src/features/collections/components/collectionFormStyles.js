@@ -1,4 +1,5 @@
 import { makeStyles } from '@material-ui/core/styles';
+import colors from '../../../enums/colors';
 
 /**
  * Shared styles for collection form fields
@@ -11,15 +12,24 @@ export const useCollectionFormStyles = makeStyles((theme) => ({
   },
   formField: {
     marginBottom: theme.spacing(3),
+    '& .MuiFormHelperText-root': {
+      width: '100%',
+      marginLeft: 0,
+      marginRight: 0,
+    },
   },
   fieldLabel: {
     fontSize: '1.1rem',
     fontWeight: 500,
+    '& .MuiFormLabel-asterisk': {
+      color: colors.blockingError,
+    },
   },
   helperTextContainer: {
     display: 'flex',
     justifyContent: 'space-between',
     alignItems: 'center',
+    width: '100%',
   },
   helperTextChecking: {
     color: '#FFD700',
@@ -34,14 +44,16 @@ export const useCollectionFormStyles = makeStyles((theme) => ({
     color: '#FFD700',
   },
   helperTextUnavailable: {
-    color: '#F44336',
+    color: colors.blockingError,
   },
   characterCount: {
     marginLeft: 'auto',
+    fontSize: '0.75rem',
   },
   characterCountOverLimit: {
     marginLeft: 'auto',
-    color: '#F44336',
+    fontSize: '0.75rem',
+    color: colors.blockingError,
   },
   descriptionField: {
     '& .MuiOutlinedInput-root': {

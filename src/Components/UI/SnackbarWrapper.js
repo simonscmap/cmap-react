@@ -3,11 +3,13 @@ import { connect } from 'react-redux';
 
 import Snackbar from '@material-ui/core/Snackbar';
 import SnackbarContent from '@material-ui/core/SnackbarContent';
+import IconButton from '@material-ui/core/IconButton';
 import { withStyles } from '@material-ui/core/styles';
 import InfoIcon from '@material-ui/icons/Info';
 import WarningIcon from '@material-ui/icons/Warning';
 import ErrorIcon from '@material-ui/icons/Error';
 import CheckCircleIcon from '@material-ui/icons/CheckCircle';
+import CloseIcon from '@material-ui/icons/Close';
 
 import { snackbarClose } from '../../Redux/actions/ui';
 
@@ -18,6 +20,7 @@ const mapStateToProps = (state, ownProps) => ({
   snackbarMessage: state.snackbarMessage,
   snackbarPosition: state.snackbarPosition || 'top', // backwards compatible default
   snackbarSeverity: state.snackbarSeverity || 'info', // backwards compatible default
+  showCloseButton: state.snackbarShowCloseButton !== false, // default true for backwards compatibility
 });
 
 const mapDispatchToProps = {
@@ -58,7 +61,8 @@ const styles = (theme) => {
 };
 
 const SnackbarWrapper = (props) => {
-  const { classes, snackbarPosition, snackbarSeverity } = props;
+  const { classes, snackbarPosition, snackbarSeverity, showCloseButton } =
+    props;
   const config = severityConfig[snackbarSeverity];
   const Icon = config.icon;
 
@@ -72,6 +76,18 @@ const SnackbarWrapper = (props) => {
         open={props.snackbarIsOpen}
         anchorOrigin={{ horizontal: 'center', vertical }}
         className={classes.snackbar}
+        action={
+          showCloseButton ? (
+            <IconButton
+              size="small"
+              aria-label="close"
+              color="inherit"
+              onClick={props.snackbarClose}
+            >
+              <CloseIcon fontSize="small" />
+            </IconButton>
+          ) : null
+        }
       >
         <SnackbarContent
           style={{ backgroundColor: config.backgroundColor }}

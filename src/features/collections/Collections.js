@@ -6,6 +6,8 @@ import MyCollectionsTab from './myCollections/MyCollectionsTab';
 import PublicCollectionsTab from './publicCollections/PublicCollectionsTab';
 import useCollectionsStore from './state/collectionsStore';
 import CreateCollectionModal from './createModal/CreateCollectionModal';
+import { initializeCatalogSearch } from '../catalogSearch/api';
+import { FeatureErrorBoundary } from '../../shared/errorCapture';
 
 const useStyles = makeStyles((theme) => ({
   container: {
@@ -58,12 +60,15 @@ const Collections = () => {
   const user = useSelector((state) => state.user);
   const { fetchCollections } = useCollectionsStore();
 
-  // Fetch collections when component mounts or when user authentication state changes
-  // Backend automatically returns public collections for all users
-  // and includes private collections if user is authenticated
   useEffect(() => {
     fetchCollections({ includeDatasets: true });
   }, [user, fetchCollections]);
+
+  // Pre-load so modals avoid db init for better UX
+  // downstream stores retry on failure
+  useEffect(() => {
+    initializeCatalogSearch().catch(() => {});
+  }, []);
 
   const handleTabChange = (_, newValue) => {
     setCurrentTab(newValue);
@@ -101,4 +106,10 @@ const Collections = () => {
   );
 };
 
-export default Collections;
+const CollectionsWithErrorBoundary = (props) => (
+  <FeatureErrorBoundary featureName="collections">
+    <Collections {...props} />
+  </FeatureErrorBoundary>
+);
+
+export default CollectionsWithErrorBoundary;

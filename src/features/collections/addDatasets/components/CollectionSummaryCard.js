@@ -2,7 +2,6 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { Box, Typography, CircularProgress } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
-import CollectionStatistics from '../../components/CollectionStatistics';
 import CollectionStatusBadge from '../../components/CollectionStatusBadge';
 
 const useStyles = makeStyles((theme) => ({
@@ -14,12 +13,15 @@ const useStyles = makeStyles((theme) => ({
     alignItems: 'center',
     gap: theme.spacing(1.5),
     marginBottom: theme.spacing(1),
+    minWidth: 0,
   },
   collectionTitle: {
     margin: 0,
     fontWeight: 500,
     fontSize: '1.25rem',
     color: 'rgba(255, 255, 255, 0.95)',
+    minWidth: 0,
+    overflowWrap: 'break-word',
   },
   creatorInfo: {
     color: 'rgba(255, 255, 255, 0.7)',
@@ -104,38 +106,6 @@ const CollectionSummaryCard = ({ summary, isLoading, loadError }) => {
     }
   };
 
-  // Prepare statistics for CollectionStatistics component
-  // Always show: Total Datasets, Valid Datasets
-  // Conditionally show: Already in Collection (if > 0), Invalid Datasets (if > 0, shown last)
-  const stats = [
-    {
-      value: totalDatasets || 0,
-      label: 'Total Datasets',
-    },
-    {
-      value: validDatasets || 0,
-      label: 'Valid Datasets',
-    },
-  ];
-
-  // Add "Already in Collection" if there are any (with gray border)
-  if (alreadyInCollection > 0) {
-    stats.push({
-      value: alreadyInCollection,
-      label: 'Already in Collection',
-      borderColor: 'rgba(128, 128, 128, 0.6)',
-    });
-  }
-
-  // Add "Invalid Datasets" last, only if there are any (with yellow border)
-  if (invalidDatasets > 0) {
-    stats.push({
-      value: invalidDatasets,
-      label: 'Invalid Datasets',
-      borderColor: 'rgba(255, 193, 7, 0.6)',
-    });
-  }
-
   if (isLoading) {
     return (
       <Box className={classes.card}>
@@ -178,9 +148,6 @@ const CollectionSummaryCard = ({ summary, isLoading, loadError }) => {
           <Typography className={classes.description}>{description}</Typography>
         </Box>
       )}
-
-      {/* Statistics */}
-      <CollectionStatistics compact stats={stats} itemsPerRow={stats.length} />
     </Box>
   );
 };

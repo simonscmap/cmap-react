@@ -178,12 +178,7 @@ export const createComparator = (fieldConfig, direction) => {
 
   // Return final comparator that extracts nested values and applies direction
   return (objA, objB) => {
-    // For custom comparators, pass the entire objects
-    if (type === 'custom') {
-      const result = baseComparator(objA, objB);
-      return direction === 'desc' ? -result : result;
-    }
-
+    // Extract values from objects using path
     const valueA = getNestedValue(objA, fieldPath);
     const valueB = getNestedValue(objB, fieldPath);
 
@@ -192,7 +187,7 @@ export const createComparator = (fieldConfig, direction) => {
     if (valueA == null) return nullsFirst ? -1 : 1;
     if (valueB == null) return nullsFirst ? 1 : -1;
 
-    // Apply base comparator
+    // Apply base comparator (works for both built-in and custom types)
     const result = baseComparator(valueA, valueB);
 
     // Apply direction (desc reverses the comparison)

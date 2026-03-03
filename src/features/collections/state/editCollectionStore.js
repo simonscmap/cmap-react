@@ -2,6 +2,8 @@ import { create } from 'zustand';
 import collectionsAPI from '../api/collectionsApi';
 import { snackbarOpen } from '../../../Redux/actions/ui';
 import useCollectionsStore from './collectionsStore';
+import { captureError } from '../../../shared/errorCapture';
+import HttpError from '../../../shared/errorCapture/HttpError';
 
 /**
  * Zustand store for managing edit collection feature state.
@@ -63,7 +65,14 @@ const useEditCollectionStore = create((set, get) => ({
         error: null,
       });
     } catch (error) {
-      console.error('Error loading collection:', error);
+      const expectedMessages = [
+        'Collection not found or you do not have access',
+        'You do not have permission to edit this collection',
+        'Collection data is incomplete. Please refresh the page.',
+      ];
+      if (!expectedMessages.includes(error.message)) {
+        captureError(error, { action: 'loadCollection', id: collectionId });
+      }
       set({
         isLoading: false,
         error: error.message,
@@ -162,6 +171,35 @@ const useEditCollectionStore = create((set, get) => ({
   },
 
   /**
+   * Immediately remove a newly added dataset from collection
+   * Used for datasets with isNewlyAdded flag to provide instant removal UX
+   * @param {string} datasetShortName - Dataset_Short_Name to remove
+   */
+  removeDatasetImmediate: (datasetShortName) => {
+    const { collection, selectedDatasets } = get();
+
+    if (!collection?.datasets) return;
+
+    // Remove from collection.datasets array
+    const updatedDatasets = collection.datasets.filter(
+      (dataset) => dataset.datasetShortName !== datasetShortName,
+    );
+
+    // Remove from selection if selected
+    const updatedSelection = selectedDatasets.filter(
+      (id) => id !== datasetShortName,
+    );
+
+    set({
+      collection: {
+        ...collection,
+        datasets: updatedDatasets,
+      },
+      selectedDatasets: updatedSelection,
+    });
+  },
+
+  /**
    * Toggle dataset selection (for checkbox state)
    * @param {string} datasetShortName - Dataset_Short_Name to toggle
    */
@@ -230,49 +268,6 @@ const useEditCollectionStore = create((set, get) => ({
   },
 
   /**
-   * Download selected datasets directly as a zip file
-   * @param {Function} dispatch - Redux dispatch function for error notifications
-   * @returns {Promise<void>}
-   */
-  downloadSelected: async (dispatch) => {
-    const { selectedDatasets, collection } = get();
-
-    if (!selectedDatasets || selectedDatasets.length === 0) {
-      dispatch(
-        snackbarOpen('Please select at least one dataset to download', {
-          severity: 'warning',
-          position: 'bottom',
-        }),
-      );
-      return;
-    }
-
-    if (!collection) {
-      console.error('Cannot download: no collection loaded');
-      return;
-    }
-
-    try {
-      // Pass the collection ID for download tracking
-      await collectionsAPI.downloadDatasets(selectedDatasets, collection.id);
-      // Browser download UI provides feedback - no success snackbar needed
-    } catch (error) {
-      console.error('Error downloading datasets:', error);
-
-      // Show error notification only on failure
-      dispatch(
-        snackbarOpen(`Failed to download datasets: ${error.message}`, {
-          severity: 'error',
-          position: 'bottom',
-        }),
-      );
-
-      // Re-throw to allow component-level error handling if needed
-      throw error;
-    }
-  },
-
-  /**
    * Persist all changes to backend
    * @param {Function} dispatch - Redux dispatch function for snackbar notifications
    * @returns {Promise<void>}
@@ -291,7 +286,7 @@ const useEditCollectionStore = create((set, get) => ({
     const payload = {
       collectionName: collection.name.trim(),
       description: collection.description ? collection.description.trim() : '',
-      private: !collection.isPublic,
+      isPublic: collection.isPublic,
       datasets: collection.datasets
         .filter(
           (dataset) => !datasetsToRemove.includes(dataset.datasetShortName),
@@ -311,57 +306,69 @@ const useEditCollectionStore = create((set, get) => ({
         payload,
       );
 
-      if (!response.ok) {
-        if (response.status === 400) {
-          const errorData = await response.json();
-          throw new Error(errorData.error || 'Validation error');
-        } else if (response.status === 401) {
-          throw new Error('You must be logged in to update collections');
-        } else if (response.status === 403) {
-          throw new Error('You do not have permission to edit this collection');
-        } else if (response.status === 404) {
-          throw new Error('Collection not found');
-        } else if (response.status === 409) {
-          throw new Error('A collection with this name already exists');
-        } else {
-          throw new Error(
-            `Failed to update collection: ${response.status} ${response.statusText}`,
-          );
+      if (response.ok) {
+        const result = await response.json();
+
+        if (result.datasets) {
+          result.datasets = result.datasets.map((dataset) => {
+            const { isNewlyAdded, ...datasetWithoutFlag } = dataset;
+            return datasetWithoutFlag;
+          });
         }
-      }
 
-      const result = await response.json();
-
-      // Remove isNewlyAdded flags from result datasets
-      if (result.datasets) {
-        result.datasets = result.datasets.map((dataset) => {
-          const { isNewlyAdded, ...datasetWithoutFlag } = dataset;
-          return datasetWithoutFlag;
+        set({
+          collection: result,
+          originalCollection: JSON.parse(JSON.stringify(result)),
+          datasetsToRemove: [],
+          selectedDatasets: [],
+          isSaving: false,
+          error: null,
         });
+
+        // Show success notification
+        dispatch(
+          snackbarOpen('Collection updated successfully', {
+            severity: 'success',
+            position: 'top',
+          }),
+        );
+
+        // Update the main collections store with full server response
+        useCollectionsStore.getState().updateCollection(collection.id, result);
+      } else if (response.status === 400) {
+        const errorData = await response.json();
+        throw new HttpError(
+          errorData.message || errorData.error || 'Validation error',
+          response.status,
+        );
+      } else if (response.status === 403) {
+        throw new HttpError(
+          'You do not have permission to edit this collection',
+          response.status,
+        );
+      } else if (response.status === 404) {
+        throw new HttpError('Collection not found', response.status);
+      } else if (response.status === 409) {
+        throw new HttpError(
+          'A collection with this name already exists',
+          response.status,
+        );
+      } else {
+        const error = new HttpError(
+          `Failed to update collection: ${response.status} ${response.statusText}`,
+          response.status,
+        );
+        captureError(error, {
+          action: 'saveCollection',
+          id: collection.id,
+          status: response.status,
+        });
+        throw error;
       }
-
-      // Server response is the single source of truth
-      set({
-        collection: result,
-        originalCollection: JSON.parse(JSON.stringify(result)),
-        datasetsToRemove: [],
-        selectedDatasets: [],
-        isSaving: false,
-        error: null,
-      });
-
-      // Show success notification
-      dispatch(
-        snackbarOpen('Collection updated successfully', {
-          severity: 'success',
-          position: 'bottom',
-        }),
-      );
-
-      // Update the main collections store with full server response
-      useCollectionsStore.getState().updateCollection(collection.id, result);
     } catch (error) {
-      console.error('Error saving collection:', error);
+      if (!(error instanceof HttpError)) {
+        captureError(error, { action: 'saveCollection', id: collection.id });
+      }
 
       set({
         isSaving: false,
@@ -372,7 +379,7 @@ const useEditCollectionStore = create((set, get) => ({
       dispatch(
         snackbarOpen(`Failed to update collection: ${error.message}`, {
           severity: 'error',
-          position: 'bottom',
+          position: 'top',
         }),
       );
 

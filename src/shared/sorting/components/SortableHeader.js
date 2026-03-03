@@ -13,6 +13,7 @@ const useStyles = makeStyles((theme) => ({
   },
   headerPatternALabel: {
     fontWeight: (props) => (props.isActive ? 600 : 400),
+    color: (props) => (props.isActive ? '#69fff2' : 'inherit'),
   },
   arrowButton: {
     padding: theme.spacing(0.5),
@@ -20,34 +21,48 @@ const useStyles = makeStyles((theme) => ({
 
   // Pattern B: Headers-only style
   headerPatternB: {
-    cursor: 'pointer',
+    cursor: (props) => (props.disabled ? 'default' : 'pointer'),
     userSelect: 'none',
     display: 'flex',
     flexDirection: 'column',
-    alignItems: 'center',
-    padding: theme.spacing(1),
+    alignItems: (props) => {
+      if (props.align === 'right') return 'flex-end';
+      if (props.align === 'left') return 'flex-start';
+      return 'center';
+    },
+    padding: 0,
+    opacity: (props) => (props.disabled ? 0.5 : 1),
     '&:hover': {
-      backgroundColor: theme.palette.grey[100],
+      opacity: (props) => (props.disabled ? 0.5 : 0.8),
     },
   },
   headerPatternBLabel: {
     fontWeight: (props) => (props.isActive ? 600 : 400),
+    color: (props) => (props.isActive ? '#69fff2' : 'inherit'),
+    fontSize: '14px',
+    overflow: 'visible',
+    lineHeight: 1.4,
+    textAlign: (props) => props.align || 'center',
   },
   arrowsContainer: {
     display: 'flex',
-    gap: theme.spacing(0.5),
-    marginTop: theme.spacing(0.5),
+    flexDirection: 'column',
+    alignItems: 'center',
+    marginTop: theme.spacing(0.25),
+    gap: 0,
   },
   arrow: {
-    fontSize: '1rem',
+    fontSize: '0.65rem', // Smaller triangles
+    height: '10px',
+    width: '10px',
   },
   arrowActive: {
     opacity: 1,
-    color: theme.palette.primary.main,
+    color: '#69fff2', // Match active header color
   },
   arrowInactive: {
     opacity: 0.3,
-    color: theme.palette.text.secondary,
+    color: '#69fff2',
   },
 }));
 
@@ -100,8 +115,10 @@ const SortableHeader = ({
   onToggle,
   onClick,
   className,
+  disabled = false,
+  align = 'center',
 }) => {
-  const classes = useStyles({ isActive });
+  const classes = useStyles({ isActive, disabled, align });
 
   // Validate direction prop
   const validDirection =
@@ -141,13 +158,17 @@ const SortableHeader = ({
   // Pattern B: Headers-only (always show both arrows, header clickable)
   if (uiPattern === 'headers-only') {
     const handleClick = () => {
-      if (onClick) {
+      if (onClick && !disabled) {
         onClick(field);
       }
     };
 
     const handleKeyDown = (event) => {
-      if ((event.key === 'Enter' || event.key === ' ') && onClick) {
+      if (
+        (event.key === 'Enter' || event.key === ' ') &&
+        onClick &&
+        !disabled
+      ) {
         event.preventDefault();
         onClick(field);
       }
@@ -156,28 +177,26 @@ const SortableHeader = ({
     return (
       <Box
         role="button"
-        tabIndex={0}
+        tabIndex={disabled ? -1 : 0}
         aria-label={`Sort by ${label} ${isActive ? validDirection : 'ascending'}`}
+        aria-disabled={disabled}
         onClick={handleClick}
         onKeyDown={handleKeyDown}
         className={`${classes.headerPatternB} ${className || ''}`}
       >
         <Typography className={classes.headerPatternBLabel}>{label}</Typography>
         <Box className={classes.arrowsContainer}>
-          <ArrowUpward
-            className={`${classes.arrow} ${
-              isActive && validDirection === 'asc'
-                ? classes.arrowActive
-                : classes.arrowInactive
-            }`}
-          />
-          <ArrowDownward
-            className={`${classes.arrow} ${
-              isActive && validDirection === 'desc'
-                ? classes.arrowActive
-                : classes.arrowInactive
-            }`}
-          />
+          {isActive && validDirection === 'asc' ? (
+            <ArrowUpward
+              className={`${classes.arrow} ${classes.arrowActive}`}
+            />
+          ) : (
+            <ArrowDownward
+              className={`${classes.arrow} ${
+                isActive ? classes.arrowActive : classes.arrowInactive
+              }`}
+            />
+          )}
         </Box>
       </Box>
     );
@@ -192,13 +211,15 @@ const SortableHeader = ({
 
 SortableHeader.propTypes = {
   field: PropTypes.string.isRequired,
-  label: PropTypes.string.isRequired,
+  label: PropTypes.node.isRequired,
   isActive: PropTypes.bool.isRequired,
   direction: PropTypes.oneOf(['asc', 'desc']),
   uiPattern: PropTypes.oneOf(['dropdown-headers', 'headers-only']).isRequired,
   onToggle: PropTypes.func,
   onClick: PropTypes.func,
   className: PropTypes.string,
+  disabled: PropTypes.bool,
+  align: PropTypes.oneOf(['left', 'center', 'right']),
 };
 
 export default SortableHeader;

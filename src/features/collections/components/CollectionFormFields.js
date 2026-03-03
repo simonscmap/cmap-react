@@ -9,7 +9,10 @@ import {
   Radio,
   Typography,
 } from '@material-ui/core';
-import ConfirmationDialog from '../../../shared/components/ConfirmationDialog';
+import {
+  PublicVisibilityWarning,
+  PrivateVisibilityWarning,
+} from '../createModal';
 import { useCollectionFormStyles } from './collectionFormStyles';
 
 /**
@@ -48,9 +51,11 @@ const CollectionFormFields = ({
   isDescriptionOverLimit,
   className,
   isEdit,
+  followerCount = 0,
 }) => {
   const classes = useCollectionFormStyles();
   const [showPublicWarning, setShowPublicWarning] = useState(false);
+  const [showPrivateWarning, setShowPrivateWarning] = useState(false);
   const [wasPublic, setWasPublic] = useState(isPublic);
 
   const handleVisibilityChangeAttempt = (event) => {
@@ -60,8 +65,11 @@ const CollectionFormFields = ({
     if (!isPublic && newIsPublic) {
       setWasPublic(isPublic);
       setShowPublicWarning(true);
+    // If changing from public to private and has followers, show warning
+    } else if (isPublic && !newIsPublic && followerCount > 0) {
+      setShowPrivateWarning(true);
     } else {
-      // If changing to private or already public, allow directly
+      // No warning needed, allow directly
       onVisibilityChange(event);
     }
   };
@@ -76,11 +84,21 @@ const CollectionFormFields = ({
     onSetIsPublic(true);
   };
 
+  const handleKeepPublic = () => {
+    setShowPrivateWarning(false);
+  };
+
+  const handleMakePrivate = () => {
+    setShowPrivateWarning(false);
+    onSetIsPublic(false);
+  };
+
   return (
     <>
       <div className={className}>
         <TextField
           fullWidth
+          required
           label="Collection Name"
           value={name}
           onChange={onNameChange}
@@ -129,7 +147,7 @@ const CollectionFormFields = ({
                     : classes.characterCount
                 }
               >
-                {name.length}/200 characters
+                {name.trim().length}/200 characters
               </span>
             </span>
           }
@@ -234,21 +252,17 @@ const CollectionFormFields = ({
         </FormControl>
       </div>
 
-      <ConfirmationDialog
+      <PublicVisibilityWarning
         open={showPublicWarning}
-        onClose={handleKeepPrivate}
-        title="Public Collection Notice"
-        message="This collection will be public and visible to all CMAP users. Other users will be able to discover and view this collection in the public collection browser."
-        actions={[
-          {
-            label: 'OK',
-            onClick: handleMakePublic,
-            variant: 'primary',
-            autoFocus: true,
-          },
-        ]}
-        ariaLabelId="public-visibility-warning-title"
-        ariaDescriptionId="public-visibility-warning-description"
+        onKeepPrivate={handleKeepPrivate}
+        onMakePublic={handleMakePublic}
+      />
+
+      <PrivateVisibilityWarning
+        open={showPrivateWarning}
+        onKeepPublic={handleKeepPublic}
+        onMakePrivate={handleMakePrivate}
+        followerCount={followerCount}
       />
     </>
   );
@@ -276,6 +290,7 @@ CollectionFormFields.propTypes = {
   isDescriptionOverLimit: PropTypes.bool.isRequired,
   className: PropTypes.string,
   isEdit: PropTypes.bool,
+  followerCount: PropTypes.number,
 };
 
 CollectionFormFields.defaultProps = {
@@ -283,6 +298,7 @@ CollectionFormFields.defaultProps = {
   descriptionError: '',
   className: '',
   isEdit: false,
+  followerCount: 0,
 };
 
 export default CollectionFormFields;

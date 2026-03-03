@@ -1,16 +1,17 @@
 import React from 'react';
 import { Link, Typography } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
+import colors from '../../enums/colors';
 
 const useStyles = makeStyles(() => ({
   datasetLink: {
-    color: '#69fff2',
+    color: colors.teal,
     textDecoration: 'underline',
     whiteSpace: 'normal',
     wordBreak: 'break-word',
     display: 'inline',
     '&:hover': {
-      color: '#8bc34a',
+      color: colors.primary,
     },
   },
 }));

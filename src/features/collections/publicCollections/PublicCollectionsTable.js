@@ -104,6 +104,8 @@ const PublicCollectionsTable = ({ collections = [] }) => {
   const classes = useStyles();
   const dispatch = useDispatch();
   const copyCollection = useCollectionsStore((state) => state.copyCollection);
+  const followCollection = useCollectionsStore((state) => state.followCollection);
+  const followPendingIds = useCollectionsStore((state) => state.followPendingIds);
   const [copyingId, setCopyingId] = useState(null);
   const [previewModalOpen, setPreviewModalOpen] = useState(false);
   const [selectedCollection, setSelectedCollection] = useState(null);
@@ -150,7 +152,7 @@ const PublicCollectionsTable = ({ collections = [] }) => {
       dispatch(
         snackbarOpen(error.message || 'Failed to copy collection', {
           severity: 'error',
-          position: 'bottom',
+          position: 'top',
         }),
       );
     } finally {
@@ -164,7 +166,7 @@ const PublicCollectionsTable = ({ collections = [] }) => {
       dispatch(
         snackbarOpen(`Collection "${result.name}" copied successfully`, {
           severity: 'info',
-          position: 'bottom',
+          position: 'top',
         }),
       );
     } catch (error) {
@@ -182,6 +184,25 @@ const PublicCollectionsTable = ({ collections = [] }) => {
     setWarningDialogOpen(false);
     setWarningDialogData(null);
     setCopyingId(null); // Reset copying state
+  };
+
+  const handleFollow = async (collection) => {
+    try {
+      await followCollection(collection.id);
+      dispatch(
+        snackbarOpen(`Now following "${collection.name}"`, {
+          severity: 'success',
+          position: 'top',
+        }),
+      );
+    } catch (error) {
+      dispatch(
+        snackbarOpen(error.message || 'Failed to follow collection', {
+          severity: 'error',
+          position: 'top',
+        }),
+      );
+    }
   };
 
   const handlePreview = (collection) => {
@@ -208,6 +229,7 @@ const PublicCollectionsTable = ({ collections = [] }) => {
   return (
     <>
       <PreviewModal
+        key={selectedCollection?.id}
         open={previewModalOpen}
         onClose={handleClosePreview}
         collection={selectedCollection}
@@ -323,6 +345,19 @@ const PublicCollectionsTable = ({ collections = [] }) => {
                 Copies
               </TableCell>
               <TableCell
+                align="center"
+                style={{
+                  padding: '8px 5px',
+                  border: 0,
+                  color: '#8bc34a',
+                  fontSize: '0.875rem',
+                  fontWeight: 500,
+                  backgroundColor: 'rgba(30, 67, 113, 1)',
+                }}
+              >
+                Followers
+              </TableCell>
+              <TableCell
                 style={{
                   padding: '8px 5px',
                   border: 0,
@@ -339,7 +374,7 @@ const PublicCollectionsTable = ({ collections = [] }) => {
           <TableBody>
             {collections.length === 0 ? (
               <TableRow className={classes.emptyRow}>
-                <TableCell colSpan={8} className={classes.emptyCell}>
+                <TableCell colSpan={9} className={classes.emptyCell}>
                   <Typography variant="body1">
                     No collections to display
                   </Typography>
@@ -432,8 +467,13 @@ const PublicCollectionsTable = ({ collections = [] }) => {
                       {collection.copies ?? 0}
                     </Typography>
                   </TableCell>
+                  <TableCell align="center" className={classes.statsCell}>
+                    <Typography variant="body2" noWrap>
+                      {collection.followerCount ?? 0}
+                    </Typography>
+                  </TableCell>
                   <TableCell className={classes.statsCell}>
-                    <Box display="flex" gap={1}>
+                    <Box display="flex" flexDirection="row" alignItems="center" style={{ gap: '4px', flexWrap: 'nowrap' }}>
                       <UniversalButton
                         variant="primary"
                         size="medium"
@@ -456,6 +496,25 @@ const PublicCollectionsTable = ({ collections = [] }) => {
                           'Copy'
                         )}
                       </UniversalButton>
+                      {!collection.isOwner && (
+                        <UniversalButton
+                          variant={collection.isFollowing ? 'secondary' : 'primary'}
+                          size="medium"
+                          onClick={() => handleFollow(collection)}
+                          disabled={collection.isFollowing || followPendingIds.has(collection.id)}
+                        >
+                          {followPendingIds.has(collection.id) ? (
+                            <CircularProgress
+                              size={14}
+                              style={{ color: 'rgba(105, 255, 242, 0.2)' }}
+                            />
+                          ) : collection.isFollowing ? (
+                            'Following'
+                          ) : (
+                            'Follow'
+                          )}
+                        </UniversalButton>
+                      )}
                     </Box>
                   </TableCell>
                 </TableRow>

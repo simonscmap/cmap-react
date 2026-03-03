@@ -1,8 +1,7 @@
 import React from 'react';
 import { Slider } from '@material-ui/core';
 import styles from '../../../styles/subsetControlStyles';
-import { roundToStep } from '../../../utils/rangeValidation';
-import CustomValueLabel from './CustomValueLabel';
+import { floorToStep, ceilToStep } from '../../../utils/rangeValidation';
 
 const RangeSlider = ({
   min,
@@ -16,20 +15,17 @@ const RangeSlider = ({
   unit = '',
   formatLabel,
   formatValueLabel,
+  showMarks = true,
 }) => {
-  // Format min/max values to match step precision
-  const formattedMin = roundToStep(min, step);
-  const formattedMax = roundToStep(max, step);
+  const formattedMin = floorToStep(min, step);
+  const formattedMax = ceilToStep(max, step);
 
-  // Use custom formatters if provided, otherwise fall back to default behavior
   const getMarkLabel = (value) => {
     if (formatLabel) {
       return formatLabel(value);
     }
     return `${value}${unit}`;
   };
-
-  const getValueLabel = formatValueLabel || ((value) => `${value}${unit}`);
 
   return (
     <Slider
@@ -43,21 +39,24 @@ const RangeSlider = ({
       ]}
       onChange={handleSlider}
       onChangeCommitted={handleSliderCommit}
-      valueLabelDisplay="auto"
-      valueLabelFormat={getValueLabel}
-      ValueLabelComponent={CustomValueLabel}
+      valueLabelDisplay="off"
       style={styles.slider}
       disabled={disabled}
-      marks={[
-        {
-          value: formattedMin,
-          label: getMarkLabel(formattedMin),
-        },
-        {
-          value: formattedMax,
-          label: getMarkLabel(formattedMax),
-        },
-      ]}
+      marks={
+        showMarks
+          ? [
+              {
+                value: formattedMin,
+                label: getMarkLabel(formattedMin),
+              },
+              {
+                value: formattedMax,
+                label: getMarkLabel(formattedMax),
+              },
+            ]
+          : false
+      }
+      ThumbComponent={(props) => <span {...props} tabIndex={-1} />}
     />
   );
 };

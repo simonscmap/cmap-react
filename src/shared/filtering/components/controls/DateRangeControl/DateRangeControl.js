@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Grid, Typography } from '@material-ui/core';
 import styles from '../../../styles/subsetControlStyles';
 import useDateRangeInput from '../../../hooks/useDateRangeInput';
@@ -21,13 +21,48 @@ const DateRangeControl = ({
   startLabel = 'Start Date',
   endLabel = 'End Date',
 }) => {
+  const [localStartDate, setLocalStartDate] = useState(startDate);
+  const [localEndDate, setLocalEndDate] = useState(endDate);
+
+  const [localSliderStart, setLocalSliderStart] = useState(startDate);
+  const [localSliderEnd, setLocalSliderEnd] = useState(endDate);
+
+  useEffect(() => {
+    setLocalStartDate(startDate);
+    setLocalSliderStart(startDate);
+  }, [startDate]);
+
+  useEffect(() => {
+    setLocalEndDate(endDate);
+    setLocalSliderEnd(endDate);
+  }, [endDate]);
+
   // Handle date changes
   const handleStartChange = (date) => {
-    setStartDate(date);
+    setLocalStartDate(date);
   };
 
   const handleEndChange = (date) => {
-    setEndDate(date);
+    setLocalEndDate(date);
+  };
+
+  const handleSliderStartChange = (date) => {
+    setLocalSliderStart(date);
+    setLocalStartDate(date);
+  };
+
+  const handleSliderEndChange = (date) => {
+    setLocalSliderEnd(date);
+    setLocalEndDate(date);
+  };
+
+  const handleSliderCommit = () => {
+    if (localSliderStart !== startDate) {
+      setStartDate(localSliderStart);
+    }
+    if (localSliderEnd !== endDate) {
+      setEndDate(localSliderEnd);
+    }
   };
 
   const {
@@ -36,8 +71,10 @@ const DateRangeControl = ({
     startDateMessage,
     endDateMessage,
   } = useDateRangeInput({
-    start: startDate,
-    end: endDate,
+    localStart: localStartDate,
+    localEnd: localEndDate,
+    committedStart: startDate,
+    committedEnd: endDate,
     setStart: setStartDate,
     setEnd: setEndDate,
     min: minDate,
@@ -55,7 +92,7 @@ const DateRangeControl = ({
           <DateRangeInput
             minDate={minDate}
             maxDate={maxDate}
-            value={startDate}
+            value={localStartDate}
             onChange={handleStartChange}
             onBlur={handleDateStartBlur}
             validationMessage={startDateMessage}
@@ -68,7 +105,7 @@ const DateRangeControl = ({
           <DateRangeInput
             minDate={minDate}
             maxDate={maxDate}
-            value={endDate}
+            value={localEndDate}
             onChange={handleEndChange}
             onBlur={handleDateEndBlur}
             validationMessage={endDateMessage}
@@ -78,12 +115,13 @@ const DateRangeControl = ({
         </Grid>
       </Grid>
       <DateRangeSlider
-        startDate={startDate}
-        endDate={endDate}
+        startDate={localSliderStart}
+        endDate={localSliderEnd}
         minDate={minDate}
         maxDate={maxDate}
-        onStartChange={handleStartChange}
-        onEndChange={handleEndChange}
+        onStartChange={handleSliderStartChange}
+        onEndChange={handleSliderEndChange}
+        onCommit={handleSliderCommit}
         disabled={minDate === maxDate}
       />
     </React.Fragment>

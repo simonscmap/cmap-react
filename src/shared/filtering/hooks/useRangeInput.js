@@ -4,6 +4,7 @@ import {
   clampValue,
   getEffectiveBounds,
   getDefaultValue,
+  getAbsoluteBounds,
 } from '../utils/rangeValidation';
 
 /**
@@ -12,6 +13,9 @@ import {
  * - Validation messages with auto-hide
  * - Input validation and constraint enforcement
  * - Handlers for text inputs and slider
+ *
+ * Note: Validation uses early returns, so only one error displays at a time.
+ * To show multiple concurrent errors, refactor to accumulate messages.
  */
 const useRangeInput = ({
   start,
@@ -21,14 +25,16 @@ const useRangeInput = ({
   min,
   max,
   step = 0.1,
+  allowInversion = false,
+  fieldType = null,
+  onExpandEndpoint = null,
 }) => {
   // Local state for typing values (two-phase updates)
   const [localStartValue, setLocalStartValue] = useState('');
   const [localEndValue, setLocalEndValue] = useState('');
 
-  // Local state for slider preview (drag state)
-  const [sliderPreviewStart, setSliderPreviewStart] = useState(null);
-  const [sliderPreviewEnd, setSliderPreviewEnd] = useState(null);
+  const [localSliderStart, setLocalSliderStart] = useState(start);
+  const [localSliderEnd, setLocalSliderEnd] = useState(end);
 
   // Validation message state
   const [startMessage, setStartMessage] = useState('');
@@ -37,39 +43,66 @@ const useRangeInput = ({
   // Update local values when committed values change
   useEffect(() => {
     setLocalStartValue(start === null ? '' : String(start));
+    setLocalSliderStart(start);
   }, [start]);
 
   useEffect(() => {
     setLocalEndValue(end === null ? '' : String(end));
+    setLocalSliderEnd(end);
   }, [end]);
 
-  // Slider preview handler - updates local state during drag
   const handleSlider = (e, [startValue, endValue]) => {
-    setSliderPreviewStart(startValue);
-    setSliderPreviewEnd(endValue);
+    const bounds = getEffectiveBounds(min, max, step);
+
+    let newStart = localSliderStart;
+    let newEnd = localSliderEnd;
+
+    if (startValue !== localSliderStart) {
+      newStart = clampValue(
+        roundToStep(startValue, step),
+        bounds.min,
+        bounds.max,
+      );
+    }
+    if (endValue !== localSliderEnd) {
+      newEnd = clampValue(roundToStep(endValue, step), bounds.min, bounds.max);
+    }
+
+    const finalStart = allowInversion ? newStart : Math.min(newStart, newEnd);
+    const finalEnd = allowInversion ? newEnd : Math.max(newStart, newEnd);
+
+    setLocalSliderStart(finalStart);
+    setLocalSliderEnd(finalEnd);
+    setLocalStartValue(String(finalStart));
+    setLocalEndValue(String(finalEnd));
   };
 
-  // Slider commit handler - applies validation and updates canonical store
   const handleSliderCommit = (e, [startValue, endValue]) => {
     const bounds = getEffectiveBounds(min, max, step);
 
-    // Round and clamp both values
-    let roundedStart = roundToStep(startValue, step);
-    let roundedEnd = roundToStep(endValue, step);
-    const clampedStart = clampValue(roundedStart, bounds.min, bounds.max);
-    const clampedEnd = clampValue(roundedEnd, bounds.min, bounds.max);
+    let newStart = localSliderStart;
+    let newEnd = localSliderEnd;
 
-    // Enforce start <= end invariant
-    const finalStart = Math.min(clampedStart, clampedEnd);
-    const finalEnd = Math.max(clampedStart, clampedEnd);
+    if (startValue !== localSliderStart) {
+      newStart = clampValue(
+        roundToStep(startValue, step),
+        bounds.min,
+        bounds.max,
+      );
+    }
+    if (endValue !== localSliderEnd) {
+      newEnd = clampValue(roundToStep(endValue, step), bounds.min, bounds.max);
+    }
 
-    // Update canonical store with same setters as text inputs
-    setStart(finalStart);
-    setEnd(finalEnd);
+    const finalStart = allowInversion ? newStart : Math.min(newStart, newEnd);
+    const finalEnd = allowInversion ? newEnd : Math.max(newStart, newEnd);
 
-    // Clear preview state
-    setSliderPreviewStart(null);
-    setSliderPreviewEnd(null);
+    if (finalStart !== start) {
+      setStart(finalStart);
+    }
+    if (finalEnd !== end) {
+      setEnd(finalEnd);
+    }
   };
 
   // onChange handlers for text inputs - update local state only
@@ -112,41 +145,61 @@ const useRangeInput = ({
 
       // Round to step
       const roundedValue = roundToStep(value, step);
-      let clampedValue = clampValue(roundedValue, bounds.min, bounds.max);
+      const absoluteBounds = getAbsoluteBounds(fieldType);
 
-      // Check if clamping occurred with clearer messaging
-      if (clampedValue > roundedValue) {
-        showMessage(
-          setMessage,
-          `Value cannot be below minimum of ${bounds.min}`,
-        );
-      } else if (clampedValue < roundedValue) {
-        showMessage(
-          setMessage,
-          `Value cannot be above maximum of ${bounds.max}`,
-        );
+      // Validate against absolute bounds (hard rejection)
+      if (absoluteBounds) {
+        if (roundedValue < absoluteBounds.min) {
+          showMessage(setMessage, `Value cannot be below ${absoluteBounds.min}`);
+          if (isStart) {
+            setLocalStartValue(start === null ? '' : String(start));
+          } else {
+            setLocalEndValue(end === null ? '' : String(end));
+          }
+          return;
+        }
+        if (roundedValue > absoluteBounds.max) {
+          showMessage(setMessage, `Value cannot exceed ${absoluteBounds.max}`);
+          if (isStart) {
+            setLocalStartValue(start === null ? '' : String(start));
+          } else {
+            setLocalEndValue(end === null ? '' : String(end));
+          }
+          return;
+        }
       }
 
-      // Intelligent clamping for start/end constraints (similar to useDateRangeInput)
-      const otherValue = isStart ? end : start;
-      if (otherValue !== null) {
-        if (isStart && clampedValue > otherValue) {
-          // User is modifying start and it exceeds end - clamp start to end
-          clampedValue = otherValue;
-          setLocalStartValue(String(clampedValue));
-          showMessage(
-            setMessage,
-            `Start value must be less than or equal to end value (${otherValue})`,
-          );
-        } else if (!isStart && clampedValue < otherValue) {
-          // User is modifying end and it's less than start - clamp end to start
-          clampedValue = otherValue;
-          setLocalEndValue(String(clampedValue));
-          showMessage(
-            setMessage,
-            `End value must be greater than or equal to start value (${otherValue})`,
-          );
+      // Text input values can now exceed current slider range (no slider-bound clamping)
+      let clampedValue = roundedValue;
+
+      if (!allowInversion) {
+        const otherValue = isStart ? end : start;
+        if (otherValue !== null) {
+          if (isStart && clampedValue > otherValue) {
+            // User is modifying start and it exceeds end - clamp start to end
+            clampedValue = otherValue;
+            setLocalStartValue(String(clampedValue));
+            showMessage(
+              setMessage,
+              `Start value must be less than or equal to end value (${otherValue})`,
+            );
+          } else if (!isStart && clampedValue < otherValue) {
+            // User is modifying end and it's less than start - clamp end to start
+            clampedValue = otherValue;
+            setLocalEndValue(String(clampedValue));
+            showMessage(
+              setMessage,
+              `End value must be greater than or equal to start value (${otherValue})`,
+            );
+          }
         }
+      }
+
+      if (onExpandEndpoint && fieldType) {
+        var endpointFieldName = isStart
+          ? fieldType + 'Min'
+          : fieldType + 'Max';
+        onExpandEndpoint(endpointFieldName, clampedValue);
       }
 
       setValue(clampedValue);
@@ -168,6 +221,7 @@ const useRangeInput = ({
     setEndMessage,
   );
 
+  const bounds = getEffectiveBounds(min, max, step);
   return {
     localStartValue,
     localEndValue,
@@ -179,9 +233,9 @@ const useRangeInput = ({
     endMessage,
     handleSlider,
     handleSliderCommit,
-    // For slider display - use preview values during drag, canonical values otherwise
-    sliderStart: sliderPreviewStart !== null ? sliderPreviewStart : start,
-    sliderEnd: sliderPreviewEnd !== null ? sliderPreviewEnd : end,
+    sliderStart: clampValue(localSliderStart, bounds.min, bounds.max),
+    sliderEnd: clampValue(localSliderEnd, bounds.min, bounds.max),
+    bounds,
   };
 };
 

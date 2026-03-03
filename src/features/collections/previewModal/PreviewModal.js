@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import {
   Dialog,
   DialogTitle,
@@ -14,6 +14,7 @@ import { useDispatch } from 'react-redux';
 import { usePreviewModalStyles } from './previewModalStyles';
 import CollectionStatistics from '../components/CollectionStatistics';
 import UniversalButton from '../../../shared/components/UniversalButton';
+import CollectionDownloadButton from '../shared/CollectionDownloadButton';
 import CollectionDownloadModal from '../myCollections/CollectionDownloadModal';
 import CollectionDatasetsTable from '../components/CollectionDatasetsTable';
 import useCollectionsStore from '../state/collectionsStore';
@@ -54,7 +55,7 @@ const PreviewModal = ({ open, onClose, collection }) => {
 
   // Handle data loaded from table
   const handleDataLoaded = (data, calculatedTotalRows) => {
-    setTotalRows(calculatedTotalRows);
+    setTotalRows(calculatedTotalRows || 0);
   };
 
   // Handle errors from table
@@ -62,7 +63,7 @@ const PreviewModal = ({ open, onClose, collection }) => {
     dispatch(
       snackbarOpen(message, {
         severity: severity || 'error',
-        position: 'bottom',
+        position: 'top',
       }),
     );
   };
@@ -115,7 +116,7 @@ const PreviewModal = ({ open, onClose, collection }) => {
       dispatch(
         snackbarOpen(`Collection "${result.name}" copied successfully`, {
           severity: 'info',
-          position: 'bottom',
+          position: 'top',
         }),
       );
     } catch (error) {
@@ -123,7 +124,7 @@ const PreviewModal = ({ open, onClose, collection }) => {
       dispatch(
         snackbarOpen(error.message || 'Failed to copy collection', {
           severity: 'error',
-          position: 'bottom',
+          position: 'top',
         }),
       );
     } finally {
@@ -209,6 +210,7 @@ const PreviewModal = ({ open, onClose, collection }) => {
             </Typography>
             <CollectionDatasetsTable
               collectionId={collection.id}
+              skipViewTracking={collection.isOwner}
               datasetShortNames={
                 collection.datasets
                   ?.map((d) => d.datasetShortName)
@@ -244,13 +246,12 @@ const PreviewModal = ({ open, onClose, collection }) => {
               'COPY TO MY COLLECTIONS'
             )}
           </UniversalButton>
-          <UniversalButton
+          <CollectionDownloadButton
+            disabled={!collection.datasets || collection.datasets.length === 0}
             onClick={handleDownload}
-            variant="primary"
             size="large"
-          >
-            DOWNLOAD COLLECTION
-          </UniversalButton>
+            label="DOWNLOAD COLLECTION"
+          />
         </DialogActions>
       </Dialog>
 

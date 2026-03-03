@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import PropTypes from 'prop-types';
 import {
   Box,
@@ -13,16 +13,15 @@ import {
   Typography,
   Checkbox,
 } from '@material-ui/core';
-import {
-  CheckCircle as CheckCircleIcon,
-  Warning as WarningIcon,
-  AddCircle as AddCircleIcon,
-  RemoveCircle as RemoveCircleIcon,
-  RemoveCircleOutline as RemoveCircleOutlineIcon,
-} from '@material-ui/icons';
+import { RemoveCircleOutline as RemoveCircleOutlineIcon } from '@material-ui/icons';
 import { makeStyles } from '@material-ui/core/styles';
-import { format, parseISO } from 'date-fns';
-import { DatasetNameLink } from '../../../shared/components';
+import {
+  DatasetNameLink,
+  useRowStateStyles,
+  ROW_STATES,
+  InfoTooltip,
+} from '../../../shared/components';
+import { dateToUTCDateString } from '../../../shared/filtering/utils/dateHelpers';
 import SelectAllDropdown from '../../multiDatasetDownload/components/SelectAllDropdown';
 import UniversalButton from '../../../shared/components/UniversalButton';
 import useCollectionsStore from '../state/collectionsStore';
@@ -48,52 +47,34 @@ const useStyles = makeStyles((theme) => ({
       zIndex: 2,
       padding: '8px 8px',
       border: 0,
+      verticalAlign: 'middle',
+      lineHeight: 1.2,
+    },
+    '& .MuiTableCell-body': {
+      verticalAlign: 'top',
     },
   },
   table: {
     width: '100%',
-  },
-  tableRow: {
-    boxShadow: 'inset 3px 0 0 transparent',
-    '&:hover': {
-      backgroundColor: 'rgba(255, 255, 255, 0.05)',
-    },
+    // Apply first-child/last-child padding to ALL rows (header and body)
     '& .MuiTableCell-root:first-child': {
       paddingLeft: '16px',
     },
     '& .MuiTableCell-root:last-child': {
       paddingRight: '16px',
     },
-    '& ::selection': {
-      backgroundColor: 'transparent',
-    },
   },
-  invalidRow: {
-    opacity: 0.8,
-    backgroundColor: 'rgba(255, 193, 7, 0.15)',
-    boxShadow: 'inset 3px 0 0 rgba(255, 193, 7, 0.6)',
-  },
-  markedForRemovalRow: {
-    opacity: 0.8,
-    backgroundColor: 'rgba(211, 47, 47, 0.15)',
-    boxShadow: 'inset 3px 0 0 rgba(211, 47, 47, 0.6)',
-    '& .MuiTableCell-root:not(:first-child):not(:last-child)': {
-      textDecoration: 'line-through',
-    },
-  },
-  alreadyPresentRow: {
-    opacity: 0.6,
-    backgroundColor: 'rgba(128, 128, 128, 0.1)',
-    boxShadow: 'inset 3px 0 0 rgba(128, 128, 128, 0.6)',
-    '&:hover': {
-      backgroundColor: 'rgba(128, 128, 128, 0.15)',
-    },
-  },
-  newlyAddedRow: {
-    backgroundColor: 'rgba(156, 39, 176, 0.1)',
-    boxShadow: 'inset 3px 0 0 rgba(156, 39, 176, 0.8)',
-    '&:hover': {
-      backgroundColor: 'rgba(156, 39, 176, 0.15)',
+  tableRow: {
+    transition: 'opacity 300ms ease-out, height 300ms ease-out',
+    overflow: 'hidden',
+    '&.removing': {
+      opacity: 0,
+      height: '0px',
+      '& td': {
+        paddingTop: '0 !important',
+        paddingBottom: '0 !important',
+        borderBottom: 'none',
+      },
     },
   },
   tableCell: {
@@ -112,29 +93,12 @@ const useStyles = makeStyles((theme) => ({
   statusCell: {
     width: '60px',
     textAlign: 'center',
-  },
-  statusIcon: {
-    fontSize: '1.25rem',
-    verticalAlign: 'middle',
-  },
-  validIcon: {
-    color: '#8bc34a',
-  },
-  invalidIcon: {
-    color: '#ffc107',
-  },
-  addedIcon: {
-    color: '#9c27b0',
-  },
-  removedIcon: {
-    color: '#d32f2f',
-  },
-  alreadyPresentIcon: {
-    color: '#808080',
+    textDecoration: 'none !important', // Prevent line-through on status in marked-for-removal rows
   },
   datasetNameCell: {
-    minWidth: '200px',
+    minWidth: '150px',
     maxWidth: '350px',
+    wordBreak: 'break-word',
   },
   datasetDescription: {
     fontSize: '0.75rem',
@@ -147,12 +111,6 @@ const useStyles = makeStyles((theme) => ({
   },
   dateRangeCell: {
     width: '140px',
-    lineHeight: 1.3,
-  },
-  rowsCell: {
-    width: '80px',
-    textAlign: 'right',
-    whiteSpace: 'nowrap',
   },
   actionsCell: {
     width: '100px',
@@ -196,7 +154,7 @@ const useStyles = makeStyles((theme) => ({
  * @param {Array} actions - Array of action configurations (optional)
  * @param {function} rowClassGetter - Function to get row class based on dataset (optional)
  * @param {string[]} columns - Array of column keys to display (optional)
- * @param {function} onDataLoaded - Callback when data is loaded (optional)
+ * @param {function} onDataLoaded - Callback when data is loaded: (data, totalRows) => void (optional)
  * @param {number} maxHeight - Max height for table container (optional)
  * @param {string} className - Additional CSS class (optional)
  * @param {function} onError - Error callback (optional)
@@ -204,6 +162,7 @@ const useStyles = makeStyles((theme) => ({
 const CollectionDatasetsTable = ({
   collectionId,
   datasetShortNames,
+  datasetShortNamesWithStates,
   data: preLoadedData,
   emptyMessage,
   selectedDatasets = [],
@@ -214,13 +173,15 @@ const CollectionDatasetsTable = ({
   areIndeterminate = false,
   actions = [],
   rowClassGetter,
-  columns = ['status', 'name', 'type', 'region', 'dateRange', 'rows'],
+  columns = ['status', 'name', 'type', 'region', 'dateRange'],
   onDataLoaded,
   maxHeight,
   className,
   onError,
+  skipViewTracking = false,
 }) => {
   const classes = useStyles({ maxHeight });
+  const { getRowClassName, getStatusIcon } = useRowStateStyles();
 
   // Zustand store selectors
   const fetchPreviewData = useCollectionsStore(
@@ -233,9 +194,44 @@ const CollectionDatasetsTable = ({
   // Local state
   const [data, setData] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [removingDatasets, setRemovingDatasets] = useState(new Set());
+  const [rowHeights, setRowHeights] = useState({});
+
+  // Track previous dataset short names to detect additions vs removals
+  const prevShortNamesRef = useRef(null);
+
+  // Track timeout for cleanup
+  const removalTimeoutRef = useRef(null);
+
+  // Refs for measuring row heights
+  const rowRefs = useRef({});
+
+  // Determine which format we received and extract short names + state map
+  const shortNamesInput = datasetShortNamesWithStates || datasetShortNames;
+  const rowStateMap = {};
+
+  // If we received the new format, build a map of shortName -> rowState
+  let shortNamesForFetch;
+  if (datasetShortNamesWithStates) {
+    shortNamesForFetch = datasetShortNamesWithStates.map((item) => {
+      rowStateMap[item.shortName] = item.rowState;
+      return item.shortName;
+    });
+  } else {
+    shortNamesForFetch = datasetShortNames;
+  }
 
   // Stringify datasetShortNames to use as stable dependency
-  const datasetShortNamesKey = JSON.stringify(datasetShortNames);
+  const datasetShortNamesKey = JSON.stringify(shortNamesForFetch);
+
+  // Helper to calculate total rows from dataset array
+  const calculateTotalRows = (datasets) => {
+    if (!datasets || datasets.length === 0) return 0;
+    return datasets.reduce((sum, dataset) => {
+      const rowCount = dataset.rowCount || 0;
+      return sum + rowCount;
+    }, 0);
+  };
 
   // Fetch data when component mounts or dependencies change
   useEffect(() => {
@@ -246,40 +242,135 @@ const CollectionDatasetsTable = ({
 
       // Call onDataLoaded callback if provided
       if (preLoadedData.length > 0 && onDataLoaded) {
-        const totalRows = preLoadedData.reduce((sum, dataset) => {
-          return sum + (dataset.rowCount || 0);
-        }, 0);
-        onDataLoaded(preLoadedData, totalRows);
+        onDataLoaded(preLoadedData, calculateTotalRows(preLoadedData));
       }
 
       return;
     }
 
-    // Auto-fetch mode: fetch data if datasetShortNames provided
-    if (!datasetShortNames || datasetShortNames.length === 0) {
+    // Auto-fetch mode: fetch data if shortNamesForFetch provided
+    if (!shortNamesForFetch || shortNamesForFetch.length === 0) {
       setData([]);
       setIsLoading(false);
+      prevShortNamesRef.current = [];
       return;
     }
 
+    // Optimize for removals: detect if this is a removal-only operation
+    const prevShortNames = prevShortNamesRef.current;
+    if (prevShortNames && prevShortNames.length > 0) {
+      const currentSet = new Set(shortNamesForFetch);
+      const prevSet = new Set(prevShortNames);
+
+      // Find added and removed datasets
+      const addedDatasets = shortNamesForFetch.filter(
+        (name) => !prevSet.has(name),
+      );
+      const removedDatasets = prevShortNames.filter(
+        (name) => !currentSet.has(name),
+      );
+
+      // If only removals (no additions), filter existing data with animation
+      if (addedDatasets.length === 0 && removedDatasets.length > 0) {
+        // Clear any existing timeout
+        if (removalTimeoutRef.current) {
+          clearTimeout(removalTimeoutRef.current);
+        }
+
+        // Measure heights of rows being removed
+        const heights = {};
+        removedDatasets.forEach((shortName) => {
+          const rowElement = rowRefs.current[shortName];
+          if (rowElement) {
+            heights[shortName] = rowElement.offsetHeight;
+          }
+        });
+
+        // Set explicit heights first
+        setRowHeights(heights);
+
+        // Use requestAnimationFrame to ensure heights are applied before animation starts
+        requestAnimationFrame(() => {
+          // Mark datasets as removing to trigger animation
+          setRemovingDatasets(new Set(removedDatasets));
+
+          // Delay actual removal to allow animation to complete
+          removalTimeoutRef.current = setTimeout(() => {
+            const filteredData = data.filter((dataset) =>
+              currentSet.has(dataset.shortName),
+            );
+            setData(filteredData);
+            setRemovingDatasets(new Set());
+            setRowHeights({});
+            prevShortNamesRef.current = shortNamesForFetch;
+            removalTimeoutRef.current = null;
+
+            // Notify parent of updated data
+            if (onDataLoaded) {
+              onDataLoaded(filteredData, calculateTotalRows(filteredData));
+            }
+          }, 300); // Match animation duration
+        });
+
+        return;
+      }
+
+      // If mixed (both additions and removals), fetch only new datasets and merge
+      if (addedDatasets.length > 0 && removedDatasets.length > 0) {
+        const loadMixedData = async () => {
+          setIsLoading(true);
+          try {
+            // Fetch only the new datasets
+            const newPreviewData = await fetchPreviewData(
+              addedDatasets,
+              collectionId,
+              skipViewTracking,
+            );
+
+            // Merge: filter existing data + add new data
+            const filteredExisting = data.filter((dataset) =>
+              currentSet.has(dataset.shortName),
+            );
+            const mergedData = [...filteredExisting, ...newPreviewData];
+
+            setData(mergedData);
+            prevShortNamesRef.current = shortNamesForFetch;
+
+            // Notify parent of loaded data
+            if (onDataLoaded) {
+              onDataLoaded(mergedData, calculateTotalRows(mergedData));
+            }
+          } catch (error) {
+            console.error('Error loading dataset data:', error);
+            if (onError) {
+              onError(error.message || 'Failed to load dataset data', 'error');
+            }
+          } finally {
+            setIsLoading(false);
+          }
+        };
+
+        loadMixedData();
+        return;
+      }
+    }
+
+    // Default behavior: fetch all datasets (for initial load or additions-only)
     const loadData = async () => {
       setIsLoading(true);
       try {
         const previewData = await fetchPreviewData(
-          datasetShortNames,
+          shortNamesForFetch,
           collectionId,
+          skipViewTracking,
         );
 
         setData(previewData);
-
-        // Calculate total rows
-        const totalRows = previewData.reduce((sum, dataset) => {
-          return sum + (dataset.rowCount || 0);
-        }, 0);
+        prevShortNamesRef.current = shortNamesForFetch;
 
         // Notify parent of loaded data
         if (onDataLoaded) {
-          onDataLoaded(previewData, totalRows);
+          onDataLoaded(previewData, calculateTotalRows(previewData));
         }
       } catch (error) {
         console.error('Error loading dataset data:', error);
@@ -296,21 +387,18 @@ const CollectionDatasetsTable = ({
     // Cleanup
     return () => {
       clearPreviewData();
+      if (removalTimeoutRef.current) {
+        clearTimeout(removalTimeoutRef.current);
+      }
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [preLoadedData, collectionId, datasetShortNamesKey]);
 
   // Format helpers
   const formatDateRange = (timeStart, timeEnd) => {
-    try {
-      const start = timeStart
-        ? format(parseISO(timeStart), 'yyyy-MM-dd')
-        : 'N/A';
-      const end = timeEnd ? format(parseISO(timeEnd), 'yyyy-MM-dd') : 'N/A';
-      return { start, end };
-    } catch (error) {
-      return { start: 'N/A', end: 'N/A' };
-    }
+    const start = timeStart ? dateToUTCDateString(timeStart) : 'N/A';
+    const end = timeEnd ? dateToUTCDateString(timeEnd) : 'N/A';
+    return { start: start || 'N/A', end: end || 'N/A' };
   };
 
   const formatRegions = (regions) => {
@@ -327,40 +415,7 @@ const CollectionDatasetsTable = ({
       cellClass: classes.statusCell,
       align: 'center',
       render: (dataset, rowState) => {
-        // Priority: markedForRemoval > invalid > newlyAdded > alreadyPresent > valid
-        if (rowState === 'markedForRemoval') {
-          return (
-            <RemoveCircleIcon
-              className={`${classes.statusIcon} ${classes.removedIcon}`}
-            />
-          );
-        }
-        if (rowState === 'invalid' || dataset.isInvalid) {
-          return (
-            <WarningIcon
-              className={`${classes.statusIcon} ${classes.invalidIcon}`}
-            />
-          );
-        }
-        if (rowState === 'newlyAdded') {
-          return (
-            <AddCircleIcon
-              className={`${classes.statusIcon} ${classes.addedIcon}`}
-            />
-          );
-        }
-        if (rowState === 'alreadyPresent') {
-          return (
-            <RemoveCircleOutlineIcon
-              className={`${classes.statusIcon} ${classes.alreadyPresentIcon}`}
-            />
-          );
-        }
-        return (
-          <CheckCircleIcon
-            className={`${classes.statusIcon} ${classes.validIcon}`}
-          />
-        );
+        return getStatusIcon(rowState || 'normal');
       },
     },
     name: {
@@ -377,7 +432,6 @@ const CollectionDatasetsTable = ({
               datasetShortName={dataset.shortName}
               typographyProps={{
                 variant: 'body2',
-                noWrap: true,
               }}
             />
           )}
@@ -425,10 +479,11 @@ const CollectionDatasetsTable = ({
       },
     },
     rows: {
-      header: 'Rows',
-      cellClass: classes.rowsCell,
+      header: 'Dataset Total Rows',
+      cellClass: '',
       align: 'right',
-      render: (dataset) => dataset.rowCount?.toLocaleString() ?? 'N/A',
+      render: (dataset) =>
+        dataset.isInvalid ? 'N/A' : (dataset.rowCount || 0).toLocaleString(),
     },
   };
 
@@ -474,7 +529,14 @@ const CollectionDatasetsTable = ({
                   align={column.align}
                   className={column.cellClass}
                 >
-                  {column.header}
+                  {column.tooltip ? (
+                    <Box display="flex" alignItems="center">
+                      {column.header}
+                      <InfoTooltip title={column.tooltip} fontSize="small" />
+                    </Box>
+                  ) : (
+                    column.header
+                  )}
                 </TableCell>
               );
             })}
@@ -508,45 +570,67 @@ const CollectionDatasetsTable = ({
             data.map((dataset, index) => {
               const isSelected = selectedDatasets.includes(dataset.shortName);
 
-              // Priority: markedForRemovalRow > invalidRow > newlyAddedRow > alreadyPresentRow > normal row
-              let rowClass = classes.tableRow;
+              // Determine row state - use pre-calculated state from rowStateMap if available,
+              // otherwise fall back to rowClassGetter (legacy), or dataset.isInvalid
+              let rowState = 'normal';
               let isAlreadyPresent = false;
-              let rowState = 'normal'; // Track state for status icon
 
-              if (rowClassGetter) {
+              if (rowStateMap[dataset.shortName]) {
+                // NEW: Use pre-calculated row state from parent
+                rowState = rowStateMap[dataset.shortName];
+              } else if (rowClassGetter) {
+                // LEGACY: Support old rowClassGetter pattern for backward compatibility
                 const customClass = rowClassGetter(dataset);
                 if (
                   customClass &&
                   customClass.includes &&
                   customClass.includes('markedForRemoval')
                 ) {
-                  rowClass = `${classes.tableRow} ${classes.markedForRemovalRow}`;
                   rowState = 'markedForRemoval';
                 } else if (customClass === 'invalidRow' || dataset.isInvalid) {
-                  rowClass = `${classes.tableRow} ${classes.invalidRow}`;
                   rowState = 'invalid';
                 } else if (
                   customClass &&
                   customClass.includes &&
                   customClass.includes('newlyAdded')
                 ) {
-                  rowClass = `${classes.tableRow} ${classes.newlyAddedRow}`;
                   rowState = 'newlyAdded';
                 } else if (customClass === 'alreadyPresentRow') {
-                  rowClass = `${classes.tableRow} ${classes.alreadyPresentRow}`;
-                  isAlreadyPresent = true;
                   rowState = 'alreadyPresent';
-                } else if (customClass === 'normalRow') {
-                  rowClass = classes.tableRow;
-                  rowState = 'normal';
                 }
               } else if (dataset.isInvalid) {
-                rowClass = `${classes.tableRow} ${classes.invalidRow}`;
                 rowState = 'invalid';
               }
 
+              // Set flag for checkbox disabling
+              if (rowState === 'alreadyPresent') {
+                isAlreadyPresent = true;
+              }
+
+              // Get row class from shared hook
+              const rowClass = getRowClassName(rowState);
+
+              // Check if this row is being removed (for animation)
+              const isRemoving = removingDatasets.has(dataset.shortName);
+              const removingClass = isRemoving ? 'removing' : '';
+
+              // Get explicit height if set (for smooth animation)
+              const explicitHeight = rowHeights[dataset.shortName];
+              const rowStyle = explicitHeight
+                ? { height: `${explicitHeight}px` }
+                : {};
+
               return (
-                <TableRow key={index} className={rowClass}>
+                <TableRow
+                  key={dataset.shortName}
+                  ref={(el) => {
+                    if (el) {
+                      rowRefs.current[dataset.shortName] = el;
+                    }
+                  }}
+                  className={`${classes.tableRow} ${rowClass} ${removingClass}`}
+                  style={rowStyle}
+                >
                   {/* Selection checkbox */}
                   {hasSelection && (
                     <TableCell
@@ -615,7 +699,13 @@ const CollectionDatasetsTable = ({
 
 CollectionDatasetsTable.propTypes = {
   collectionId: PropTypes.number,
-  datasetShortNames: PropTypes.arrayOf(PropTypes.string).isRequired,
+  datasetShortNames: PropTypes.arrayOf(PropTypes.string), // Optional since datasetShortNamesWithStates can be used instead
+  datasetShortNamesWithStates: PropTypes.arrayOf(
+    PropTypes.shape({
+      shortName: PropTypes.string.isRequired,
+      rowState: PropTypes.string,
+    }),
+  ),
   data: PropTypes.array,
   emptyMessage: PropTypes.string,
   selectedDatasets: PropTypes.arrayOf(PropTypes.string),
@@ -640,6 +730,7 @@ CollectionDatasetsTable.propTypes = {
   maxHeight: PropTypes.number,
   className: PropTypes.string,
   onError: PropTypes.func,
+  skipViewTracking: PropTypes.bool,
 };
 
 export default CollectionDatasetsTable;

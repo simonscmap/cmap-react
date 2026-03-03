@@ -1,6 +1,13 @@
 import { create } from 'zustand';
 import collectionsAPI from '../../api/collectionsApi';
-import { getSearchService } from '../../../catalogSearch/services/searchService';
+import {
+  initializeCatalogSearch,
+  searchCatalog,
+  createSearchQuery,
+  isClientSideSearchAvailable,
+} from '../../../catalogSearch/api';
+import { captureError } from '../../../../shared/errorCapture';
+import { getDatasetType } from '../../../../shared/utility';
 
 /**
  * Zustand store for Add Datasets modal state management
@@ -95,6 +102,36 @@ export const useAddDatasetsStore = create((set, get) => ({
     set({
       ...initialState,
       isOpen: false,
+    });
+  },
+
+  /**
+   * resetFromCollections - Reset Tab 1 state without affecting isOpen
+   *
+   * Called from useEffect cleanup in AddDatasetsModal when modal closes.
+   * This follows the same declarative pattern used by Tab 0 (Catalog Filtering)
+   * and Tab 2 (Spatial Temporal) for consistent cleanup behavior.
+   *
+   * Side Effects:
+   * - Clears selected collection and summary
+   * - Clears all dataset selections
+   * - Clears loaded datasets and catalog cache
+   * - Resets loading states and errors
+   * - Clears switch collection warning state
+   */
+  resetFromCollections: () => {
+    set({
+      selectedCollectionId: null,
+      selectedCollectionSummary: null,
+      isLoadingDatasets: false,
+      loadError: null,
+      sourceCollectionDatasets: null,
+      selectedDatasetIds: new Set(),
+      showSwitchCollectionWarning: false,
+      pendingCollectionId: null,
+      fullCatalog: null,
+      isLoadingCatalog: false,
+      catalogLoadError: null,
     });
   },
 
@@ -384,9 +421,6 @@ export const useAddDatasetsStore = create((set, get) => ({
           case 404:
             errorMessage = 'Collection not found';
             break;
-          case 401:
-            errorMessage = 'You must be logged in';
-            break;
           case 403:
             errorMessage = "You don't have access to this collection";
             break;
@@ -423,27 +457,17 @@ export const useAddDatasetsStore = create((set, get) => ({
         return;
       }
 
-      // Now fetch preview data with detailed dataset metadata
-      const previewResponse = await collectionsAPI.getCollectionPreview(
+      const datasets = await collectionsAPI.getCollectionPreview(
         datasetShortNames,
-        selectedCollectionId,
       );
 
-      if (!previewResponse.ok) {
-        set({
-          loadError: 'Failed to load dataset details. Please try again.',
-          isLoadingDatasets: false,
-          sourceCollectionDatasets: null,
-        });
-        return;
-      }
+      const datasetsWithType = datasets.map((dataset) => ({
+        ...dataset,
+        type: getDatasetType(dataset.makes, dataset.sensors),
+      }));
 
-      // Parse preview response to get detailed dataset metadata
-      const datasets = await previewResponse.json();
-
-      // Update state with loaded datasets
       set({
-        sourceCollectionDatasets: datasets,
+        sourceCollectionDatasets: datasetsWithType,
         loadError: null,
         isLoadingDatasets: false,
       });
@@ -451,8 +475,10 @@ export const useAddDatasetsStore = create((set, get) => ({
       // Handle network errors or other exceptions
       let errorMessage = 'Network error. Please check your connection.';
 
-      // Log error for debugging
-      console.error('loadCollectionDatasets error:', error);
+      captureError(error, {
+        action: 'loadCollectionDatasets',
+        id: selectedCollectionId,
+      });
 
       set({
         loadError: errorMessage,
@@ -574,7 +600,7 @@ export const useAddDatasetsStore = create((set, get) => ({
    * - On failure: Sets catalogLoadError with user-friendly message, sets isLoadingCatalog: false
    *
    * Note: Only fetches if fullCatalog is null (caching behavior)
-   * Note: Uses the catalogSearch searchService which manages the SQLite database
+   * Note: Uses the catalogSearch API which manages the SQLite database
    */
   loadFullCatalog: async () => {
     const state = get();
@@ -592,23 +618,14 @@ export const useAddDatasetsStore = create((set, get) => ({
     set({ isLoadingCatalog: true });
 
     try {
-      // Get the search service singleton
-      const searchService = getSearchService();
-
       // Initialize if not already initialized
-      if (!searchService.isInitialized) {
-        await searchService.initialize();
+      if (!isClientSideSearchAvailable()) {
+        await initializeCatalogSearch();
       }
 
       // Perform a search with no filters to get all datasets
-      const catalog = await searchService.search({
-        text: '',
-        spatial: null,
-        temporal: null,
-        depth: null,
-        limit: null,
-        offset: 0,
-      });
+      const query = createSearchQuery().build();
+      const catalog = await searchCatalog(query);
 
       set({
         fullCatalog: catalog,
@@ -616,7 +633,7 @@ export const useAddDatasetsStore = create((set, get) => ({
         isLoadingCatalog: false,
       });
     } catch (error) {
-      console.error('loadFullCatalog error:', error);
+      captureError(error, { action: 'loadFullCatalog' });
       set({
         catalogLoadError:
           error.message || 'Failed to load catalog. Please try again.',

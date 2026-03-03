@@ -23,20 +23,25 @@ import {
   Typography,
   CircularProgress,
   InputAdornment,
+  Checkbox,
+  ListItemText,
 } from '@material-ui/core';
 import { Search } from '@material-ui/icons';
 import { makeStyles } from '@material-ui/core/styles';
-import useCatalogSearchStore from '../state/catalogSearchStore';
-import DatasetsTableSection from '../../collections/addDatasets/components/DatasetsTableSection';
-import UniversalButton from '../../../shared/components/UniversalButton';
-import CollectionStatistics from '../../collections/components/CollectionStatistics';
-import zIndex from '../../../enums/zIndex';
+import useCatalogSearchStore from '../../../catalogSearch/state/catalogSearchStore';
+import DatasetsTableSection from '../components/DatasetsTableSection';
+import UniversalButton from '../../../../shared/components/UniversalButton';
+import DateInput from '../../../../shared/components/DateInput';
+import zIndex from '../../../../enums/zIndex';
+import { DATASET_TYPES } from '../../../../shared/utility/getDatasetType';
 
 const useStyles = makeStyles((theme) => ({
   filterRow: {
     display: 'flex',
+    flexWrap: 'wrap',
     gap: theme.spacing(2),
     marginBottom: theme.spacing(2),
+    alignItems: 'flex-start',
   },
   searchRow: {
     display: 'flex',
@@ -48,12 +53,21 @@ const useStyles = makeStyles((theme) => ({
     flex: 1,
   },
   filterControl: {
-    minWidth: 200,
+    maxWidth: 180,
+    minWidth: 140,
   },
-  datePickerRow: {
+  dateInputGroup: {
     display: 'flex',
     gap: theme.spacing(2),
-    marginBottom: theme.spacing(2),
+  },
+  dateSection: {
+    display: 'flex',
+    flexDirection: 'column',
+    minHeight: 41 + 8 + 18, // date inputs height + marginTop + error height
+  },
+  dateValidationError: {
+    height: 18,
+    marginTop: theme.spacing(1),
   },
   loadingContainer: {
     display: 'flex',
@@ -76,7 +90,7 @@ const CatalogSearchSection = ({
   const {
     initialize,
     setSearchText,
-    setDatasetType,
+    setSelectedDataTypes,
     setRegion,
     setDateRangePreset,
     setCustomDateRange,
@@ -86,19 +100,12 @@ const CatalogSearchSection = ({
     isInitializing,
     isSearching,
     searchQuery,
+    selectedDataTypes,
     regions,
     isLoadingRegions,
   } = useCatalogSearchStore();
 
   const [inputText, setInputText] = useState('');
-
-  // Calculate "already in collection" count
-  const alreadyInCollectionCount = React.useMemo(() => {
-    if (results.length === 0) return 0;
-    return results.filter((dataset) =>
-      currentCollectionDatasetIds.has(dataset.shortName),
-    ).length;
-  }, [results, currentCollectionDatasetIds]);
 
   // Sync local input text with store when store is reset
   useEffect(() => {
@@ -120,6 +127,12 @@ const CatalogSearchSection = ({
     return ['All Regions', ...filteredRegions];
   }, [regions]);
 
+  const hasInvalidDateRange =
+    searchQuery.dateRangePreset === 'Custom Range' &&
+    searchQuery.customDateStart &&
+    searchQuery.customDateEnd &&
+    searchQuery.customDateStart > searchQuery.customDateEnd;
+
   // Initialize on mount
   useEffect(() => {
     initialize();
@@ -137,8 +150,21 @@ const CatalogSearchSection = ({
   };
 
   const handleDatasetTypeChange = (e) => {
-    setDatasetType(e.target.value);
+    const value = e.target.value;
+    const newSelection = new Set(value);
+    setSelectedDataTypes(newSelection);
     handleSearch();
+  };
+
+  // Calculate display label for data type dropdown
+  const getDataTypeLabel = () => {
+    if (selectedDataTypes.size === 0) {
+      return '-';
+    }
+    if (selectedDataTypes.size === DATASET_TYPES.length) {
+      return 'All Types';
+    }
+    return Array.from(selectedDataTypes).join(', ');
   };
 
   const handleRegionChange = (e) => {
@@ -147,21 +173,43 @@ const CatalogSearchSection = ({
   };
 
   const handleDateRangeChange = (e) => {
-    setDateRangePreset(e.target.value);
-    handleSearch();
+    const preset = e.target.value;
+    setDateRangePreset(preset);
+    if (preset !== 'Custom Range') {
+      handleSearch();
+    }
   };
 
-  const handleCustomDateChange = (field, value) => {
+  const dateToString = (date) => {
+    if (!date) return '';
+    const year = date.getUTCFullYear();
+    const month = String(date.getUTCMonth() + 1).padStart(2, '0');
+    const day = String(date.getUTCDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  };
+
+  const stringToDate = (dateString) => {
+    if (!dateString) return null;
+    const [year, month, day] = dateString.split('-').map(Number);
+    return new Date(Date.UTC(year, month - 1, day));
+  };
+
+  const handleCustomDateChange = (field, dateValue) => {
+    const dateString = dateToString(dateValue);
+    const newStart =
+      field === 'start' ? dateString : searchQuery.customDateStart;
+    const newEnd = field === 'end' ? dateString : searchQuery.customDateEnd;
+
     if (field === 'start') {
-      setCustomDateRange(value, searchQuery.customDateEnd);
+      setCustomDateRange(dateString, searchQuery.customDateEnd);
     } else {
-      setCustomDateRange(searchQuery.customDateStart, value);
+      setCustomDateRange(searchQuery.customDateStart, dateString);
     }
-    // Auto-search when both dates are set
-    if (
-      (field === 'start' && value && searchQuery.customDateEnd) ||
-      (field === 'end' && value && searchQuery.customDateStart)
-    ) {
+
+    const bothDatesSet = newStart && newEnd;
+    const isValidRange = !bothDatesSet || newStart <= newEnd;
+
+    if (bothDatesSet && isValidRange) {
       setTimeout(() => handleSearch(), 100);
     }
   };
@@ -217,17 +265,25 @@ const CatalogSearchSection = ({
         >
           <InputLabel>Data Type</InputLabel>
           <Select
-            value={searchQuery.datasetType}
+            multiple
+            value={Array.from(selectedDataTypes)}
             onChange={handleDatasetTypeChange}
             label="Data Type"
+            renderValue={getDataTypeLabel}
             MenuProps={{
               style: { zIndex: zIndex.MODAL_LAYER_2_POPPER },
             }}
           >
-            <MenuItem value="All Types">All Types</MenuItem>
-            <MenuItem value="Model">Model</MenuItem>
-            <MenuItem value="Satellite">Satellite</MenuItem>
-            <MenuItem value="In-Situ">In-Situ</MenuItem>
+            {DATASET_TYPES.map((type) => (
+              <MenuItem key={type} value={type}>
+                <Checkbox
+                  checked={selectedDataTypes.has(type)}
+                  color="primary"
+                  size="small"
+                />
+                <ListItemText primary={type} />
+              </MenuItem>
+            ))}
           </Select>
         </FormControl>
 
@@ -274,47 +330,35 @@ const CatalogSearchSection = ({
             <MenuItem value="Custom Range">Custom Range</MenuItem>
           </Select>
         </FormControl>
-      </Box>
 
-      {/* Custom Date Pickers (conditional) */}
-      {searchQuery.dateRangePreset === 'Custom Range' && (
-        <Box className={classes.datePickerRow}>
-          <TextField
-            type="date"
-            label="Start Date"
-            value={searchQuery.customDateStart || ''}
-            onChange={(e) => handleCustomDateChange('start', e.target.value)}
-            InputLabelProps={{ shrink: true }}
-            disabled={!isInitialized}
-            variant="outlined"
-          />
-          <TextField
-            type="date"
-            label="End Date"
-            value={searchQuery.customDateEnd || ''}
-            onChange={(e) => handleCustomDateChange('end', e.target.value)}
-            InputLabelProps={{ shrink: true }}
-            disabled={!isInitialized}
-            variant="outlined"
-          />
+        {/* Date section - always rendered, contains conditional date inputs + error */}
+        <Box className={classes.dateSection}>
+          {searchQuery.dateRangePreset === 'Custom Range' && (
+            <Box className={classes.dateInputGroup}>
+              <DateInput
+                label="Start Date"
+                value={stringToDate(searchQuery.customDateStart)}
+                onChange={(date) => handleCustomDateChange('start', date)}
+                width={140}
+              />
+              <DateInput
+                label="End Date"
+                value={stringToDate(searchQuery.customDateEnd)}
+                onChange={(date) => handleCustomDateChange('end', date)}
+                width={140}
+              />
+            </Box>
+          )}
+          <Typography
+            color="error"
+            variant="caption"
+            className={classes.dateValidationError}
+            style={{ visibility: hasInvalidDateRange ? 'visible' : 'hidden' }}
+          >
+            Start date must be before end date
+          </Typography>
         </Box>
-      )}
-
-      {/* Statistics - Show when there are results */}
-      {results.length > 0 && alreadyInCollectionCount > 0 && (
-        <CollectionStatistics
-          compact
-          stats={[
-            {
-              value: alreadyInCollectionCount,
-              label: 'Already in Collection',
-              borderColor: 'rgba(128, 128, 128, 0.6)',
-            },
-          ]}
-          itemsPerRow={1}
-          maxWidth="250px"
-        />
-      )}
+      </Box>
 
       {/* Results Table - Always shown, matching FromCollectionsTab pattern */}
       <DatasetsTableSection
@@ -323,6 +367,7 @@ const CatalogSearchSection = ({
         currentCollectionDatasetIds={currentCollectionDatasetIds}
         onToggleSelection={onToggleSelection}
         isLoading={isSearching}
+        emptyMessage="Search datasets by name, keywords, or description, then click SEARCH."
       />
     </Box>
   );

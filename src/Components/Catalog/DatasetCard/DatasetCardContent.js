@@ -46,8 +46,8 @@ const Meta = (props) => {
   const max = typeof Time_Max === 'string' ? Time_Max.slice(0, 10) : Time_Max;
   const dateRange = `${min} – ${max}`;
 
-  const latRange = `${Lat_Min?.toFixed(2)}°S – ${Lat_Max?.toFixed(2)}°N`;
-  const lonRange = `${Lon_Min?.toFixed(2)}°W – ${Lon_Max?.toFixed(2)}°E`;
+  const latRange = `${Lat_Min?.toFixed(2)}°N – ${Lat_Max?.toFixed(2)}°N`;
+  const lonRange = `${Lon_Min?.toFixed(2)}°E – ${Lon_Max?.toFixed(2)}°E`;
 
   // Safely format Regions, only if it's a string
   const formattedRegions =

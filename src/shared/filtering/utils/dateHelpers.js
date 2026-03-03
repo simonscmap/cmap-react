@@ -1,35 +1,81 @@
+import dayjs from 'dayjs';
+import utc from 'dayjs/plugin/utc';
 import temporalResolutions from '../../../enums/temporalResolutions';
-import { formatLatitude, formatLongitude } from './numberFormatting';
+import { floorToStep, ceilToStep } from './rangeValidation';
+
+dayjs.extend(utc);
 
 const MILLISECONDS_PER_DAY = 86400000;
 
-const formatDateString = (year, month, day) => {
-  return `${year}-${month}-${day}`;
+export const parseUTCDateString = (isoString) => {
+  if (!isoString) {
+    return null;
+  }
+
+  const d = dayjs.utc(isoString);
+  return d.isValid() ? d.toDate() : null;
 };
 
-const formatSliderDateString = (year, month, day) => {
-  return `${year}/${month}/${day}`;
+export const formatUTCDate = (date, formatString = 'YYYY-MM-DD') => {
+  if (!date) {
+    return '';
+  }
+
+  const d = dayjs.utc(date);
+  if (!d.isValid()) {
+    return '';
+  }
+
+  return d.format(formatString);
 };
 
-// :: Date -> DateString
-export const dateToDateString = (date) => {
-  let value = new Date(date);
+export const dateToUTCDateString = (date) => formatUTCDate(date, 'YYYY-MM-DD');
 
-  let month = value.getMonth() + 1;
-  month = month > 9 ? month : '0' + month;
+export const dateToUTCSlashString = (date) => formatUTCDate(date, 'YYYY/MM/DD');
 
-  let day = value.getDate();
-  day = day > 9 ? day : '0' + day;
+export const dateToUTCHumanString = (date) => formatUTCDate(date, 'MMM D, YYYY');
 
-  let fullYear = value.getFullYear();
+export const dateToUTCEndOfDayString = (date) => {
+  if (!date) {
+    return '';
+  }
 
-  return formatDateString(fullYear, month, day);
+  const d = dayjs.utc(date);
+  if (!d.isValid()) {
+    return '';
+  }
+
+  return d.format('YYYY-MM-DD') + 'T23:59:59';
+};
+
+export const getUTCDateComponents = (date) => {
+  if (!date) {
+    return null;
+  }
+
+  const d = dayjs.utc(date);
+  if (!d.isValid()) {
+    return null;
+  }
+
+  return {
+    year: d.year(),
+    month: d.month() + 1,
+    day: d.date(),
+  };
+};
+
+export const createUTCDate = (year, month, day) => {
+  if (year === undefined || month === undefined || day === undefined) {
+    return null;
+  }
+
+  const d = dayjs.utc(`${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`);
+  return d.isValid() ? d.toDate() : null;
 };
 
 export const extractDateFromString = (stringDate) => {
-  let [year, month, day] = stringDate.split('-');
-  const date = new Date(year, parseInt(month) - 1, day);
-  return date;
+  return parseUTCDateString(stringDate);
 };
 
 export const emptyStringOrNumber = (val) => {
@@ -40,36 +86,15 @@ export const getIsMonthlyClimatology = (temporalResolution) => {
   return Boolean(temporalResolution === temporalResolutions.monthlyClimatology);
 };
 
-// starting with a min date, return a string representation
-// of the date N days later
-// :: Date -> Days Int -> Date String
-// Note: a Date String is in the format "yyyy-mm-dd"
-export const dayToDateString = (min, days) => {
-  if (!min) {
-    console.error('dayToDateString received no value for min');
-  }
-  let value = new Date(min);
-
-  value.setDate(value.getDate() + days);
-
-  let month = value.getMonth() + 1;
-  month = month > 9 ? month : '0' + month;
-
-  let day = value.getDate();
-  day = day > 9 ? day : '0' + day;
-
-  let fullYear = value.getFullYear();
-
-  return formatDateString(fullYear, month, day);
-};
-
 export const formatDateToYearMonthDay = (date) => {
-  if (!date || typeof date.getFullYear !== 'function') return date;
-  const year = date.getFullYear();
-  const month = String(date.getMonth() + 1).padStart(2, '0');
-  const day = String(date.getDate()).padStart(2, '0');
+  if (!date || typeof date.getUTCFullYear !== 'function') return date;
+  const year = date.getUTCFullYear();
+  const month = String(date.getUTCMonth() + 1).padStart(2, '0');
+  const day = String(date.getUTCDate()).padStart(2, '0');
   return `${year}/${month}/${day}`;
 };
+
+const SLIDER_STEP = 0.1;
 
 export const getInitialRangeValues = (dataset) => {
   let {
@@ -85,20 +110,20 @@ export const getInitialRangeValues = (dataset) => {
 
   let initialValues = {
     lat: {
-      start: formatLatitude(Lat_Min),
-      end: formatLatitude(Lat_Max),
+      start: Lat_Min != null ? floorToStep(Lat_Min, SLIDER_STEP) : 0,
+      end: Lat_Max != null ? ceilToStep(Lat_Max, SLIDER_STEP) : 0,
     },
     lon: {
-      start: formatLongitude(Lon_Min),
-      end: formatLongitude(Lon_Max),
+      start: Lon_Min != null ? floorToStep(Lon_Min, SLIDER_STEP) : 0,
+      end: Lon_Max != null ? ceilToStep(Lon_Max, SLIDER_STEP) : 0,
     },
     time: {
-      start: Time_Min ? new Date(Time_Min) : new Date(),
-      end: Time_Max ? new Date(Time_Max) : new Date(),
+      start: Time_Min ? parseUTCDateString(Time_Min) : new Date(),
+      end: Time_Max ? parseUTCDateString(Time_Max) : new Date(),
     },
     depth: {
-      start: Math.floor(Depth_Min),
-      end: Math.ceil(Depth_Max),
+      start: Depth_Min != null ? floorToStep(Depth_Min, SLIDER_STEP) : 0,
+      end: Depth_Max != null ? ceilToStep(Depth_Max, SLIDER_STEP) : 0,
     },
   };
 

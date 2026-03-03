@@ -7,9 +7,10 @@ import { colors } from '../../Components/Home/theme';
 
 const useStyles = makeStyles(() => ({
   infoIcon: {
-    padding: 4,
-    marginLeft: 4,
+    padding: 2,
+    marginLeft: 2,
     color: colors.green.olive,
+    verticalAlign: 'middle',
   },
   tooltip: {
     zIndex: '9901 !important',

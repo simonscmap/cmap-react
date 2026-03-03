@@ -4,10 +4,12 @@ import {
   DialogTitle,
   DialogContent,
   IconButton,
+  Typography,
 } from '@material-ui/core';
 import { Close } from '@material-ui/icons';
 import MultiDatasetDownloadContainer from '../../multiDatasetDownload/components/MultiDatasetDownloadContainer';
 import { useCollectionDownloadModalStyles } from './styles/collectionDownloadModalStyles';
+import { GeographicBoundaries } from '../../../shared/enum/geographicBoundariesCollections';
 
 const CollectionDownloadModal = ({ open, onClose, collection }) => {
   const classes = useCollectionDownloadModalStyles();
@@ -16,9 +18,11 @@ const CollectionDownloadModal = ({ open, onClose, collection }) => {
     return null;
   }
 
-  // Extract dataset short names from collection
+  // Extract dataset short names from collection, filtering out invalid datasets
   const datasetShortNames = collection.datasets
-    ? collection.datasets.map((dataset) => dataset.datasetShortName)
+    ? collection.datasets
+        .filter((dataset) => dataset.isInvalid !== true)
+        .map((dataset) => dataset.datasetShortName)
     : [];
 
   const handleDownloadComplete = ({ success, error }) => {
@@ -43,7 +47,9 @@ const CollectionDownloadModal = ({ open, onClose, collection }) => {
         id="collection-download-dialog-title"
         className={classes.dialogTitle}
       >
-        Download Collection: {collection.name}
+        <Typography variant="h6" component="div" className={classes.modalTitle}>
+          Download Collection: {collection.name}
+        </Typography>
         <IconButton
           aria-label="close"
           onClick={onClose}
@@ -58,6 +64,7 @@ const CollectionDownloadModal = ({ open, onClose, collection }) => {
           datasetShortNames={datasetShortNames}
           downloadContext={{ collectionId: collection.id }}
           onDownloadComplete={handleDownloadComplete}
+          geographicPresets={GeographicBoundaries}
         />
       </DialogContent>
     </Dialog>

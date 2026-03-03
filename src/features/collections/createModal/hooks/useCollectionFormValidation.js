@@ -24,18 +24,27 @@ export const useCollectionFormValidation = (
   collectionId,
   originalName,
 ) => {
-  // Name validation state
-  const [nameValidationState, setNameValidationState] = useState('initial'); // 'initial' | 'checking' | 'available' | 'unavailable' | 'warning' | 'unchanged'
+  const [nameValidationState, setNameValidationState] = useState('initial');
   const [nameErrorMessage, setNameErrorMessage] = useState('');
   const [descriptionError, setDescriptionError] = useState('');
   const debouncedVerifyRef = useRef(null);
+  const verifyFnRef = useRef(verifyCollectionName);
+  const collectionIdRef = useRef(collectionId);
+
+  useEffect(() => {
+    verifyFnRef.current = verifyCollectionName;
+  }, [verifyCollectionName]);
+
+  useEffect(() => {
+    collectionIdRef.current = collectionId;
+  }, [collectionId]);
 
   useEffect(() => {
     debouncedVerifyRef.current = debounce(debounceMs, async (nameToVerify) => {
       try {
-        const isAvailable = await verifyCollectionName(
+        const isAvailable = await verifyFnRef.current(
           nameToVerify,
-          collectionId,
+          collectionIdRef.current,
         );
         if (isAvailable) {
           setNameValidationState('available');
@@ -45,7 +54,6 @@ export const useCollectionFormValidation = (
           setNameErrorMessage('A collection with this name already exists');
         }
       } catch (error) {
-        console.error('Error verifying collection name:', error);
         setNameValidationState('unavailable');
         setNameErrorMessage('Failed to verify collection name');
       }
@@ -56,7 +64,7 @@ export const useCollectionFormValidation = (
         debouncedVerifyRef.current.cancel();
       }
     };
-  }, [debounceMs, verifyCollectionName, collectionId]);
+  }, [debounceMs]);
 
   useEffect(() => {
     if (!name) {
@@ -72,7 +80,7 @@ export const useCollectionFormValidation = (
       return;
     }
 
-    if (name.length < 5) {
+    if (name.trim().length < 5) {
       setNameValidationState('warning');
       setNameErrorMessage('Collection name must be at least 5 characters');
       return;

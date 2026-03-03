@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import {
   Table,
   TableBody,
@@ -10,22 +10,26 @@ import {
   Checkbox,
   Typography,
   Box,
-  CircularProgress,
   Chip,
 } from '@material-ui/core';
 import { useDispatch } from 'react-redux';
 
 import useMultiDatasetDownloadStore from '../stores/multiDatasetDownloadStore';
-import useRowCountStore from '../stores/useRowCountStore';
-import { dateToDateString } from '../../../shared/filtering/utils/dateHelpers';
+import { dateToUTCDateString } from '../../../shared/filtering/utils/dateHelpers';
 import { DatasetNameLink } from '../../../shared/components';
 import SelectAllDropdown from './SelectAllDropdown';
 import { snackbarOpen } from '../../../Redux/actions/ui';
+import temporalResolutions from '../../../enums/temporalResolutions';
+import { RowCountCell, RecalculateAllButton } from '../../rowCount';
+import { transformConstraintsForRowCount } from '../utils/constraintTransformer';
+import colors from '../../../enums/colors';
 
 const styles = {
   tableContainerStyle: {
     maxHeight: 400,
-    backgroundColor: 'rgba(16, 43, 60, 0.6)',
+    maxWidth: 1400,
+    margin: '0 auto',
+    backgroundColor: colors.darkBlueLight,
     borderRadius: '6px',
     boxShadow:
       '0px 2px 1px -1px rgba(0,0,0,0.2),0px 1px 1px 0px rgba(0,0,0,0.14),0px 1px 3px 0px rgba(0,0,0,0.12)',
@@ -33,35 +37,73 @@ const styles = {
     position: 'relative',
     zIndex: 1,
   },
+  tableStyle: {
+    width: '100%',
+    minWidth: 900,
+  },
   tableHeadStyle: {
-    backgroundColor: 'rgba(30, 67, 113, 1)',
+    backgroundColor: colors.deepSlate,
     position: 'sticky',
     top: 0,
     zIndex: 2,
   },
   headerCellStyle: {
-    padding: '8px 5px',
+    padding: '8px',
     border: 0,
-    color: '#8bc34a',
+    color: colors.lightGreen,
     fontSize: '0.875rem',
     fontWeight: 500,
-    backgroundColor: 'rgba(30, 67, 113, 1)',
+    backgroundColor: colors.deepSlate,
+    verticalAlign: 'middle',
+    whiteSpace: 'nowrap',
+  },
+  rowCountHeaderCell: {
+    padding: '8px',
+    paddingRight: '16px',
+    border: 0,
+    color: colors.lightGreen,
+    fontSize: '0.875rem',
+    fontWeight: 500,
+    backgroundColor: colors.deepSlate,
+    verticalAlign: 'middle',
+  },
+  twoLineHeaderCell: {
+    padding: '8px',
+    border: 0,
+    color: colors.lightGreen,
+    fontSize: '0.875rem',
+    fontWeight: 500,
+    backgroundColor: colors.deepSlate,
+    verticalAlign: 'middle',
+    textAlign: 'right',
+    lineHeight: 1.3,
   },
   tableRowStyle: {
     border: 0,
   },
   tableRowHoverStyle: {
     border: 0,
-    backgroundColor: 'rgba(16, 43, 60, 1)',
+    backgroundColor: colors.darkBlue,
   },
   bodyCellStyle: {
-    padding: '5px',
+    padding: '12px 8px',
     border: 0,
     color: '#ffffff',
-    lineHeight: '35px',
+    lineHeight: 1.4,
+    verticalAlign: 'top',
     overflow: 'hidden',
     textOverflow: 'ellipsis',
     whiteSpace: 'nowrap',
+  },
+  datasetNameCellStyle: {
+    padding: '12px 8px',
+    border: 0,
+    color: '#ffffff',
+    lineHeight: 1.4,
+    verticalAlign: 'top',
+    minWidth: 150,
+    whiteSpace: 'normal',
+    wordBreak: 'break-word',
   },
 };
 
@@ -74,24 +116,11 @@ const MultiDatasetDownloadTable = ({ datasetsMetadata, filterValues }) => {
     clearSelections,
     getSelectAllCheckboxState,
   } = useMultiDatasetDownloadStore();
-  const {
-    getEffectiveRowCount,
-    isRowCountLoading,
-    getRowCountError,
-    initializeWithDatasets,
-    resetStore: resetRowCountStore,
-    getThresholdConfig,
-    getTotalSelectedRows,
-  } = useRowCountStore();
   const [hoveredRow, setHoveredRow] = React.useState(null);
 
   const handleToggle = (datasetName) => (event) => {
     event.stopPropagation();
-    toggleDatasetSelection(
-      datasetName,
-      () => useRowCountStore.getState(),
-      filterValues,
-    );
+    toggleDatasetSelection(datasetName);
   };
 
   const handleProgramClick = (program) => (event) => {
@@ -99,33 +128,9 @@ const MultiDatasetDownloadTable = ({ datasetsMetadata, filterValues }) => {
     window.open(`/programs/${program}`, '_blank');
   };
 
-  const rowCountStoreActions = useRowCountStore();
-
-  const getRowCountStoreInstance = () => {
-    return {
-      ...rowCountStoreActions,
-      getThresholdConfig: getThresholdConfig,
-      getEffectiveRowCount: getEffectiveRowCount,
-      getTotalSelectedRows: getTotalSelectedRows,
-    };
-  };
-
-  const handleSelectAll = async () => {
+  const handleSelectAll = () => {
     try {
-      const result = await selectAll(
-        getRowCountStoreInstance,
-        datasetsMetadata,
-        filterValues,
-      );
-
-      if (result.wasPartialSelection) {
-        dispatch(
-          snackbarOpen(
-            `Not all datasets could be selected because they would exceed the ${result.formattedThreshold}M row limit.`,
-            { position: 'bottom', severity: 'warning' },
-          ),
-        );
-      }
+      selectAll(datasetsMetadata);
     } catch (error) {
       console.error('Failed to select all datasets:', error);
       dispatch(
@@ -148,84 +153,31 @@ const MultiDatasetDownloadTable = ({ datasetsMetadata, filterValues }) => {
 
   const formatDepth = (value) => {
     if (value === null || value === undefined) return 'N/A';
-    return Math.round(Number(value)).toString();
+    return Math.round(Number(value)).toLocaleString();
   };
 
-  const formatTime = (value) => {
-    if (value === null || value === undefined) return 'N/A';
-    try {
-      return dateToDateString(new Date(value));
-    } catch (error) {
+  const formatTime = (value, datasetMetadata, isStartDate = true) => {
+    // Monthly Climatology datasets have null Time_Min/Time_Max
+    if (value === null || value === undefined) {
+      // Check if this is a Monthly Climatology dataset
+      // Either by explicit Temporal_Resolution field or by null Time_Min AND Time_Max
+      const isMonthlyClimatology =
+        datasetMetadata?.Temporal_Resolution ===
+          temporalResolutions.monthlyClimatology ||
+        (datasetMetadata?.Time_Min === null &&
+          datasetMetadata?.Time_Max === null);
+
+      if (isMonthlyClimatology) {
+        return isStartDate ? 'Monthly' : 'Climatology';
+      }
       return 'N/A';
     }
+    return dateToUTCDateString(value) || 'N/A';
   };
-
-  const getOriginalRowCount = (datasetName) => {
-    const { originalRowCounts } = useRowCountStore.getState();
-    return originalRowCounts[datasetName];
-  };
-
-  const renderRowCount = (datasetName, isSelected) => {
-    const effectiveCount = getEffectiveRowCount(datasetName);
-    const isLoading = isRowCountLoading(datasetName);
-    const error = getRowCountError(datasetName);
-    const originalCount = getOriginalRowCount(datasetName);
-
-    // Only show loading indicators for selected datasets
-    if (isSelected && isLoading) {
-      return <CircularProgress size={16} color="primary" />;
-    }
-
-    // Only show errors for selected datasets
-    if (isSelected && error) {
-      return (
-        <Typography variant="body2" color="error">
-          Error
-        </Typography>
-      );
-    }
-
-    // Show "≤ [count]" for unselected datasets when filters are active
-    if (!isSelected && filterValues?.isFiltered && originalCount) {
-      return (
-        <Typography variant="body2" noWrap>
-          ≤ {originalCount.toLocaleString()}
-        </Typography>
-      );
-    }
-
-    // Default display logic
-    return (
-      <Typography variant="body2" noWrap>
-        {effectiveCount !== null && effectiveCount !== undefined
-          ? effectiveCount.toLocaleString()
-          : 'N/A'}
-      </Typography>
-    );
-  };
-
-  useEffect(() => {
-    if (datasetsMetadata?.length > 0) {
-      const rowCountData = {};
-      datasetsMetadata.forEach((dataset) => {
-        if (dataset.Row_Count) {
-          rowCountData[dataset.Dataset_Name] = dataset.Row_Count;
-        }
-      });
-      initializeWithDatasets(rowCountData);
-    }
-  }, []);
-
-  // Reset row count store when component unmounts
-  useEffect(() => {
-    return () => {
-      resetRowCountStore();
-    };
-  }, [resetRowCountStore]);
 
   return (
     <TableContainer component={Paper} style={styles.tableContainerStyle}>
-      <Table stickyHeader size="small" aria-label="dataset selection table">
+      <Table stickyHeader size="small" aria-label="dataset selection table" style={styles.tableStyle}>
         <TableHead style={styles.tableHeadStyle}>
           <TableRow>
             <TableCell width={50} style={styles.headerCellStyle}>
@@ -242,12 +194,17 @@ const MultiDatasetDownloadTable = ({ datasetsMetadata, filterValues }) => {
               />
             </TableCell>
             <TableCell
-              style={{ ...styles.headerCellStyle, width: 'fit-content' }}
+              style={{ ...styles.headerCellStyle, minWidth: 150 }}
             >
               Dataset Name
             </TableCell>
-            <TableCell width={120} align="right" style={styles.headerCellStyle}>
-              Row Count
+            <TableCell align="right" style={styles.rowCountHeaderCell}>
+              <Box display="flex" flexDirection="row" flexWrap="wrap" alignItems="center" justifyContent="flex-end" style={{ gap: '4px' }}>
+                <span>Row Count</span>
+                <RecalculateAllButton
+                  constraints={transformConstraintsForRowCount(filterValues)}
+                />
+              </Box>
             </TableCell>
             <TableCell width={90} style={styles.headerCellStyle}>
               Start Date
@@ -255,25 +212,25 @@ const MultiDatasetDownloadTable = ({ datasetsMetadata, filterValues }) => {
             <TableCell width={90} style={styles.headerCellStyle}>
               End Date
             </TableCell>
-            <TableCell width={80} style={styles.headerCellStyle}>
-              Lat Min
+            <TableCell width={50} align="right" style={styles.twoLineHeaderCell}>
+              Lat<br />Min
+            </TableCell>
+            <TableCell width={50} align="right" style={styles.twoLineHeaderCell}>
+              Lat<br />Max
+            </TableCell>
+            <TableCell width={50} align="right" style={styles.twoLineHeaderCell}>
+              Lon<br />Min
+            </TableCell>
+            <TableCell width={50} align="right" style={styles.twoLineHeaderCell}>
+              Lon<br />Max
+            </TableCell>
+            <TableCell width={50} align="right" style={styles.twoLineHeaderCell}>
+              Depth<br />Min
+            </TableCell>
+            <TableCell width={50} align="right" style={styles.twoLineHeaderCell}>
+              Depth<br />Max
             </TableCell>
             <TableCell width={80} style={styles.headerCellStyle}>
-              Lat Max
-            </TableCell>
-            <TableCell width={80} style={styles.headerCellStyle}>
-              Lon Min
-            </TableCell>
-            <TableCell width={80} style={styles.headerCellStyle}>
-              Lon Max
-            </TableCell>
-            <TableCell width={80} style={styles.headerCellStyle}>
-              Depth Min
-            </TableCell>
-            <TableCell width={80} style={styles.headerCellStyle}>
-              Depth Max
-            </TableCell>
-            <TableCell width={120} style={styles.headerCellStyle}>
               Programs
             </TableCell>
           </TableRow>
@@ -316,51 +273,62 @@ const MultiDatasetDownloadTable = ({ datasetsMetadata, filterValues }) => {
                       size="small"
                     />
                   </TableCell>
-                  <TableCell style={styles.bodyCellStyle}>
+                  <TableCell style={styles.datasetNameCellStyle}>
                     <DatasetNameLink
                       datasetShortName={datasetMetadata.Dataset_Name}
-                      typographyProps={{ variant: 'body2', noWrap: true }}
+                      typographyProps={{ variant: 'body2' }}
                     />
                   </TableCell>
+                  <TableCell align="right" style={{ ...styles.bodyCellStyle, paddingRight: '16px' }}>
+                    <RowCountCell
+                      shortName={datasetMetadata.Dataset_Name}
+                      currentConstraints={transformConstraintsForRowCount(filterValues)}
+                    />
+                  </TableCell>
+                  <TableCell style={styles.bodyCellStyle}>
+                    <Typography variant="body2" noWrap>
+                      {formatTime(
+                        datasetMetadata.Time_Min,
+                        datasetMetadata,
+                        true,
+                      )}
+                    </Typography>
+                  </TableCell>
+                  <TableCell style={styles.bodyCellStyle}>
+                    <Typography variant="body2" noWrap>
+                      {formatTime(
+                        datasetMetadata.Time_Max,
+                        datasetMetadata,
+                        false,
+                      )}
+                    </Typography>
+                  </TableCell>
                   <TableCell align="right" style={styles.bodyCellStyle}>
-                    {renderRowCount(datasetMetadata.Dataset_Name, isSelected)}
-                  </TableCell>
-                  <TableCell style={styles.bodyCellStyle}>
-                    <Typography variant="body2" noWrap>
-                      {formatTime(datasetMetadata.Time_Min)}
-                    </Typography>
-                  </TableCell>
-                  <TableCell style={styles.bodyCellStyle}>
-                    <Typography variant="body2" noWrap>
-                      {formatTime(datasetMetadata.Time_Max)}
-                    </Typography>
-                  </TableCell>
-                  <TableCell style={styles.bodyCellStyle}>
                     <Typography variant="body2" noWrap>
                       {formatLatLon(datasetMetadata.Lat_Min)}
                     </Typography>
                   </TableCell>
-                  <TableCell style={styles.bodyCellStyle}>
+                  <TableCell align="right" style={styles.bodyCellStyle}>
                     <Typography variant="body2" noWrap>
                       {formatLatLon(datasetMetadata.Lat_Max)}
                     </Typography>
                   </TableCell>
-                  <TableCell style={styles.bodyCellStyle}>
+                  <TableCell align="right" style={styles.bodyCellStyle}>
                     <Typography variant="body2" noWrap>
                       {formatLatLon(datasetMetadata.Lon_Min)}
                     </Typography>
                   </TableCell>
-                  <TableCell style={styles.bodyCellStyle}>
+                  <TableCell align="right" style={styles.bodyCellStyle}>
                     <Typography variant="body2" noWrap>
                       {formatLatLon(datasetMetadata.Lon_Max)}
                     </Typography>
                   </TableCell>
-                  <TableCell style={styles.bodyCellStyle}>
+                  <TableCell align="right" style={styles.bodyCellStyle}>
                     <Typography variant="body2" noWrap>
                       {formatDepth(datasetMetadata.Depth_Min)}
                     </Typography>
                   </TableCell>
-                  <TableCell style={styles.bodyCellStyle}>
+                  <TableCell align="right" style={styles.bodyCellStyle}>
                     <Typography variant="body2" noWrap>
                       {formatDepth(datasetMetadata.Depth_Max)}
                     </Typography>
@@ -377,7 +345,7 @@ const MultiDatasetDownloadTable = ({ datasetsMetadata, filterValues }) => {
                           clickable
                           onClick={handleProgramClick(program)}
                           style={{
-                            backgroundColor: '#8bc34a',
+                            backgroundColor: colors.lightGreen,
                             color: '#000000',
                             fontSize: '0.75rem',
                             height: '20px',
