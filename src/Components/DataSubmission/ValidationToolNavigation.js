@@ -68,9 +68,9 @@ const StyledBadgeGreen = withStyles((theme) => ({
 const StepBadge = (props) => {
   const { errors, text } = props;
   if (errors) {
-    return <StyledBadgeRed badgeContent={errors}>{text}</StyledBadgeRed>;
+    return <StyledBadgeRed overlap="rectangular" badgeContent={errors}>{text}</StyledBadgeRed>;
   } else {
-    return <StyledBadgeGreen>{text}</StyledBadgeGreen>;
+    return <StyledBadgeGreen overlap="rectangular">{text}</StyledBadgeGreen>;
   }
 };
 
@@ -116,38 +116,42 @@ const Navigation = (props) => {
       <div className={cl.navigationButtons}>
         <div className={cl.refHolder}>
           <Tooltip title={backArrowTooltip}>
-            <StepButton
-              size="small"
-              color="primary"
-              variant="contained"
-              onClick={() => changeStep(step - 1)}
-              disabled={preventBack}
-              startIcon={<ArrowBack />}
-              className={cl.stepButton}
-            >
-              <StepBadge
-                errors={
-                  step === 2 ? workbookErrors : step === 3 ? errorSum : null
-                }
-                text={'Back'}
-              />
-            </StepButton>
+            <span>
+              <StepButton
+                size="small"
+                color="primary"
+                variant="contained"
+                onClick={() => changeStep(step - 1)}
+                disabled={preventBack}
+                startIcon={<ArrowBack />}
+                className={cl.stepButton}
+              >
+                <StepBadge
+                  errors={
+                    step === 2 ? workbookErrors : step === 3 ? errorSum : null
+                  }
+                  text={'Back'}
+                />
+              </StepButton>
+            </span>
           </Tooltip>
         </div>
 
         <div className={cl.refHolder}>
           <Tooltip title={forwardArrowTooltip}>
-            <StepButton
-              size="small"
-              color="primary"
-              variant="contained"
-              onClick={() => changeStep(step + 1)}
-              disabled={preventNext}
-              endIcon={<ArrowForward />}
-              className={cl.stepButton}
-            >
-              {'Next'}
-            </StepButton>
+            <span>
+              <StepButton
+                size="small"
+                color="primary"
+                variant="contained"
+                onClick={() => changeStep(step + 1)}
+                disabled={preventNext}
+                endIcon={<ArrowForward />}
+                className={cl.stepButton}
+              >
+                {'Next'}
+              </StepButton>
+            </span>
           </Tooltip>
         </div>
       </div>
