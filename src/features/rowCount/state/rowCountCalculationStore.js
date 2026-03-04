@@ -554,8 +554,8 @@ export async function initializeRowCounts(shortNames, constraints) {
     metadataMap,
   );
 
-  await _estimateEligibleDatasets(normalizedDatasets, constraints);
   _computeStaleDatasets(normalizedDatasets, constraints);
+  await _estimateEligibleDatasets(normalizedDatasets, constraints);
 }
 
 export function clearRowCounts() {
@@ -616,6 +616,6 @@ export async function reEstimateWithConstraints(constraints) {
     datasetCount: normalizedDatasets.length,
   });
 
-  await _estimateEligibleDatasets(normalizedDatasets, constraints);
   _computeStaleDatasets(normalizedDatasets, constraints);
+  await _estimateEligibleDatasets(normalizedDatasets, constraints);
 }
