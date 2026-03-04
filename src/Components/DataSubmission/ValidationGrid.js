@@ -34,6 +34,7 @@ const ValidationGrid = (props) => {
       <div className={cl.gridContainer + ' ag-theme-material'}>
         <AgGridReact
           singleClickEdit={true}
+          stopEditingWhenGridLosesFocus={true}
           // onModelUpdated={this.props.onModelUpdated}
           columnDefs={columns}
           defaultColDef={defaultColumnDef}
