@@ -157,10 +157,10 @@ const useMultiDatasetRangeInput = ({
 
   const handleSliderCommit = (e, [startValue, endValue]) => {
     let { finalStart, finalEnd } = resolveSliderValues(startValue, endValue);
-    if (finalStart !== start) {
+    if (Math.abs(finalStart - start) >= 0.0001) {
       setStart(finalStart);
     }
-    if (finalEnd !== end) {
+    if (Math.abs(finalEnd - end) >= 0.0001) {
       setEnd(finalEnd);
     }
   };
@@ -173,7 +173,7 @@ const useMultiDatasetRangeInput = ({
     setLocalEndValue(e.target.value);
   };
 
-  const createBlurHandler = (isStart, localValue, setValue, validationState, setHasBlurred) => {
+  const createBlurHandler = (isStart, localValue, currentValue, setValue, setLocalValue, validationState, setHasBlurred) => {
     return () => {
       setHasBlurred(true);
 
@@ -183,6 +183,12 @@ const useMultiDatasetRangeInput = ({
 
       let value = parseFloat(localValue);
       let roundedValue = roundToStep(value, step);
+
+      setLocalValue(String(roundedValue));
+
+      if (roundedValue === currentValue) {
+        return;
+      }
 
       if (onExpandEndpoint && fieldType) {
         let endpointFieldName = isStart
@@ -198,7 +204,9 @@ const useMultiDatasetRangeInput = ({
   const handleBlurStart = createBlurHandler(
     true,
     localStartValue,
+    start,
     setStart,
+    setLocalStartValue,
     startValidationState,
     setStartHasBlurred,
   );
@@ -206,7 +214,9 @@ const useMultiDatasetRangeInput = ({
   const handleBlurEnd = createBlurHandler(
     false,
     localEndValue,
+    end,
     setEnd,
+    setLocalEndValue,
     endValidationState,
     setEndHasBlurred,
   );

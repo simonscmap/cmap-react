@@ -22,26 +22,11 @@ const CompactLatitudeInput = ({
   sliderStart,
   sliderEnd,
   bounds,
-  onLocalChange,
 }) => {
   const classes = useCompactRangeInputStyles();
 
   const startHasError = Boolean(startMessage) || isRangeInverted;
   const endHasError = Boolean(endMessage) || isRangeInverted;
-
-  const handleStartChange = (e) => {
-    handleSetStart(e);
-    if (onLocalChange) {
-      onLocalChange();
-    }
-  };
-
-  const handleEndChange = (e) => {
-    handleSetEnd(e);
-    if (onLocalChange) {
-      onLocalChange();
-    }
-  };
 
   return (
     <Box className={classes.container}>
@@ -54,7 +39,7 @@ const CompactLatitudeInput = ({
             variant="outlined"
             label="S Latitude (°)"
             value={localStartValue}
-            onChange={handleStartChange}
+            onChange={handleSetStart}
             onBlur={handleBlurStart}
             onKeyDown={(e) => { if (e.key === 'Enter') e.target.blur(); }}
             className={`${classes.textField} ${startHasError ? classes.textFieldError : ''}`}
@@ -71,7 +56,7 @@ const CompactLatitudeInput = ({
             variant="outlined"
             label="N Latitude (°)"
             value={localEndValue}
-            onChange={handleEndChange}
+            onChange={handleSetEnd}
             onBlur={handleBlurEnd}
             onKeyDown={(e) => { if (e.key === 'Enter') e.target.blur(); }}
             className={`${classes.textField} ${endHasError ? classes.textFieldError : ''}`}
@@ -139,7 +124,6 @@ CompactLatitudeInput.propTypes = {
     min: PropTypes.number.isRequired,
     max: PropTypes.number.isRequired,
   }).isRequired,
-  onLocalChange: PropTypes.func,
 };
 
 export default CompactLatitudeInput;

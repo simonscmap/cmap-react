@@ -104,10 +104,6 @@ const MultiDatasetDownloadContainerInner = ({
     setSelectedPreset('Collection Extent');
   };
 
-  const handleGeoLocalChange = () => {
-    setSelectedPreset('Custom');
-  };
-
   // Handle toggle switch for subset controls
   const handleSwitch = (event) => {
     const controlType = event.target.name;
@@ -312,7 +308,6 @@ const MultiDatasetDownloadContainerInner = ({
             sliderEndpoints={sliderEndpoints}
             onExpandEndpoint={handleExpandEndpoint}
             onSubsetValidationChange={setIsSubsetValid}
-            onGeoLocalChange={handleGeoLocalChange}
             resetButton={
               <ResetToCollectionExtentButton
                 controls={resetButtonControls}
