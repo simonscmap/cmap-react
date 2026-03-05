@@ -112,26 +112,43 @@ const useMultiDatasetRangeInput = ({
     }
   }, [localEndValue, localStartValue, min, max, step, fieldType, allowInversion, endHasBlurred]);
 
-  const handleSlider = (e, [startValue, endValue]) => {
-    const bounds = getEffectiveBounds(min, max, step);
+  const resolveSliderValues = (startValue, endValue) => {
+    let bounds = getEffectiveBounds(min, max, step);
+    let isInverted = allowInversion && localSliderStart > localSliderEnd;
 
     let newStart = localSliderStart;
     let newEnd = localSliderEnd;
 
-    if (startValue !== localSliderStart) {
-      newStart = clampValue(
-        roundToStep(startValue, step),
-        bounds.min,
-        bounds.max,
-      );
-    }
-    if (endValue !== localSliderEnd) {
-      newEnd = clampValue(roundToStep(endValue, step), bounds.min, bounds.max);
+    if (isInverted) {
+      let sortedPrevLow = localSliderEnd;
+      let sortedPrevHigh = localSliderStart;
+      if (startValue !== sortedPrevLow) {
+        newEnd = clampValue(roundToStep(startValue, step), bounds.min, bounds.max);
+      }
+      if (endValue !== sortedPrevHigh) {
+        newStart = clampValue(roundToStep(endValue, step), bounds.min, bounds.max);
+      }
+    } else {
+      if (startValue !== localSliderStart) {
+        newStart = clampValue(
+          roundToStep(startValue, step),
+          bounds.min,
+          bounds.max,
+        );
+      }
+      if (endValue !== localSliderEnd) {
+        newEnd = clampValue(roundToStep(endValue, step), bounds.min, bounds.max);
+      }
     }
 
-    const finalStart = allowInversion ? newStart : Math.min(newStart, newEnd);
-    const finalEnd = allowInversion ? newEnd : Math.max(newStart, newEnd);
+    let finalStart = allowInversion ? newStart : Math.min(newStart, newEnd);
+    let finalEnd = allowInversion ? newEnd : Math.max(newStart, newEnd);
 
+    return { finalStart, finalEnd };
+  };
+
+  const handleSlider = (e, [startValue, endValue]) => {
+    let { finalStart, finalEnd } = resolveSliderValues(startValue, endValue);
     setLocalSliderStart(finalStart);
     setLocalSliderEnd(finalEnd);
     setLocalStartValue(String(finalStart));
@@ -139,25 +156,7 @@ const useMultiDatasetRangeInput = ({
   };
 
   const handleSliderCommit = (e, [startValue, endValue]) => {
-    const bounds = getEffectiveBounds(min, max, step);
-
-    let newStart = localSliderStart;
-    let newEnd = localSliderEnd;
-
-    if (startValue !== localSliderStart) {
-      newStart = clampValue(
-        roundToStep(startValue, step),
-        bounds.min,
-        bounds.max,
-      );
-    }
-    if (endValue !== localSliderEnd) {
-      newEnd = clampValue(roundToStep(endValue, step), bounds.min, bounds.max);
-    }
-
-    const finalStart = allowInversion ? newStart : Math.min(newStart, newEnd);
-    const finalEnd = allowInversion ? newEnd : Math.max(newStart, newEnd);
-
+    let { finalStart, finalEnd } = resolveSliderValues(startValue, endValue);
     if (finalStart !== start) {
       setStart(finalStart);
     }
