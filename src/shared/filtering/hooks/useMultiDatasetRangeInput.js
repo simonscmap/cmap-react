@@ -112,26 +112,43 @@ const useMultiDatasetRangeInput = ({
     }
   }, [localEndValue, localStartValue, min, max, step, fieldType, allowInversion, endHasBlurred]);
 
-  const handleSlider = (e, [startValue, endValue]) => {
-    const bounds = getEffectiveBounds(min, max, step);
+  const resolveSliderValues = (startValue, endValue) => {
+    let bounds = getEffectiveBounds(min, max, step);
+    let isInverted = allowInversion && start >= end;
 
     let newStart = localSliderStart;
     let newEnd = localSliderEnd;
 
-    if (startValue !== localSliderStart) {
-      newStart = clampValue(
-        roundToStep(startValue, step),
-        bounds.min,
-        bounds.max,
-      );
-    }
-    if (endValue !== localSliderEnd) {
-      newEnd = clampValue(roundToStep(endValue, step), bounds.min, bounds.max);
+    if (isInverted) {
+      let sortedPrevLow = localSliderEnd;
+      let sortedPrevHigh = localSliderStart;
+      if (startValue !== sortedPrevLow) {
+        newEnd = clampValue(roundToStep(startValue, step), bounds.min, bounds.max);
+      }
+      if (endValue !== sortedPrevHigh) {
+        newStart = clampValue(roundToStep(endValue, step), bounds.min, bounds.max);
+      }
+    } else {
+      if (startValue !== localSliderStart) {
+        newStart = clampValue(
+          roundToStep(startValue, step),
+          bounds.min,
+          bounds.max,
+        );
+      }
+      if (endValue !== localSliderEnd) {
+        newEnd = clampValue(roundToStep(endValue, step), bounds.min, bounds.max);
+      }
     }
 
-    const finalStart = allowInversion ? newStart : Math.min(newStart, newEnd);
-    const finalEnd = allowInversion ? newEnd : Math.max(newStart, newEnd);
+    let finalStart = allowInversion ? newStart : Math.min(newStart, newEnd);
+    let finalEnd = allowInversion ? newEnd : Math.max(newStart, newEnd);
 
+    return { finalStart, finalEnd };
+  };
+
+  const handleSlider = (e, [startValue, endValue]) => {
+    let { finalStart, finalEnd } = resolveSliderValues(startValue, endValue);
     setLocalSliderStart(finalStart);
     setLocalSliderEnd(finalEnd);
     setLocalStartValue(String(finalStart));
@@ -139,29 +156,11 @@ const useMultiDatasetRangeInput = ({
   };
 
   const handleSliderCommit = (e, [startValue, endValue]) => {
-    const bounds = getEffectiveBounds(min, max, step);
-
-    let newStart = localSliderStart;
-    let newEnd = localSliderEnd;
-
-    if (startValue !== localSliderStart) {
-      newStart = clampValue(
-        roundToStep(startValue, step),
-        bounds.min,
-        bounds.max,
-      );
-    }
-    if (endValue !== localSliderEnd) {
-      newEnd = clampValue(roundToStep(endValue, step), bounds.min, bounds.max);
-    }
-
-    const finalStart = allowInversion ? newStart : Math.min(newStart, newEnd);
-    const finalEnd = allowInversion ? newEnd : Math.max(newStart, newEnd);
-
-    if (finalStart !== start) {
+    let { finalStart, finalEnd } = resolveSliderValues(startValue, endValue);
+    if (Math.abs(finalStart - start) >= 0.0001) {
       setStart(finalStart);
     }
-    if (finalEnd !== end) {
+    if (Math.abs(finalEnd - end) >= 0.0001) {
       setEnd(finalEnd);
     }
   };
@@ -174,7 +173,7 @@ const useMultiDatasetRangeInput = ({
     setLocalEndValue(e.target.value);
   };
 
-  const createBlurHandler = (isStart, localValue, setValue, validationState, setHasBlurred) => {
+  const createBlurHandler = (isStart, localValue, currentValue, setValue, setLocalValue, validationState, setHasBlurred) => {
     return () => {
       setHasBlurred(true);
 
@@ -184,6 +183,12 @@ const useMultiDatasetRangeInput = ({
 
       let value = parseFloat(localValue);
       let roundedValue = roundToStep(value, step);
+
+      setLocalValue(String(roundedValue));
+
+      if (roundedValue === currentValue) {
+        return;
+      }
 
       if (onExpandEndpoint && fieldType) {
         let endpointFieldName = isStart
@@ -199,7 +204,9 @@ const useMultiDatasetRangeInput = ({
   const handleBlurStart = createBlurHandler(
     true,
     localStartValue,
+    start,
     setStart,
+    setLocalStartValue,
     startValidationState,
     setStartHasBlurred,
   );
@@ -207,7 +214,9 @@ const useMultiDatasetRangeInput = ({
   const handleBlurEnd = createBlurHandler(
     false,
     localEndValue,
+    end,
     setEnd,
+    setLocalEndValue,
     endValidationState,
     setEndHasBlurred,
   );

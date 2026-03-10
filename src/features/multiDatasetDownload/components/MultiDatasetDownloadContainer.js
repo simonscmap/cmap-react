@@ -73,7 +73,7 @@ const MultiDatasetDownloadContainerInner = ({
   onDownloadComplete,
   geographicPresets,
 }) => {
-  const { resetStore } = useMultiDatasetDownloadStore();
+  const { resetStore, datasetsMetadata } = useMultiDatasetDownloadStore();
   const filteredItems = useFilteredItems();
 
   const collectionExtent = aggregateDatasetMetadata ? {
@@ -102,10 +102,6 @@ const MultiDatasetDownloadContainerInner = ({
 
   const handleResetPreset = () => {
     setSelectedPreset('Collection Extent');
-  };
-
-  const handleGeoLocalChange = () => {
-    setSelectedPreset('Custom');
   };
 
   // Handle toggle switch for subset controls
@@ -224,8 +220,8 @@ const MultiDatasetDownloadContainerInner = ({
   }, [resetStore]);
 
   useEffect(() => {
-    if (filteredItems?.length > 0) {
-      const shortNames = filteredItems.map((d) => d.Dataset_Name);
+    if (datasetsMetadata && datasetsMetadata.length > 0) {
+      const shortNames = datasetsMetadata.map((d) => d.Dataset_Name);
       const constraints = transformConstraintsForRowCount(filterValues);
       log.debug('initializing row count feature', {
         datasetCount: shortNames.length,
@@ -236,10 +232,10 @@ const MultiDatasetDownloadContainerInner = ({
     return () => {
       clearRowCounts();
     };
-  }, [filteredItems]);
+  }, [datasetsMetadata]);
 
   useEffect(() => {
-    if (filteredItems?.length > 0) {
+    if (datasetsMetadata && datasetsMetadata.length > 0) {
       const constraints = transformConstraintsForRowCount(filterValues);
       reEstimateWithConstraints(constraints);
     }
@@ -312,7 +308,6 @@ const MultiDatasetDownloadContainerInner = ({
             sliderEndpoints={sliderEndpoints}
             onExpandEndpoint={handleExpandEndpoint}
             onSubsetValidationChange={setIsSubsetValid}
-            onGeoLocalChange={handleGeoLocalChange}
             resetButton={
               <ResetToCollectionExtentButton
                 controls={resetButtonControls}

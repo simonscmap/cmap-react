@@ -17,7 +17,10 @@ const fetchWithAuth = async (url, options) => {
   const response = await fetch(url, options);
 
   if (response.status === 401) {
-    store.dispatch(refreshLoginWithMessage());
+    let state = store.getState();
+    if (state.user) {
+      store.dispatch(refreshLoginWithMessage());
+    }
   }
 
   return response;

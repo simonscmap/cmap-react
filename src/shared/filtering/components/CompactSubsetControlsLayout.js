@@ -131,7 +131,6 @@ const CompactSubsetControlsLayout = ({
   sliderEndpoints,
   onExpandEndpoint,
   onSubsetValidationChange,
-  onGeoLocalChange,
   resetButton,
 }) => {
   const classes = useStyles();
@@ -196,12 +195,6 @@ const CompactSubsetControlsLayout = ({
   const handleDateInvalidFlag = useCallback((invalid) => {
     setDateInvalid(invalid);
   }, []);
-
-  const handleGeoLocalChange = useCallback(() => {
-    if (onGeoLocalChange) {
-      onGeoLocalChange();
-    }
-  }, [onGeoLocalChange]);
 
   return (
     <React.Fragment>
@@ -291,7 +284,6 @@ const CompactSubsetControlsLayout = ({
                 sliderStart={latRange.sliderStart}
                 sliderEnd={latRange.sliderEnd}
                 bounds={latRange.bounds}
-                onLocalChange={handleGeoLocalChange}
               />
 
               <CompactLongitudeInput
@@ -312,7 +304,6 @@ const CompactSubsetControlsLayout = ({
                 sliderStart={lonRange.sliderStart}
                 sliderEnd={lonRange.sliderEnd}
                 bounds={lonRange.bounds}
-                onLocalChange={handleGeoLocalChange}
               />
 
               <Box style={{ marginTop: 'auto' }}>
@@ -428,7 +419,6 @@ CompactSubsetControlsLayout.propTypes = {
   }),
   onExpandEndpoint: PropTypes.func,
   onSubsetValidationChange: PropTypes.func,
-  onGeoLocalChange: PropTypes.func,
 };
 
 export default CompactSubsetControlsLayout;
