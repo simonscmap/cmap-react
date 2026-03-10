@@ -114,7 +114,7 @@ const useMultiDatasetRangeInput = ({
 
   const resolveSliderValues = (startValue, endValue) => {
     let bounds = getEffectiveBounds(min, max, step);
-    let isInverted = allowInversion && localSliderStart > localSliderEnd;
+    let isInverted = allowInversion && start >= end;
 
     let newStart = localSliderStart;
     let newEnd = localSliderEnd;
