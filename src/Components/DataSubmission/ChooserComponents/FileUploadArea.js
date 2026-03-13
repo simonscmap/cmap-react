@@ -27,8 +27,13 @@ const useStyles = makeStyles((theme) => ({
     justifyContent: 'center',
     margin: '30px 0',
     padding: '1.5em',
+    minHeight: '400px',
     whiteSpace: 'pre-wrap',
     border: `1px dashed ${theme.palette.primary.light}`,
+    transition: 'border-color 0.15s, background-color 0.15s',
+  },
+  paperAreaDragOver: {
+    backgroundColor: 'rgba(157, 209, 98, 0.08)',
   },
   rowOne: {
     display: 'flex',
@@ -67,6 +72,8 @@ const FileUploadArea = (props) => {
   const dispatch = useDispatch();
   const cl = useStyles();
 
+  let [dragCount, setDragCount] = useState(0);
+
   const subType = useSelector((state) => state.submissionType);
   const subNameToUpdate = useSelector((state) => {
     if (state.submissionType === 'update' && state.submissionToUpdate) {
@@ -92,9 +99,20 @@ const FileUploadArea = (props) => {
     dispatch(checkSubmissionOptionsAndStoreFile(file, subToUpdate));
   };
 
+  const handleDragEnter = (e) => {
+    e.preventDefault();
+    setDragCount((c) => c + 1);
+  };
+
+  const handleDragLeave = (e) => {
+    e.preventDefault();
+    setDragCount((c) => c - 1);
+  };
+
   const handleFileDrop = (e) => {
     console.log('file dropped; processing', e);
     e.preventDefault();
+    setDragCount(0);
     clearPrev();
     const file = e.dataTransfer.items[0].getAsFile();
     selectFile(file);
@@ -153,7 +171,9 @@ const FileUploadArea = (props) => {
   return (
     <Paper
       elevation={2}
-      className={cl.paperArea}
+      className={dragCount > 0 ? `${cl.paperArea} ${cl.paperAreaDragOver}` : cl.paperArea}
+      onDragEnter={handleDragEnter}
+      onDragLeave={handleDragLeave}
       onDragOver={handleDragOver}
       onDrop={handleFileDrop}
     >
