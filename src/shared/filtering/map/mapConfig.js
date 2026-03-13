@@ -10,15 +10,13 @@ let WORLD_EXTENT = {
 };
 
 let BASEMAPS = {
-  topographic: { type: 'portalItem', id: '6b4764e99107496f9193e4b68a77b73a' },
-  terrainWithLabels: { type: 'portalItem', id: 'ccb943d91c134188a8815452514983fc' },
-  imagery: { type: 'portalItem', id: '52bdc7ab7fb044d98add148764eaa30a' },
-  imageryHybrid: { type: 'portalItem', id: '4c2b44abaa4841d08c938f4bbb548561' },
-  arcgisOceans: { type: 'enum', id: 'arcgis/oceans' },
-  arcgisImagery: { type: 'enum', id: 'arcgis/imagery' },
+  topographic: '6b4764e99107496f9193e4b68a77b73a',
+  terrainWithLabels: 'ccb943d91c134188a8815452514983fc',
+  imagery: '52bdc7ab7fb044d98add148764eaa30a',
+  imageryHybrid: '4c2b44abaa4841d08c938f4bbb548561',
 };
 
-let ACTIVE_BASEMAP = BASEMAPS.arcgisOceans;
+let ACTIVE_BASEMAP = BASEMAPS.imagery;
 
 let RECTANGLE_SYMBOL = {
   type: 'simple-fill',
@@ -47,7 +45,7 @@ let HIGHLIGHT_OPTIONS = {
   haloOpacity: .5,
 };
 
-let ESRI_VERSION = '4.28';
+let ESRI_VERSION = '4.24';
 
 export {
   SPATIAL_REFERENCE,

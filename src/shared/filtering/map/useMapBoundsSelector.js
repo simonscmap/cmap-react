@@ -212,17 +212,10 @@ const useMapBoundsSelector = ({
       let graphicsLayer = new modules.GraphicsLayer();
       graphicsLayerRef.current = graphicsLayer;
 
-      let basemap;
-      if (ACTIVE_BASEMAP.type === 'enum') {
-        basemap = ACTIVE_BASEMAP.id;
-      } else {
-        basemap = new modules.Basemap({
-          portalItem: { id: ACTIVE_BASEMAP.id },
-        });
-      }
-
       let map = new modules.Map({
-        basemap: basemap,
+        basemap: new modules.Basemap({
+          portalItem: { id: ACTIVE_BASEMAP },
+        }),
         layers: [graphicsLayer],
       });
 
