@@ -25,7 +25,7 @@ function normalizeLon(lon) {
 
 let MAX_LON_SPAN = 359.9;
 
-function constrainLonExtent(extent, prevExtent) {
+function constrainLonSpan(extent, prevExtent) {
   let lonSpan = extent.xmax - extent.xmin;
   if (lonSpan <= MAX_LON_SPAN) {
     return null;
@@ -48,6 +48,28 @@ function constrainLonExtent(extent, prevExtent) {
   }
 
   return { xmin: xmin, xmax: xmax, ymin: extent.ymin, ymax: extent.ymax };
+}
+
+function constrainLatBounds(extent) {
+  let ymin = extent.ymin;
+  let ymax = extent.ymax;
+
+  if (ymax > 90) {
+    let shift = ymax - 90;
+    ymax = 90;
+    ymin = ymin - shift;
+  }
+  if (ymin < -90) {
+    let shift = -90 - ymin;
+    ymin = -90;
+    ymax = ymax + shift;
+  }
+
+  if (ymin === extent.ymin && ymax === extent.ymax) {
+    return null;
+  }
+
+  return { xmin: extent.xmin, xmax: extent.xmax, ymin: ymin, ymax: ymax };
 }
 
 const useMapBoundsSelector = ({
@@ -309,19 +331,19 @@ const useMapBoundsSelector = ({
             } else if (event.state === 'active') {
               let extent = event.graphic.geometry && event.graphic.geometry.extent;
               if (extent) {
-                let clamped = constrainLonExtent(extent, prevExtentRef.current);
-                if (clamped) {
+                let result = constrainLonSpan(extent, prevExtentRef.current) || extent;
+                result = constrainLatBounds(result) || result;
+                if (result !== extent) {
                   event.graphic.geometry = new modules.Polygon({
                     rings: [[
-                      [clamped.xmin, clamped.ymin], [clamped.xmax, clamped.ymin],
-                      [clamped.xmax, clamped.ymax], [clamped.xmin, clamped.ymax],
-                      [clamped.xmin, clamped.ymin],
+                      [result.xmin, result.ymin], [result.xmax, result.ymin],
+                      [result.xmax, result.ymax], [result.xmin, result.ymax],
+                      [result.xmin, result.ymin],
                     ]],
                     spatialReference: SPATIAL_REFERENCE,
                   });
                 }
-                let final = clamped || extent;
-                prevExtentRef.current = { xmin: final.xmin, xmax: final.xmax, ymin: final.ymin, ymax: final.ymax };
+                prevExtentRef.current = { xmin: result.xmin, xmax: result.xmax, ymin: result.ymin, ymax: result.ymax };
               }
               updateBoundsRef.current(event.graphic.geometry);
             } else if (event.state === 'complete') {
@@ -342,19 +364,19 @@ const useMapBoundsSelector = ({
               let graphic = event.graphics[0];
               let extent = graphic.geometry && graphic.geometry.extent;
               if (extent) {
-                let clamped = constrainLonExtent(extent, prevExtentRef.current);
-                if (clamped) {
+                let result = constrainLonSpan(extent, prevExtentRef.current) || extent;
+                result = constrainLatBounds(result) || result;
+                if (result !== extent) {
                   graphic.geometry = new modules.Polygon({
                     rings: [[
-                      [clamped.xmin, clamped.ymin], [clamped.xmax, clamped.ymin],
-                      [clamped.xmax, clamped.ymax], [clamped.xmin, clamped.ymax],
-                      [clamped.xmin, clamped.ymin],
+                      [result.xmin, result.ymin], [result.xmax, result.ymin],
+                      [result.xmax, result.ymax], [result.xmin, result.ymax],
+                      [result.xmin, result.ymin],
                     ]],
                     spatialReference: SPATIAL_REFERENCE,
                   });
                 }
-                let final = clamped || extent;
-                prevExtentRef.current = { xmin: final.xmin, xmax: final.xmax, ymin: final.ymin, ymax: final.ymax };
+                prevExtentRef.current = { xmin: result.xmin, xmax: result.xmax, ymin: result.ymin, ymax: result.ymax };
               }
               isUpdatingFromMapRef.current = true;
               updateBoundsRef.current(graphic.geometry);
