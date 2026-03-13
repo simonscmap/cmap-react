@@ -23,6 +23,33 @@ function normalizeLon(lon) {
   return ((lon % 360) + 540) % 360 - 180;
 }
 
+let MAX_LON_SPAN = 359.9;
+
+function constrainLonExtent(extent, prevExtent) {
+  let lonSpan = extent.xmax - extent.xmin;
+  if (lonSpan <= MAX_LON_SPAN) {
+    return null;
+  }
+
+  let xmin = extent.xmin;
+  let xmax = extent.xmax;
+
+  if (prevExtent) {
+    let xminDelta = Math.abs(xmin - prevExtent.xmin);
+    let xmaxDelta = Math.abs(xmax - prevExtent.xmax);
+    if (xminDelta > xmaxDelta) {
+      xmin = xmax - MAX_LON_SPAN;
+    } else {
+      xmax = xmin + MAX_LON_SPAN;
+    }
+  } else {
+    xmin = -180;
+    xmax = 180;
+  }
+
+  return { xmin: xmin, xmax: xmax, ymin: extent.ymin, ymax: extent.ymax };
+}
+
 const useMapBoundsSelector = ({
   latStart,
   latEnd,
@@ -53,6 +80,7 @@ const useMapBoundsSelector = ({
   let updateGraphicRef = useRef(null);
   let transformDebounceRef = useRef(null);
   let wheelHandlerRef = useRef(null);
+  let prevExtentRef = useRef(null);
 
   settersRef.current = { setLatStart, setLatEnd, setLonStart, setLonEnd };
 
@@ -145,6 +173,7 @@ const useMapBoundsSelector = ({
     if (!graphicsLayerRef.current || !modules || isUpdatingFromMapRef.current) {
       return;
     }
+    prevExtentRef.current = null;
 
     if (sketchViewModelRef.current) {
       sketchViewModelRef.current.cancel();
@@ -276,7 +305,24 @@ const useMapBoundsSelector = ({
           sketchViewModel.on('create', function (event) {
             if (event.state === 'start') {
               isUpdatingFromMapRef.current = true;
+              prevExtentRef.current = null;
             } else if (event.state === 'active') {
+              let extent = event.graphic.geometry && event.graphic.geometry.extent;
+              if (extent) {
+                let clamped = constrainLonExtent(extent, prevExtentRef.current);
+                if (clamped) {
+                  event.graphic.geometry = new modules.Polygon({
+                    rings: [[
+                      [clamped.xmin, clamped.ymin], [clamped.xmax, clamped.ymin],
+                      [clamped.xmax, clamped.ymax], [clamped.xmin, clamped.ymax],
+                      [clamped.xmin, clamped.ymin],
+                    ]],
+                    spatialReference: SPATIAL_REFERENCE,
+                  });
+                }
+                let final = clamped || extent;
+                prevExtentRef.current = { xmin: final.xmin, xmax: final.xmax, ymin: final.ymin, ymax: final.ymax };
+              }
               updateBoundsRef.current(event.graphic.geometry);
             } else if (event.state === 'complete') {
               updateBoundsRef.current(event.graphic.geometry);
@@ -293,8 +339,25 @@ const useMapBoundsSelector = ({
 
           sketchViewModel.on('update', function (event) {
             if (event.state === 'active' && event.graphics && event.graphics.length > 0) {
+              let graphic = event.graphics[0];
+              let extent = graphic.geometry && graphic.geometry.extent;
+              if (extent) {
+                let clamped = constrainLonExtent(extent, prevExtentRef.current);
+                if (clamped) {
+                  graphic.geometry = new modules.Polygon({
+                    rings: [[
+                      [clamped.xmin, clamped.ymin], [clamped.xmax, clamped.ymin],
+                      [clamped.xmax, clamped.ymax], [clamped.xmin, clamped.ymax],
+                      [clamped.xmin, clamped.ymin],
+                    ]],
+                    spatialReference: SPATIAL_REFERENCE,
+                  });
+                }
+                let final = clamped || extent;
+                prevExtentRef.current = { xmin: final.xmin, xmax: final.xmax, ymin: final.ymin, ymax: final.ymax };
+              }
               isUpdatingFromMapRef.current = true;
-              updateBoundsRef.current(event.graphics[0].geometry);
+              updateBoundsRef.current(graphic.geometry);
             } else if (event.state === 'complete' && event.graphics && event.graphics.length > 0) {
               if (isUpdatingFromMapRef.current) {
                 updateBoundsRef.current(event.graphics[0].geometry);
