@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { loadModules } from 'esri-loader';
+import { ESRI_VERSION } from '../../../../shared/filtering/map/mapConfig';
 import Globe from './Scene';
 
 // Globe Container (Load Modules, instantiate Scene)
@@ -28,7 +29,7 @@ const loadEsriModules = async (done) => {
     'esri/geometry/Polyline',
   ];
 
-  const loadedModules = await loadModules(moduleLoadPaths, { version: '4.28' });
+  const loadedModules = await loadModules(moduleLoadPaths, { version: ESRI_VERSION });
 
   // create map of { moduleName: loadedModule }
   const esriModules = moduleNames.reduce((acc, curr, index) => {

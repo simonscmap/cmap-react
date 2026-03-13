@@ -3,6 +3,7 @@
  */
 import { ThemeProvider, withStyles } from '@material-ui/core';
 import { loadModules } from 'esri-loader';
+import { ESRI_VERSION } from '../../shared/filtering/map/mapConfig';
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { Route, Switch } from 'react-router-dom';
@@ -156,7 +157,7 @@ class Visualization extends Component {
         'esri/Graphic',
         'esri/layers/FeatureLayer',
       ],
-      { version: '4.28' },
+      { version: ESRI_VERSION },
     );
 
     var esriModules = esriModuleNames.reduce(
