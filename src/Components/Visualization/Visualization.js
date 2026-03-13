@@ -156,7 +156,7 @@ class Visualization extends Component {
         'esri/Graphic',
         'esri/layers/FeatureLayer',
       ],
-      { version: '4.24' },
+      { version: '4.28' },
     );
 
     var esriModules = esriModuleNames.reduce(
@@ -249,9 +249,8 @@ class Visualization extends Component {
 
           {this.state.esriModules && (
             <div
-              className={`${
-                this.props.plotsActiveTab === 0 ? '' : classes.displayNone
-              }`}
+              className={`${this.props.plotsActiveTab === 0 ? '' : classes.displayNone
+                }`}
             >
               <MapContainer
                 globeUIRef={this.globeUIRef}
