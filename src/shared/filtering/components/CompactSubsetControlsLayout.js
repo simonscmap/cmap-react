@@ -188,6 +188,20 @@ const CompactSubsetControlsLayout = ({
     setLonValid(lonRange.isValid);
   }, [lonRange.isValid]);
 
+  let handleMapBoundsChange = useCallback(function (latStart, latEnd, lonStart, lonEnd) {
+    wrappedGeoHandlers.latitude.setLatStart(latStart);
+    wrappedGeoHandlers.latitude.setLatEnd(latEnd);
+    wrappedGeoHandlers.longitude.setLonStart(lonStart);
+    wrappedGeoHandlers.longitude.setLonEnd(lonEnd);
+
+    if (onExpandEndpoint) {
+      onExpandEndpoint(FIELD_TYPES.LAT, 'latMin', latStart);
+      onExpandEndpoint(FIELD_TYPES.LAT, 'latMax', latEnd);
+      onExpandEndpoint(FIELD_TYPES.LON, 'lonMin', lonStart, lonEnd);
+      onExpandEndpoint(FIELD_TYPES.LON, 'lonMax', lonEnd, lonStart);
+    }
+  }, [wrappedGeoHandlers, onExpandEndpoint]);
+
   const handleDepthValidation = useCallback((valid) => {
     setDepthValid(valid);
   }, []);
@@ -318,10 +332,7 @@ const CompactSubsetControlsLayout = ({
                 latEnd={latRange.sliderEnd}
                 lonStart={lonRange.sliderStart}
                 lonEnd={lonRange.sliderEnd}
-                setLatStart={wrappedGeoHandlers.latitude.setLatStart}
-                setLatEnd={wrappedGeoHandlers.latitude.setLatEnd}
-                setLonStart={wrappedGeoHandlers.longitude.setLonStart}
-                setLonEnd={wrappedGeoHandlers.longitude.setLonEnd}
+                onBoundsChange={handleMapBoundsChange}
               />
             </Box>
           </Box>

@@ -81,6 +81,7 @@ const useMapBoundsSelector = ({
   setLatEnd,
   setLonStart,
   setLonEnd,
+  onBoundsChange,
 }) => {
   let [modules, setModules] = useState(null);
   let [loading, setLoading] = useState(true);
@@ -98,6 +99,7 @@ const useMapBoundsSelector = ({
   let minZoomThresholdRef = useRef(null);
   let modeRef = useRef(MODE_PAN);
   let settersRef = useRef({ setLatStart, setLatEnd, setLonStart, setLonEnd });
+  let onBoundsChangeRef = useRef(onBoundsChange);
   let updateBoundsRef = useRef(null);
   let updateGraphicRef = useRef(null);
   let transformDebounceRef = useRef(null);
@@ -105,6 +107,7 @@ const useMapBoundsSelector = ({
   let prevExtentRef = useRef(null);
 
   settersRef.current = { setLatStart, setLatEnd, setLonStart, setLonEnd };
+  onBoundsChangeRef.current = onBoundsChange;
 
   useEffect(() => {
     let cancelled = false;
@@ -175,10 +178,14 @@ const useMapBoundsSelector = ({
     let minLat = clampAndRound(extent.ymin, -90, 90);
     let maxLat = clampAndRound(extent.ymax, -90, 90);
 
-    settersRef.current.setLatStart(minLat);
-    settersRef.current.setLatEnd(maxLat);
-    settersRef.current.setLonStart(westLon);
-    settersRef.current.setLonEnd(eastLon);
+    if (onBoundsChangeRef.current) {
+      onBoundsChangeRef.current(minLat, maxLat, westLon, eastLon);
+    } else {
+      settersRef.current.setLatStart(minLat);
+      settersRef.current.setLatEnd(maxLat);
+      settersRef.current.setLonStart(westLon);
+      settersRef.current.setLonEnd(eastLon);
+    }
 
     if (isUpdatingTimeoutRef.current) {
       clearTimeout(isUpdatingTimeoutRef.current);

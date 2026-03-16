@@ -57,6 +57,7 @@ const MapBoundsSelector = ({
   setLatEnd,
   setLonStart,
   setLonEnd,
+  onBoundsChange,
   toolbarOrientation,
 }) => {
   let classes = useStyles();
@@ -82,6 +83,7 @@ const MapBoundsSelector = ({
     setLatEnd,
     setLonStart,
     setLonEnd,
+    onBoundsChange,
   });
 
   let cleanupRef = useRef(null);
@@ -142,10 +144,11 @@ MapBoundsSelector.propTypes = {
   latEnd: PropTypes.number.isRequired,
   lonStart: PropTypes.number.isRequired,
   lonEnd: PropTypes.number.isRequired,
-  setLatStart: PropTypes.func.isRequired,
-  setLatEnd: PropTypes.func.isRequired,
-  setLonStart: PropTypes.func.isRequired,
-  setLonEnd: PropTypes.func.isRequired,
+  setLatStart: PropTypes.func,
+  setLatEnd: PropTypes.func,
+  setLonStart: PropTypes.func,
+  setLonEnd: PropTypes.func,
+  onBoundsChange: PropTypes.func,
   toolbarOrientation: PropTypes.oneOf(['vertical', 'horizontal']),
 };
 
