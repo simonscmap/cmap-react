@@ -72,6 +72,15 @@ function constrainLatBounds(extent) {
   return { xmin: extent.xmin, xmax: extent.xmax, ymin: ymin, ymax: ymax };
 }
 
+function clampLatBounds(extent) {
+  let ymin = Math.max(-90, extent.ymin);
+  let ymax = Math.min(90, extent.ymax);
+  if (ymin === extent.ymin && ymax === extent.ymax) {
+    return null;
+  }
+  return { xmin: extent.xmin, xmax: extent.xmax, ymin: ymin, ymax: ymax };
+}
+
 const useMapBoundsSelector = ({
   latStart,
   latEnd,
@@ -339,7 +348,7 @@ const useMapBoundsSelector = ({
               let extent = event.graphic.geometry && event.graphic.geometry.extent;
               if (extent) {
                 let result = constrainLonSpan(extent, prevExtentRef.current) || extent;
-                result = constrainLatBounds(result) || result;
+                result = clampLatBounds(result) || result;
                 if (result !== extent) {
                   event.graphic.geometry = new modules.Polygon({
                     rings: [[
@@ -372,7 +381,9 @@ const useMapBoundsSelector = ({
               let extent = graphic.geometry && graphic.geometry.extent;
               if (extent) {
                 let result = constrainLonSpan(extent, prevExtentRef.current) || extent;
-                result = constrainLatBounds(result) || result;
+                let isResize = event.toolEventInfo && event.toolEventInfo.type
+                  && event.toolEventInfo.type.indexOf('scale') === 0;
+                result = isResize ? (clampLatBounds(result) || result) : (constrainLatBounds(result) || result);
                 if (result !== extent) {
                   graphic.geometry = new modules.Polygon({
                     rings: [[
