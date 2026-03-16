@@ -458,8 +458,15 @@ const useMapBoundsSelector = ({
       }
       boundsGraphicRef.current = null;
       sketchViewModelRef.current.create('rectangle');
-    } else if (newMode === MODE_PAN && sketchViewModelRef.current) {
-      sketchViewModelRef.current.cancel();
+    } else if (newMode === MODE_PAN) {
+      if (isUpdatingTimeoutRef.current) {
+        clearTimeout(isUpdatingTimeoutRef.current);
+        isUpdatingTimeoutRef.current = null;
+      }
+      isUpdatingFromMapRef.current = false;
+      if (sketchViewModelRef.current) {
+        updateGraphicRef.current();
+      }
     }
   }, []);
 
