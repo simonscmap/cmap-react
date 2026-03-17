@@ -236,6 +236,21 @@ const useMapBoundsSelector = ({
 
   updateGraphicRef.current = updateGraphicFromBounds;
 
+  let redrawGraphic = useCallback(function () {
+    if (boundsGraphicRef.current) {
+      return;
+    }
+    if (isUpdatingTimeoutRef.current) {
+      clearTimeout(isUpdatingTimeoutRef.current);
+      isUpdatingTimeoutRef.current = null;
+    }
+    isUpdatingFromMapRef.current = false;
+    setModeState(MODE_PAN);
+    if (sketchViewModelRef.current) {
+      updateGraphicRef.current();
+    }
+  }, []);
+
   useEffect(() => {
     updateGraphicFromBounds();
   }, [updateGraphicFromBounds]);
@@ -496,6 +511,7 @@ const useMapBoundsSelector = ({
     setMode,
     zoomIn,
     zoomOut,
+    redrawGraphic,
   };
 };
 

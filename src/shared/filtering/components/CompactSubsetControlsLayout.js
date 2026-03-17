@@ -14,7 +14,7 @@
  * @module CompactSubsetControlsLayout
  */
 
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import PropTypes from 'prop-types';
 import { Box, Collapse, Typography } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
@@ -134,6 +134,7 @@ const CompactSubsetControlsLayout = ({
   resetButton,
 }) => {
   const classes = useStyles();
+  let mapRedrawRef = useRef(null);
 
   const { date, latitude, longitude, depth } = controls;
 
@@ -275,7 +276,12 @@ const CompactSubsetControlsLayout = ({
 
               <CompactPresetGeographicBounds
                 selectedPreset={selectedPreset}
-                onPresetSelect={onPresetSelect}
+                onPresetSelect={function (label, bounds, preset) {
+                  onPresetSelect(label, bounds, preset);
+                  if (mapRedrawRef.current) {
+                    mapRedrawRef.current();
+                  }
+                }}
                 geographicPresets={geographicPresets}
                 collectionExtent={collectionExtent}
               />
@@ -333,6 +339,7 @@ const CompactSubsetControlsLayout = ({
                 lonStart={lonRange.sliderStart}
                 lonEnd={lonRange.sliderEnd}
                 onBoundsChange={handleMapBoundsChange}
+                redrawRef={mapRedrawRef}
               />
             </Box>
           </Box>

@@ -59,6 +59,7 @@ const MapBoundsSelector = ({
   setLonEnd,
   onBoundsChange,
   toolbarOrientation,
+  redrawRef,
 }) => {
   let classes = useStyles();
   let mapContainerRef = useRef(null);
@@ -74,6 +75,7 @@ const MapBoundsSelector = ({
     setMode,
     zoomIn,
     zoomOut,
+    redrawGraphic,
   } = useMapBoundsSelector({
     latStart,
     latEnd,
@@ -85,6 +87,10 @@ const MapBoundsSelector = ({
     setLonEnd,
     onBoundsChange,
   });
+
+  if (redrawRef) {
+    redrawRef.current = redrawGraphic;
+  }
 
   let cleanupRef = useRef(null);
 
@@ -150,6 +156,7 @@ MapBoundsSelector.propTypes = {
   setLonEnd: PropTypes.func,
   onBoundsChange: PropTypes.func,
   toolbarOrientation: PropTypes.oneOf(['vertical', 'horizontal']),
+  redrawRef: PropTypes.object,
 };
 
 MapBoundsSelector.defaultProps = {
