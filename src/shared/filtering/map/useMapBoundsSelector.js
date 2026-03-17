@@ -236,19 +236,24 @@ const useMapBoundsSelector = ({
 
   updateGraphicRef.current = updateGraphicFromBounds;
 
-  let redrawGraphic = useCallback(function () {
-    if (boundsGraphicRef.current) {
-      return;
-    }
+  function resetAndRedraw() {
     if (isUpdatingTimeoutRef.current) {
       clearTimeout(isUpdatingTimeoutRef.current);
       isUpdatingTimeoutRef.current = null;
     }
     isUpdatingFromMapRef.current = false;
-    setModeState(MODE_PAN);
     if (sketchViewModelRef.current) {
       updateGraphicRef.current();
     }
+  }
+
+  let redrawGraphic = useCallback(function () {
+    if (boundsGraphicRef.current) {
+      return;
+    }
+    modeRef.current = MODE_PAN;
+    setModeState(MODE_PAN);
+    resetAndRedraw();
   }, []);
 
   useEffect(() => {
@@ -474,14 +479,7 @@ const useMapBoundsSelector = ({
       boundsGraphicRef.current = null;
       sketchViewModelRef.current.create('rectangle');
     } else if (newMode === MODE_PAN) {
-      if (isUpdatingTimeoutRef.current) {
-        clearTimeout(isUpdatingTimeoutRef.current);
-        isUpdatingTimeoutRef.current = null;
-      }
-      isUpdatingFromMapRef.current = false;
-      if (sketchViewModelRef.current) {
-        updateGraphicRef.current();
-      }
+      resetAndRedraw();
     }
   }, []);
 

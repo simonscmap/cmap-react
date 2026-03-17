@@ -136,6 +136,13 @@ const CompactSubsetControlsLayout = ({
   const classes = useStyles();
   let mapRedrawRef = useRef(null);
 
+  let handlePresetWithRedraw = useCallback(function (label, bounds, preset) {
+    onPresetSelect(label, bounds, preset);
+    if (mapRedrawRef.current) {
+      mapRedrawRef.current();
+    }
+  }, [onPresetSelect]);
+
   const { date, latitude, longitude, depth } = controls;
 
   const [latValid, setLatValid] = useState(true);
@@ -276,12 +283,7 @@ const CompactSubsetControlsLayout = ({
 
               <CompactPresetGeographicBounds
                 selectedPreset={selectedPreset}
-                onPresetSelect={function (label, bounds, preset) {
-                  onPresetSelect(label, bounds, preset);
-                  if (mapRedrawRef.current) {
-                    mapRedrawRef.current();
-                  }
-                }}
+                onPresetSelect={handlePresetWithRedraw}
                 geographicPresets={geographicPresets}
                 collectionExtent={collectionExtent}
               />
