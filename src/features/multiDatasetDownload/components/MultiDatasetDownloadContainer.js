@@ -171,13 +171,16 @@ const MultiDatasetDownloadContainerInner = ({
     },
   };
 
-  var handleExpandEndpoint = function (fieldType, fieldName, value) {
+  var handleExpandEndpoint = function (fieldType, fieldName, value, companionValue) {
     if (!sliderEndpoints) return;
 
-    // Longitude antimeridian crossing: need to expand BOTH endpoints to -180/180
     if (fieldType === FIELD_TYPES.LON) {
-      var lonStart = fieldName === ENDPOINT_FIELDS.LON_MIN ? value : filterValues.lonStart;
-      var lonEnd = fieldName === ENDPOINT_FIELDS.LON_MAX ? value : filterValues.lonEnd;
+      var lonStart = fieldName === ENDPOINT_FIELDS.LON_MIN
+        ? value
+        : (companionValue !== undefined ? companionValue : filterValues.lonStart);
+      var lonEnd = fieldName === ENDPOINT_FIELDS.LON_MAX
+        ? value
+        : (companionValue !== undefined ? companionValue : filterValues.lonEnd);
 
       if (lonStart > lonEnd) {
         filterSetters.setSliderEndpoints({

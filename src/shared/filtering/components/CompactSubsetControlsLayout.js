@@ -14,7 +14,7 @@
  * @module CompactSubsetControlsLayout
  */
 
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import PropTypes from 'prop-types';
 import { Box, Collapse, Typography } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
@@ -134,6 +134,7 @@ const CompactSubsetControlsLayout = ({
   resetButton,
 }) => {
   const classes = useStyles();
+  let mapRedrawRef = useRef(null);
 
   const { date, latitude, longitude, depth } = controls;
 
@@ -187,6 +188,20 @@ const CompactSubsetControlsLayout = ({
   useEffect(() => {
     setLonValid(lonRange.isValid);
   }, [lonRange.isValid]);
+
+  let handleMapBoundsChange = useCallback(function (latStart, latEnd, lonStart, lonEnd) {
+    wrappedGeoHandlers.latitude.setLatStart(latStart);
+    wrappedGeoHandlers.latitude.setLatEnd(latEnd);
+    wrappedGeoHandlers.longitude.setLonStart(lonStart);
+    wrappedGeoHandlers.longitude.setLonEnd(lonEnd);
+
+    if (onExpandEndpoint) {
+      onExpandEndpoint(FIELD_TYPES.LAT, 'latMin', latStart);
+      onExpandEndpoint(FIELD_TYPES.LAT, 'latMax', latEnd);
+      onExpandEndpoint(FIELD_TYPES.LON, 'lonMin', lonStart, lonEnd);
+      onExpandEndpoint(FIELD_TYPES.LON, 'lonMax', lonEnd, lonStart);
+    }
+  }, [wrappedGeoHandlers, onExpandEndpoint]);
 
   const handleDepthValidation = useCallback((valid) => {
     setDepthValid(valid);
@@ -261,7 +276,12 @@ const CompactSubsetControlsLayout = ({
 
               <CompactPresetGeographicBounds
                 selectedPreset={selectedPreset}
-                onPresetSelect={onPresetSelect}
+                onPresetSelect={function (label, bounds, preset) {
+                  onPresetSelect(label, bounds, preset);
+                  if (mapRedrawRef.current) {
+                    mapRedrawRef.current();
+                  }
+                }}
                 geographicPresets={geographicPresets}
                 collectionExtent={collectionExtent}
               />
@@ -318,10 +338,8 @@ const CompactSubsetControlsLayout = ({
                 latEnd={latRange.sliderEnd}
                 lonStart={lonRange.sliderStart}
                 lonEnd={lonRange.sliderEnd}
-                setLatStart={wrappedGeoHandlers.latitude.setLatStart}
-                setLatEnd={wrappedGeoHandlers.latitude.setLatEnd}
-                setLonStart={wrappedGeoHandlers.longitude.setLonStart}
-                setLonEnd={wrappedGeoHandlers.longitude.setLonEnd}
+                onBoundsChange={handleMapBoundsChange}
+                redrawRef={mapRedrawRef}
               />
             </Box>
           </Box>
