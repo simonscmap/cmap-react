@@ -213,7 +213,8 @@ const useMapBoundsSelector = ({
     if (wheelHandlerRef.current) {
       wheelHandlerRef.current.container.removeEventListener(
         'wheel',
-        wheelHandlerRef.current.handler
+        wheelHandlerRef.current.handler,
+        { capture: true }
       );
       wheelHandlerRef.current = null;
     }
@@ -275,13 +276,23 @@ const useMapBoundsSelector = ({
 
           view.watch('scale', function (newScale) {
             if (!viewRef.current || viewRef.current !== view) return;
-            setAtMinZoom(newScale >= minZoomThresholdRef.current * 0.95);
+            if (newScale > minZoomThresholdRef.current) {
+              view.scale = minZoomThresholdRef.current;
+              setAtMinZoom(true);
+              return;
+            }
+            let nearLimit = newScale >= minZoomThresholdRef.current * 0.95;
+            setAtMinZoom(nearLimit);
           });
 
           let wheelHandler = function (e) {
-            e.preventDefault();
+            let isZoomingOut = e.deltaY > 0;
+            if (isZoomingOut && view.scale >= minZoomThresholdRef.current) {
+              e.stopImmediatePropagation();
+              e.preventDefault();
+            }
           };
-          container.addEventListener('wheel', wheelHandler, { passive: false });
+          container.addEventListener('wheel', wheelHandler, { capture: true, passive: false });
           wheelHandlerRef.current = { container: container, handler: wheelHandler };
 
           let sketchViewModel = new modules.SketchViewModel({
