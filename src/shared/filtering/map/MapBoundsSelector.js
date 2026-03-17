@@ -58,6 +58,7 @@ const MapBoundsSelector = ({
   setLonStart,
   setLonEnd,
   onBoundsChange,
+  onBoundsPreview,
   toolbarOrientation,
   redrawRef,
 }) => {
@@ -86,6 +87,7 @@ const MapBoundsSelector = ({
     setLonStart,
     setLonEnd,
     onBoundsChange,
+    onBoundsPreview,
   });
 
   if (redrawRef) {
@@ -155,6 +157,7 @@ MapBoundsSelector.propTypes = {
   setLonStart: PropTypes.func,
   setLonEnd: PropTypes.func,
   onBoundsChange: PropTypes.func,
+  onBoundsPreview: PropTypes.func,
   toolbarOrientation: PropTypes.oneOf(['vertical', 'horizontal']),
   redrawRef: PropTypes.object,
 };

@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import {
   roundToStep,
   clampValue,
@@ -233,6 +233,13 @@ const useMultiDatasetRangeInput = ({
     }
   }
 
+  let preview = useCallback(function (startVal, endVal) {
+    setLocalStartValue(String(startVal));
+    setLocalEndValue(String(endVal));
+    setLocalSliderStart(startVal);
+    setLocalSliderEnd(endVal);
+  }, []);
+
   return {
     localStartValue,
     localEndValue,
@@ -249,6 +256,7 @@ const useMultiDatasetRangeInput = ({
     sliderStart: clampValue(localSliderStart, bounds.min, bounds.max),
     sliderEnd: clampValue(localSliderEnd, bounds.min, bounds.max),
     bounds,
+    preview,
   };
 };
 

@@ -32,6 +32,7 @@ const useMapBoundsSelector = ({
   setLonStart,
   setLonEnd,
   onBoundsChange,
+  onBoundsPreview,
 }) => {
   let [modules, setModules] = useState(null);
   let [loading, setLoading] = useState(true);
@@ -50,7 +51,9 @@ const useMapBoundsSelector = ({
   let modeRef = useRef(MODE_PAN);
   let settersRef = useRef({ setLatStart, setLatEnd, setLonStart, setLonEnd });
   let onBoundsChangeRef = useRef(onBoundsChange);
+  let onBoundsPreviewRef = useRef(onBoundsPreview);
   let updateBoundsRef = useRef(null);
+  let previewBoundsRef = useRef(null);
   let updateGraphicRef = useRef(null);
   let transformDebounceRef = useRef(null);
   let wheelHandlerRef = useRef(null);
@@ -58,6 +61,7 @@ const useMapBoundsSelector = ({
 
   settersRef.current = { setLatStart, setLatEnd, setLonStart, setLonEnd };
   onBoundsChangeRef.current = onBoundsChange;
+  onBoundsPreviewRef.current = onBoundsPreview;
 
   useEffect(() => {
     let cancelled = false;
@@ -112,31 +116,20 @@ const useMapBoundsSelector = ({
     [modules],
   );
 
-  let updateBoundsFromGeometry = function (geometry) {
-    if (!geometry) return;
-
-    isUpdatingFromMapRef.current = true;
-
+  let extractBoundsFromGeometry = function (geometry) {
+    if (!geometry) return null;
     let extent = geometry.extent;
-    if (!extent) {
-      isUpdatingFromMapRef.current = false;
-      return;
-    }
+    if (!extent) return null;
+    return {
+      minLat: clampAndRound(extent.ymin, -90, 90),
+      maxLat: clampAndRound(extent.ymax, -90, 90),
+      westLon: clampAndRound(normalizeLon(extent.xmin), -180, 180),
+      eastLon: clampAndRound(normalizeLon(extent.xmax), -180, 180),
+    };
+  };
 
-    let westLon = clampAndRound(normalizeLon(extent.xmin), -180, 180);
-    let eastLon = clampAndRound(normalizeLon(extent.xmax), -180, 180);
-    let minLat = clampAndRound(extent.ymin, -90, 90);
-    let maxLat = clampAndRound(extent.ymax, -90, 90);
-
-    if (onBoundsChangeRef.current) {
-      onBoundsChangeRef.current(minLat, maxLat, westLon, eastLon);
-    } else {
-      settersRef.current.setLatStart(minLat);
-      settersRef.current.setLatEnd(maxLat);
-      settersRef.current.setLonStart(westLon);
-      settersRef.current.setLonEnd(eastLon);
-    }
-
+  let markUpdatingFromMap = function () {
+    isUpdatingFromMapRef.current = true;
     if (isUpdatingTimeoutRef.current) {
       clearTimeout(isUpdatingTimeoutRef.current);
     }
@@ -146,6 +139,38 @@ const useMapBoundsSelector = ({
     }, 100);
   };
 
+  let updateBoundsFromGeometry = function (geometry) {
+    let bounds = extractBoundsFromGeometry(geometry);
+    if (!bounds) {
+      return;
+    }
+
+    markUpdatingFromMap();
+
+    if (onBoundsChangeRef.current) {
+      onBoundsChangeRef.current(bounds.minLat, bounds.maxLat, bounds.westLon, bounds.eastLon);
+    } else {
+      settersRef.current.setLatStart(bounds.minLat);
+      settersRef.current.setLatEnd(bounds.maxLat);
+      settersRef.current.setLonStart(bounds.westLon);
+      settersRef.current.setLonEnd(bounds.eastLon);
+    }
+  };
+
+  let previewBoundsFromGeometry = function (geometry) {
+    let bounds = extractBoundsFromGeometry(geometry);
+    if (!bounds) {
+      return;
+    }
+
+    markUpdatingFromMap();
+
+    if (onBoundsPreviewRef.current) {
+      onBoundsPreviewRef.current(bounds.minLat, bounds.maxLat, bounds.westLon, bounds.eastLon);
+    }
+  };
+
+  previewBoundsRef.current = previewBoundsFromGeometry;
   updateBoundsRef.current = updateBoundsFromGeometry;
 
   let updateGraphicFromBounds = useCallback(() => {
@@ -333,7 +358,11 @@ const useMapBoundsSelector = ({
                 }
                 prevExtentRef.current = { xmin: result.xmin, xmax: result.xmax, ymin: result.ymin, ymax: result.ymax };
               }
-              updateBoundsRef.current(event.graphic.geometry);
+              if (onBoundsPreviewRef.current) {
+                previewBoundsRef.current(event.graphic.geometry);
+              } else {
+                updateBoundsRef.current(event.graphic.geometry);
+              }
             } else if (event.state === 'complete') {
               updateBoundsRef.current(event.graphic.geometry);
               boundsGraphicRef.current = event.graphic;
@@ -369,7 +398,15 @@ const useMapBoundsSelector = ({
                 prevExtentRef.current = { xmin: result.xmin, xmax: result.xmax, ymin: result.ymin, ymax: result.ymax };
               }
               isUpdatingFromMapRef.current = true;
-              updateBoundsRef.current(graphic.geometry);
+              let isMoveOrScaleStop = event.toolEventInfo && event.toolEventInfo.type
+                && (event.toolEventInfo.type === 'move-stop' || event.toolEventInfo.type === 'scale-stop');
+              if (isMoveOrScaleStop) {
+                updateBoundsRef.current(graphic.geometry);
+              } else if (onBoundsPreviewRef.current) {
+                previewBoundsRef.current(graphic.geometry);
+              } else {
+                updateBoundsRef.current(graphic.geometry);
+              }
             } else if (event.state === 'complete' && event.graphics && event.graphics.length > 0) {
               if (isUpdatingFromMapRef.current) {
                 updateBoundsRef.current(event.graphics[0].geometry);
