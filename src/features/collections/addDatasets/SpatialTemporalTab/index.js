@@ -304,6 +304,8 @@ const SpatialTemporalTab = ({
     setSpatialBounds({ latMin: latStart, latMax: latEnd, lonMin: lonStart, lonMax: lonEnd });
   }, [setSpatialBounds]);
 
+  let handleMapBoundsPreview = useCallback(function () {}, []);
+
   const handleSearch = () => {
     if (canSearch()) {
       search();
@@ -383,6 +385,7 @@ const SpatialTemporalTab = ({
                 lonStart={spatialBounds.lonMin}
                 lonEnd={spatialBounds.lonMax}
                 onBoundsChange={handleMapBoundsChange}
+                onBoundsPreview={handleMapBoundsPreview}
               />
             </Box>
 
