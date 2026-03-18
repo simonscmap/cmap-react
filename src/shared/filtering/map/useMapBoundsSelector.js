@@ -9,77 +9,18 @@ import {
   HIGHLIGHT_OPTIONS,
 } from './mapConfig';
 import initLog from '../../../Services/log-service';
+import {
+  clampAndRound,
+  normalizeLon,
+  constrainLonSpan,
+  constrainLatBounds,
+  clampLatBounds,
+} from './mapGeometryUtils';
 
 let log = initLog('shared/filtering/map/useMapBoundsSelector');
 
 const MODE_PAN = 'pan';
 const MODE_SELECT = 'select';
-
-function clampAndRound(value, min, max) {
-  return Math.round(Math.max(min, Math.min(max, value)) * 10) / 10;
-}
-
-function normalizeLon(lon) {
-  return ((lon % 360) + 540) % 360 - 180;
-}
-
-let MAX_LON_SPAN = 359.9;
-
-function constrainLonSpan(extent, prevExtent) {
-  let lonSpan = extent.xmax - extent.xmin;
-  if (lonSpan <= MAX_LON_SPAN) {
-    return null;
-  }
-
-  let xmin = extent.xmin;
-  let xmax = extent.xmax;
-
-  if (prevExtent) {
-    let xminDelta = Math.abs(xmin - prevExtent.xmin);
-    let xmaxDelta = Math.abs(xmax - prevExtent.xmax);
-    if (xminDelta > xmaxDelta) {
-      xmin = xmax - MAX_LON_SPAN;
-    } else {
-      xmax = xmin + MAX_LON_SPAN;
-    }
-  } else {
-    xmin = -180;
-    xmax = 180;
-  }
-
-  return { xmin: xmin, xmax: xmax, ymin: extent.ymin, ymax: extent.ymax };
-}
-
-function constrainLatBounds(extent) {
-  let ymin = extent.ymin;
-  let ymax = extent.ymax;
-
-  if (ymax > 90) {
-    let shift = ymax - 90;
-    ymax = 90;
-    ymin = ymin - shift;
-  }
-  if (ymin < -90) {
-    let shift = -90 - ymin;
-    ymin = -90;
-    ymax = ymax + shift;
-  }
-
-  if (ymin === extent.ymin && ymax === extent.ymax) {
-    return null;
-  }
-
-  return { xmin: extent.xmin, xmax: extent.xmax, ymin: ymin, ymax: ymax };
-}
-
-function clampLatBounds(extent) {
-  let ymin = Math.max(-90, extent.ymin);
-  let ymax = Math.min(90, extent.ymax);
-  if (ymin === extent.ymin && ymax === extent.ymax) {
-    return null;
-  }
-  return { xmin: extent.xmin, xmax: extent.xmax, ymin: ymin, ymax: ymax };
-}
 
 const useMapBoundsSelector = ({
   latStart,
@@ -91,6 +32,7 @@ const useMapBoundsSelector = ({
   setLonStart,
   setLonEnd,
   onBoundsChange,
+  onBoundsPreview,
 }) => {
   let [modules, setModules] = useState(null);
   let [loading, setLoading] = useState(true);
@@ -109,7 +51,9 @@ const useMapBoundsSelector = ({
   let modeRef = useRef(MODE_PAN);
   let settersRef = useRef({ setLatStart, setLatEnd, setLonStart, setLonEnd });
   let onBoundsChangeRef = useRef(onBoundsChange);
+  let onBoundsPreviewRef = useRef(onBoundsPreview);
   let updateBoundsRef = useRef(null);
+  let previewBoundsRef = useRef(null);
   let updateGraphicRef = useRef(null);
   let transformDebounceRef = useRef(null);
   let wheelHandlerRef = useRef(null);
@@ -117,6 +61,7 @@ const useMapBoundsSelector = ({
 
   settersRef.current = { setLatStart, setLatEnd, setLonStart, setLonEnd };
   onBoundsChangeRef.current = onBoundsChange;
+  onBoundsPreviewRef.current = onBoundsPreview;
 
   useEffect(() => {
     let cancelled = false;
@@ -171,31 +116,20 @@ const useMapBoundsSelector = ({
     [modules],
   );
 
-  let updateBoundsFromGeometry = function (geometry) {
-    if (!geometry) return;
-
-    isUpdatingFromMapRef.current = true;
-
+  let extractBoundsFromGeometry = function (geometry) {
+    if (!geometry) return null;
     let extent = geometry.extent;
-    if (!extent) {
-      isUpdatingFromMapRef.current = false;
-      return;
-    }
+    if (!extent) return null;
+    return {
+      minLat: clampAndRound(extent.ymin, -90, 90),
+      maxLat: clampAndRound(extent.ymax, -90, 90),
+      westLon: clampAndRound(normalizeLon(extent.xmin), -180, 180),
+      eastLon: clampAndRound(normalizeLon(extent.xmax), -180, 180),
+    };
+  };
 
-    let westLon = clampAndRound(normalizeLon(extent.xmin), -180, 180);
-    let eastLon = clampAndRound(normalizeLon(extent.xmax), -180, 180);
-    let minLat = clampAndRound(extent.ymin, -90, 90);
-    let maxLat = clampAndRound(extent.ymax, -90, 90);
-
-    if (onBoundsChangeRef.current) {
-      onBoundsChangeRef.current(minLat, maxLat, westLon, eastLon);
-    } else {
-      settersRef.current.setLatStart(minLat);
-      settersRef.current.setLatEnd(maxLat);
-      settersRef.current.setLonStart(westLon);
-      settersRef.current.setLonEnd(eastLon);
-    }
-
+  let markUpdatingFromMap = function () {
+    isUpdatingFromMapRef.current = true;
     if (isUpdatingTimeoutRef.current) {
       clearTimeout(isUpdatingTimeoutRef.current);
     }
@@ -205,6 +139,38 @@ const useMapBoundsSelector = ({
     }, 100);
   };
 
+  let updateBoundsFromGeometry = function (geometry) {
+    let bounds = extractBoundsFromGeometry(geometry);
+    if (!bounds) {
+      return;
+    }
+
+    markUpdatingFromMap();
+
+    if (onBoundsChangeRef.current) {
+      onBoundsChangeRef.current(bounds.minLat, bounds.maxLat, bounds.westLon, bounds.eastLon);
+    } else {
+      settersRef.current.setLatStart(bounds.minLat);
+      settersRef.current.setLatEnd(bounds.maxLat);
+      settersRef.current.setLonStart(bounds.westLon);
+      settersRef.current.setLonEnd(bounds.eastLon);
+    }
+  };
+
+  let previewBoundsFromGeometry = function (geometry) {
+    let bounds = extractBoundsFromGeometry(geometry);
+    if (!bounds) {
+      return;
+    }
+
+    markUpdatingFromMap();
+
+    if (onBoundsPreviewRef.current) {
+      onBoundsPreviewRef.current(bounds.minLat, bounds.maxLat, bounds.westLon, bounds.eastLon);
+    }
+  };
+
+  previewBoundsRef.current = previewBoundsFromGeometry;
   updateBoundsRef.current = updateBoundsFromGeometry;
 
   let updateGraphicFromBounds = useCallback(() => {
@@ -236,19 +202,24 @@ const useMapBoundsSelector = ({
 
   updateGraphicRef.current = updateGraphicFromBounds;
 
-  let redrawGraphic = useCallback(function () {
-    if (boundsGraphicRef.current) {
-      return;
-    }
+  function resetAndRedraw() {
     if (isUpdatingTimeoutRef.current) {
       clearTimeout(isUpdatingTimeoutRef.current);
       isUpdatingTimeoutRef.current = null;
     }
     isUpdatingFromMapRef.current = false;
-    setModeState(MODE_PAN);
     if (sketchViewModelRef.current) {
       updateGraphicRef.current();
     }
+  }
+
+  let redrawGraphic = useCallback(function () {
+    if (boundsGraphicRef.current) {
+      return;
+    }
+    modeRef.current = MODE_PAN;
+    setModeState(MODE_PAN);
+    resetAndRedraw();
   }, []);
 
   useEffect(() => {
@@ -267,7 +238,8 @@ const useMapBoundsSelector = ({
     if (wheelHandlerRef.current) {
       wheelHandlerRef.current.container.removeEventListener(
         'wheel',
-        wheelHandlerRef.current.handler
+        wheelHandlerRef.current.handler,
+        { capture: true }
       );
       wheelHandlerRef.current = null;
     }
@@ -329,13 +301,23 @@ const useMapBoundsSelector = ({
 
           view.watch('scale', function (newScale) {
             if (!viewRef.current || viewRef.current !== view) return;
-            setAtMinZoom(newScale >= minZoomThresholdRef.current * 0.95);
+            if (newScale > minZoomThresholdRef.current) {
+              view.scale = minZoomThresholdRef.current;
+              setAtMinZoom(true);
+              return;
+            }
+            let nearLimit = newScale >= minZoomThresholdRef.current * 0.95;
+            setAtMinZoom(nearLimit);
           });
 
           let wheelHandler = function (e) {
-            e.preventDefault();
+            let isZoomingOut = e.deltaY > 0;
+            if (isZoomingOut && view.scale >= minZoomThresholdRef.current) {
+              e.stopImmediatePropagation();
+              e.preventDefault();
+            }
           };
-          container.addEventListener('wheel', wheelHandler, { passive: false });
+          container.addEventListener('wheel', wheelHandler, { capture: true, passive: false });
           wheelHandlerRef.current = { container: container, handler: wheelHandler };
 
           let sketchViewModel = new modules.SketchViewModel({
@@ -376,7 +358,11 @@ const useMapBoundsSelector = ({
                 }
                 prevExtentRef.current = { xmin: result.xmin, xmax: result.xmax, ymin: result.ymin, ymax: result.ymax };
               }
-              updateBoundsRef.current(event.graphic.geometry);
+              if (onBoundsPreviewRef.current) {
+                previewBoundsRef.current(event.graphic.geometry);
+              } else {
+                updateBoundsRef.current(event.graphic.geometry);
+              }
             } else if (event.state === 'complete') {
               updateBoundsRef.current(event.graphic.geometry);
               boundsGraphicRef.current = event.graphic;
@@ -412,7 +398,15 @@ const useMapBoundsSelector = ({
                 prevExtentRef.current = { xmin: result.xmin, xmax: result.xmax, ymin: result.ymin, ymax: result.ymax };
               }
               isUpdatingFromMapRef.current = true;
-              updateBoundsRef.current(graphic.geometry);
+              let isMoveOrScaleStop = event.toolEventInfo && event.toolEventInfo.type
+                && (event.toolEventInfo.type === 'move-stop' || event.toolEventInfo.type === 'scale-stop');
+              if (isMoveOrScaleStop) {
+                updateBoundsRef.current(graphic.geometry);
+              } else if (onBoundsPreviewRef.current) {
+                previewBoundsRef.current(graphic.geometry);
+              } else {
+                updateBoundsRef.current(graphic.geometry);
+              }
             } else if (event.state === 'complete' && event.graphics && event.graphics.length > 0) {
               if (isUpdatingFromMapRef.current) {
                 updateBoundsRef.current(event.graphics[0].geometry);
@@ -474,14 +468,7 @@ const useMapBoundsSelector = ({
       boundsGraphicRef.current = null;
       sketchViewModelRef.current.create('rectangle');
     } else if (newMode === MODE_PAN) {
-      if (isUpdatingTimeoutRef.current) {
-        clearTimeout(isUpdatingTimeoutRef.current);
-        isUpdatingTimeoutRef.current = null;
-      }
-      isUpdatingFromMapRef.current = false;
-      if (sketchViewModelRef.current) {
-        updateGraphicRef.current();
-      }
+      resetAndRedraw();
     }
   }, []);
 

@@ -136,6 +136,13 @@ const CompactSubsetControlsLayout = ({
   const classes = useStyles();
   let mapRedrawRef = useRef(null);
 
+  let handlePresetWithRedraw = useCallback(function (label, bounds, preset) {
+    onPresetSelect(label, bounds, preset);
+    if (mapRedrawRef.current) {
+      mapRedrawRef.current();
+    }
+  }, [onPresetSelect]);
+
   const { date, latitude, longitude, depth } = controls;
 
   const [latValid, setLatValid] = useState(true);
@@ -188,6 +195,18 @@ const CompactSubsetControlsLayout = ({
   useEffect(() => {
     setLonValid(lonRange.isValid);
   }, [lonRange.isValid]);
+
+  let handleMapBoundsPreview = useCallback(function (latStart, latEnd, lonStart, lonEnd) {
+    latRange.preview(latStart, latEnd);
+    lonRange.preview(lonStart, lonEnd);
+
+    if (onExpandEndpoint) {
+      onExpandEndpoint(FIELD_TYPES.LAT, 'latMin', latStart);
+      onExpandEndpoint(FIELD_TYPES.LAT, 'latMax', latEnd);
+      onExpandEndpoint(FIELD_TYPES.LON, 'lonMin', lonStart, lonEnd);
+      onExpandEndpoint(FIELD_TYPES.LON, 'lonMax', lonEnd, lonStart);
+    }
+  }, [latRange.preview, lonRange.preview, onExpandEndpoint]);
 
   let handleMapBoundsChange = useCallback(function (latStart, latEnd, lonStart, lonEnd) {
     wrappedGeoHandlers.latitude.setLatStart(latStart);
@@ -276,12 +295,7 @@ const CompactSubsetControlsLayout = ({
 
               <CompactPresetGeographicBounds
                 selectedPreset={selectedPreset}
-                onPresetSelect={function (label, bounds, preset) {
-                  onPresetSelect(label, bounds, preset);
-                  if (mapRedrawRef.current) {
-                    mapRedrawRef.current();
-                  }
-                }}
+                onPresetSelect={handlePresetWithRedraw}
                 geographicPresets={geographicPresets}
                 collectionExtent={collectionExtent}
               />
@@ -339,6 +353,7 @@ const CompactSubsetControlsLayout = ({
                 lonStart={lonRange.sliderStart}
                 lonEnd={lonRange.sliderEnd}
                 onBoundsChange={handleMapBoundsChange}
+                onBoundsPreview={handleMapBoundsPreview}
                 redrawRef={mapRedrawRef}
               />
             </Box>
