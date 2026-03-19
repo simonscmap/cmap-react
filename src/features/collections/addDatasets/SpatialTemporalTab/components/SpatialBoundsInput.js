@@ -53,10 +53,6 @@ const useStyles = makeStyles((theme) => ({
   coordField: {
     width: 140,
   },
-  messagesContainer: {
-    marginTop: theme.spacing(1),
-    marginLeft: 106,
-  },
   coordFieldError: {
     '& .MuiOutlinedInput-root': {
       '& fieldset': { borderColor: colors.blockingError },
@@ -67,9 +63,11 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-const SPATIAL_FIELDS = ['latMin', 'latMax', 'lonMin', 'lonMax'];
+let LAT_FIELDS = ['latMin', 'latMax'];
+let LON_FIELDS = ['lonMin', 'lonMax'];
+let SPATIAL_FIELDS = [...LAT_FIELDS, ...LON_FIELDS];
 
-const SpatialBoundsInput = () => {
+const SpatialBoundsInput = ({ children }) => {
   const classes = useStyles();
 
   const spatialBounds = useSpatialTemporalSearchStore((state) => state.spatialBounds);
@@ -155,8 +153,8 @@ const SpatialBoundsInput = () => {
     }
   };
 
-  const { displayErrors, getFieldHasError } = useFieldValidation({
-    fields: SPATIAL_FIELDS,
+  let latValidation = useFieldValidation({
+    fields: LAT_FIELDS,
     fieldErrors: spatialFieldErrors,
     fieldInteraction: spatialFieldInteraction,
     errorRevealed: spatialErrorRevealed,
@@ -169,10 +167,24 @@ const SpatialBoundsInput = () => {
     parseValue: parseFloat,
   });
 
-  let latMinHasError = getFieldHasError('latMin');
-  let latMaxHasError = getFieldHasError('latMax');
-  let lonMinHasError = getFieldHasError('lonMin');
-  let lonMaxHasError = getFieldHasError('lonMax');
+  let lonValidation = useFieldValidation({
+    fields: LON_FIELDS,
+    fieldErrors: spatialFieldErrors,
+    fieldInteraction: spatialFieldInteraction,
+    errorRevealed: spatialErrorRevealed,
+    revealError,
+    clearErrorRevealed,
+    section: 'spatial',
+    startField: null,
+    endField: null,
+    localValues: localBounds,
+    parseValue: parseFloat,
+  });
+
+  let latMinHasError = latValidation.getFieldHasError('latMin');
+  let latMaxHasError = latValidation.getFieldHasError('latMax');
+  let lonMinHasError = lonValidation.getFieldHasError('lonMin');
+  let lonMaxHasError = lonValidation.getFieldHasError('lonMax');
 
   return (
     <Box className={classes.container}>
@@ -235,6 +247,12 @@ const SpatialBoundsInput = () => {
             inputProps={{ inputMode: 'decimal' }}
           />
         </Box>
+        <Box style={{ marginBottom: 8 }}>
+          <ValidationMessages
+            messages={latValidation.displayErrors.map((text) => ({ type: 'error', text }))}
+            maxMessages={2}
+          />
+        </Box>
 
         <Box className={classes.coordRow}>
           <TextField
@@ -265,16 +283,14 @@ const SpatialBoundsInput = () => {
             inputProps={{ inputMode: 'decimal' }}
           />
         </Box>
-      </Box>
-
-      <Box className={classes.messagesContainer}>
         <ValidationMessages
           messages={[
-            ...displayErrors.map((text) => ({ type: 'error', text })),
+            ...lonValidation.displayErrors.map((text) => ({ type: 'error', text })),
             ...spatialWarnings.map((text) => ({ type: 'info', text })),
           ]}
-          maxMessages={4}
+          maxMessages={2}
         />
+        {children}
       </Box>
     </Box>
   );

@@ -362,7 +362,17 @@ const SpatialTemporalTab = ({
             <Box className={classes.mainConstraintsRow}>
               {/* Spatial Bounds Section */}
               <Box className={classes.spatialSection}>
-                <SpatialBoundsInput />
+                <SpatialBoundsInput>
+                  <MapBoundsSelector
+                    mapWidth={630}
+                    latStart={spatialBounds.latMin}
+                    latEnd={spatialBounds.latMax}
+                    lonStart={spatialBounds.lonMin}
+                    lonEnd={spatialBounds.lonMax}
+                    onBoundsChange={handleMapBoundsChange}
+                    onBoundsPreview={handleMapBoundsPreview}
+                  />
+                </SpatialBoundsInput>
               </Box>
 
               {/* Temporal and Depth Column */}
@@ -370,18 +380,6 @@ const SpatialTemporalTab = ({
                 <TemporalConstraintsInput />
                 <DepthConstraintsInput />
               </Box>
-            </Box>
-
-            <Box style={{ marginLeft: 106 }}>
-              <MapBoundsSelector
-                mapWidth={630}
-                latStart={spatialBounds.latMin}
-                latEnd={spatialBounds.latMax}
-                lonStart={spatialBounds.lonMin}
-                lonEnd={spatialBounds.lonMax}
-                onBoundsChange={handleMapBoundsChange}
-                onBoundsPreview={handleMapBoundsPreview}
-              />
             </Box>
 
             {/* Search Button Row */}
