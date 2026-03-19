@@ -11,7 +11,7 @@
  * @module SpatialTemporalTab
  */
 
-import React, { useEffect, useRef, useCallback } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import PropTypes from 'prop-types';
 import { useDispatch } from 'react-redux';
 import {
@@ -296,11 +296,16 @@ const SpatialTemporalTab = ({
     }
   }, [temporalEnabled, depthEnabled, onConstraintsChange]);
 
+  let [previewBounds, setPreviewBounds] = useState(null);
+
   let handleMapBoundsChange = useCallback(function (latStart, latEnd, lonStart, lonEnd) {
     setSpatialBounds({ latMin: latStart, latMax: latEnd, lonMin: lonStart, lonMax: lonEnd });
+    setPreviewBounds(null);
   }, [setSpatialBounds]);
 
-  let handleMapBoundsPreview = useCallback(function () {}, []);
+  let handleMapBoundsPreview = useCallback(function (latStart, latEnd, lonStart, lonEnd) {
+    setPreviewBounds({ latMin: latStart, latMax: latEnd, lonMin: lonStart, lonMax: lonEnd });
+  }, []);
 
   const handleSearch = () => {
     if (canSearch()) {
@@ -362,7 +367,7 @@ const SpatialTemporalTab = ({
             <Box className={classes.mainConstraintsRow}>
               {/* Spatial Bounds Section */}
               <Box className={classes.spatialSection}>
-                <SpatialBoundsInput>
+                <SpatialBoundsInput previewBounds={previewBounds}>
                   <MapBoundsSelector
                     mapWidth={630}
                     latStart={spatialBounds.latMin}

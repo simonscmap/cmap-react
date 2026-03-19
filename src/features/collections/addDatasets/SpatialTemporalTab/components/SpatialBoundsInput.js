@@ -67,7 +67,7 @@ let LAT_FIELDS = ['latMin', 'latMax'];
 let LON_FIELDS = ['lonMin', 'lonMax'];
 let SPATIAL_FIELDS = [...LAT_FIELDS, ...LON_FIELDS];
 
-const SpatialBoundsInput = ({ children }) => {
+const SpatialBoundsInput = ({ children, previewBounds }) => {
   const classes = useStyles();
 
   const spatialBounds = useSpatialTemporalSearchStore((state) => state.spatialBounds);
@@ -91,16 +91,15 @@ const SpatialBoundsInput = ({ children }) => {
     lonMax: spatialBounds.lonMax !== null && spatialBounds.lonMax !== undefined ? String(spatialBounds.lonMax) : '',
   });
 
-  useEffect(() => {
+  useEffect(function () {
+    let source = previewBounds || spatialBounds;
     setLocalBounds({
-      latMin: spatialBounds.latMin !== null && spatialBounds.latMin !== undefined ? String(spatialBounds.latMin) : '',
-      latMax: spatialBounds.latMax !== null && spatialBounds.latMax !== undefined ? String(spatialBounds.latMax) : '',
-      lonMin: spatialBounds.lonMin !== null && spatialBounds.lonMin !== undefined ? String(spatialBounds.lonMin) : '',
-      lonMax: spatialBounds.lonMax !== null && spatialBounds.lonMax !== undefined ? String(spatialBounds.lonMax) : '',
+      latMin: source.latMin != null ? String(source.latMin) : '',
+      latMax: source.latMax != null ? String(source.latMax) : '',
+      lonMin: source.lonMin != null ? String(source.lonMin) : '',
+      lonMax: source.lonMax != null ? String(source.lonMax) : '',
     });
-    // Note: Don't reset interaction here - that's handled by applyPreset for external changes.
-    // Internal changes (user blur commits) should preserve interaction state.
-  }, [spatialBounds]);
+  }, [previewBounds, spatialBounds]);
 
   useEffect(() => {
     validateSpatialInput(localBounds);
