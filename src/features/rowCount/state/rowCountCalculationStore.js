@@ -453,6 +453,7 @@ function _computeStaleDatasets(datasets, constraints) {
 
   const stale = [];
   const knownZeros = {};
+  const fullyContainedNames = [];
 
   for (const dataset of datasets) {
     const eligible = isEligibleForEstimation({
@@ -474,34 +475,38 @@ function _computeStaleDatasets(datasets, constraints) {
       } else {
         stale.push(dataset.shortName);
       }
+    } else {
+      fullyContainedNames.push(dataset.shortName);
     }
   }
 
   const currentState = useRowCountCalculationStore.getState();
-  let stateUpdate = { staleDatasets: stale };
+  let newRowCounts = { ...currentState.calculatedRowCounts };
+  let newSnapshots = { ...currentState.datasetConstraintSnapshots };
 
-  if (Object.keys(knownZeros).length > 0) {
-    const newSnapshots = { ...currentState.datasetConstraintSnapshots };
-    Object.keys(knownZeros).forEach((shortName) => {
-      newSnapshots[shortName] = {
-        spatialBounds: { ...constraints.spatialBounds },
-        temporalRange: { ...constraints.temporalRange },
-        depthRange: { ...constraints.depthRange },
-        temporalEnabled: constraints.temporalEnabled,
-        depthEnabled: constraints.depthEnabled,
-        includePartialOverlaps: constraints.includePartialOverlaps,
-        timestamp: new Date(),
-      };
-    });
-
-    stateUpdate.calculatedRowCounts = {
-      ...currentState.calculatedRowCounts,
-      ...knownZeros,
-    };
-    stateUpdate.datasetConstraintSnapshots = newSnapshots;
+  for (let i = 0; i < fullyContainedNames.length; i++) {
+    delete newRowCounts[fullyContainedNames[i]];
+    delete newSnapshots[fullyContainedNames[i]];
   }
 
-  useRowCountCalculationStore.setState(stateUpdate);
+  Object.keys(knownZeros).forEach((shortName) => {
+    newRowCounts[shortName] = 0;
+    newSnapshots[shortName] = {
+      spatialBounds: { ...constraints.spatialBounds },
+      temporalRange: { ...constraints.temporalRange },
+      depthRange: { ...constraints.depthRange },
+      temporalEnabled: constraints.temporalEnabled,
+      depthEnabled: constraints.depthEnabled,
+      includePartialOverlaps: constraints.includePartialOverlaps,
+      timestamp: new Date(),
+    };
+  });
+
+  useRowCountCalculationStore.setState({
+    staleDatasets: stale,
+    calculatedRowCounts: newRowCounts,
+    datasetConstraintSnapshots: newSnapshots,
+  });
 }
 
 /**
@@ -528,6 +533,9 @@ export async function initializeRowCounts(shortNames, constraints) {
 
   useRowCountCalculationStore.setState({
     lastSearchDatasetIds: new Set(shortNames),
+    calculatedRowCounts: {},
+    datasetConstraintSnapshots: {},
+    estimatedRowCounts: new Set(),
   });
 
   const metadataMap = await queryDatasetMetadata(shortNames);
