@@ -108,10 +108,6 @@ const useStyles = makeStyles((theme) => ({
       minWidth: 'unset',
     },
   },
-  mapRow: {
-    display: 'flex',
-    justifyContent: 'center',
-  },
   searchButtonRow: {
     display: 'flex',
     justifyContent: 'flex-start',
@@ -376,8 +372,7 @@ const SpatialTemporalTab = ({
               </Box>
             </Box>
 
-            {/* Map */}
-            <Box className={classes.mapRow}>
+            <Box style={{ marginLeft: 106 }}>
               <MapBoundsSelector
                 mapWidth={630}
                 latStart={spatialBounds.latMin}
