@@ -219,6 +219,7 @@ const PreviewModal = ({ open, onClose, collection }) => {
                       name !== undefined && name !== null && name !== '',
                   ) || []
               }
+              // 'rows' column definition commented out in CollectionDatasetsTable
               columns={['name', 'type', 'region', 'dateRange', 'rows']}
               onDataLoaded={handleDataLoaded}
               onError={handleTableError}
