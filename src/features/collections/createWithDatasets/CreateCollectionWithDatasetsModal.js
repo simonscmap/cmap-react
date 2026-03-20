@@ -178,6 +178,7 @@ const CreateCollectionWithDatasetsModal = ({ open, onClose }) => {
                 onClearAll={handleClearAll}
                 areAllSelected={areAllSelected}
                 areIndeterminate={areIndeterminate}
+                // 'rows' column definition commented out in CollectionDatasetsTable
                 columns={['name', 'status', 'type', 'dateRange', 'rows']}
                 actions={[
                   {

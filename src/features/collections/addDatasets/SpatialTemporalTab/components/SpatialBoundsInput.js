@@ -53,10 +53,6 @@ const useStyles = makeStyles((theme) => ({
   coordField: {
     width: 140,
   },
-  messagesContainer: {
-    marginTop: theme.spacing(1),
-    marginLeft: 106,
-  },
   coordFieldError: {
     '& .MuiOutlinedInput-root': {
       '& fieldset': { borderColor: colors.blockingError },
@@ -67,9 +63,11 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-const SPATIAL_FIELDS = ['latMin', 'latMax', 'lonMin', 'lonMax'];
+let LAT_FIELDS = ['latMin', 'latMax'];
+let LON_FIELDS = ['lonMin', 'lonMax'];
+let SPATIAL_FIELDS = [...LAT_FIELDS, ...LON_FIELDS];
 
-const SpatialBoundsInput = () => {
+const SpatialBoundsInput = ({ children, previewBounds }) => {
   const classes = useStyles();
 
   const spatialBounds = useSpatialTemporalSearchStore((state) => state.spatialBounds);
@@ -93,16 +91,15 @@ const SpatialBoundsInput = () => {
     lonMax: spatialBounds.lonMax !== null && spatialBounds.lonMax !== undefined ? String(spatialBounds.lonMax) : '',
   });
 
-  useEffect(() => {
+  useEffect(function () {
+    let source = previewBounds || spatialBounds;
     setLocalBounds({
-      latMin: spatialBounds.latMin !== null && spatialBounds.latMin !== undefined ? String(spatialBounds.latMin) : '',
-      latMax: spatialBounds.latMax !== null && spatialBounds.latMax !== undefined ? String(spatialBounds.latMax) : '',
-      lonMin: spatialBounds.lonMin !== null && spatialBounds.lonMin !== undefined ? String(spatialBounds.lonMin) : '',
-      lonMax: spatialBounds.lonMax !== null && spatialBounds.lonMax !== undefined ? String(spatialBounds.lonMax) : '',
+      latMin: source.latMin != null ? String(source.latMin) : '',
+      latMax: source.latMax != null ? String(source.latMax) : '',
+      lonMin: source.lonMin != null ? String(source.lonMin) : '',
+      lonMax: source.lonMax != null ? String(source.lonMax) : '',
     });
-    // Note: Don't reset interaction here - that's handled by applyPreset for external changes.
-    // Internal changes (user blur commits) should preserve interaction state.
-  }, [spatialBounds]);
+  }, [previewBounds, spatialBounds]);
 
   useEffect(() => {
     validateSpatialInput(localBounds);
@@ -155,8 +152,8 @@ const SpatialBoundsInput = () => {
     }
   };
 
-  const { displayErrors, getFieldHasError } = useFieldValidation({
-    fields: SPATIAL_FIELDS,
+  let latValidation = useFieldValidation({
+    fields: LAT_FIELDS,
     fieldErrors: spatialFieldErrors,
     fieldInteraction: spatialFieldInteraction,
     errorRevealed: spatialErrorRevealed,
@@ -169,10 +166,24 @@ const SpatialBoundsInput = () => {
     parseValue: parseFloat,
   });
 
-  let latMinHasError = getFieldHasError('latMin');
-  let latMaxHasError = getFieldHasError('latMax');
-  let lonMinHasError = getFieldHasError('lonMin');
-  let lonMaxHasError = getFieldHasError('lonMax');
+  let lonValidation = useFieldValidation({
+    fields: LON_FIELDS,
+    fieldErrors: spatialFieldErrors,
+    fieldInteraction: spatialFieldInteraction,
+    errorRevealed: spatialErrorRevealed,
+    revealError,
+    clearErrorRevealed,
+    section: 'spatial',
+    startField: null,
+    endField: null,
+    localValues: localBounds,
+    parseValue: parseFloat,
+  });
+
+  let latMinHasError = latValidation.getFieldHasError('latMin');
+  let latMaxHasError = latValidation.getFieldHasError('latMax');
+  let lonMinHasError = lonValidation.getFieldHasError('lonMin');
+  let lonMaxHasError = lonValidation.getFieldHasError('lonMax');
 
   return (
     <Box className={classes.container}>
@@ -235,6 +246,12 @@ const SpatialBoundsInput = () => {
             inputProps={{ inputMode: 'decimal' }}
           />
         </Box>
+        <Box style={{ marginBottom: 8 }}>
+          <ValidationMessages
+            messages={latValidation.displayErrors.map((text) => ({ type: 'error', text }))}
+            maxMessages={2}
+          />
+        </Box>
 
         <Box className={classes.coordRow}>
           <TextField
@@ -265,16 +282,14 @@ const SpatialBoundsInput = () => {
             inputProps={{ inputMode: 'decimal' }}
           />
         </Box>
-      </Box>
-
-      <Box className={classes.messagesContainer}>
         <ValidationMessages
           messages={[
-            ...displayErrors.map((text) => ({ type: 'error', text })),
+            ...lonValidation.displayErrors.map((text) => ({ type: 'error', text })),
             ...spatialWarnings.map((text) => ({ type: 'info', text })),
           ]}
-          maxMessages={4}
+          maxMessages={2}
         />
+        {children}
       </Box>
     </Box>
   );
