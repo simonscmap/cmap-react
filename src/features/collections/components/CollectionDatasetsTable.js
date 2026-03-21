@@ -51,7 +51,7 @@ const useStyles = makeStyles((theme) => ({
       lineHeight: 1.2,
     },
     '& .MuiTableCell-body': {
-      verticalAlign: 'top',
+      verticalAlign: 'middle',
     },
   },
   table: {

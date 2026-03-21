@@ -67,7 +67,7 @@
     "react-router-dom": "^5.2.0",
     "react-scripts": "^3.4.3",
     "react-string-replace": "^0.4.4",
-    "react-virtuoso": "^1.11.1",
+    "react-virtuoso": "^2.19.1",
     "react-window": "^1.8.5",
     "reduce-reducers": "^1.0.4",
     "redux": "^4.0.5",

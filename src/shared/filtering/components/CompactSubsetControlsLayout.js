@@ -15,6 +15,7 @@
  */
 
 import React, { useState, useEffect, useCallback, useRef } from 'react';
+import ReactDOM from 'react-dom';
 import PropTypes from 'prop-types';
 import { Box, Collapse, Typography } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
@@ -197,29 +198,33 @@ const CompactSubsetControlsLayout = ({
   }, [lonRange.isValid]);
 
   let handleMapBoundsPreview = useCallback(function (latStart, latEnd, lonStart, lonEnd) {
-    latRange.preview(latStart, latEnd);
-    lonRange.preview(lonStart, lonEnd);
+    ReactDOM.unstable_batchedUpdates(function () {
+      latRange.preview(latStart, latEnd);
+      lonRange.preview(lonStart, lonEnd);
 
-    if (onExpandEndpoint) {
-      onExpandEndpoint(FIELD_TYPES.LAT, 'latMin', latStart);
-      onExpandEndpoint(FIELD_TYPES.LAT, 'latMax', latEnd);
-      onExpandEndpoint(FIELD_TYPES.LON, 'lonMin', lonStart, lonEnd);
-      onExpandEndpoint(FIELD_TYPES.LON, 'lonMax', lonEnd, lonStart);
-    }
+      if (onExpandEndpoint) {
+        onExpandEndpoint(FIELD_TYPES.LAT, 'latMin', latStart);
+        onExpandEndpoint(FIELD_TYPES.LAT, 'latMax', latEnd);
+        onExpandEndpoint(FIELD_TYPES.LON, 'lonMin', lonStart, lonEnd);
+        onExpandEndpoint(FIELD_TYPES.LON, 'lonMax', lonEnd, lonStart);
+      }
+    });
   }, [latRange.preview, lonRange.preview, onExpandEndpoint]);
 
   let handleMapBoundsChange = useCallback(function (latStart, latEnd, lonStart, lonEnd) {
-    wrappedGeoHandlers.latitude.setLatStart(latStart);
-    wrappedGeoHandlers.latitude.setLatEnd(latEnd);
-    wrappedGeoHandlers.longitude.setLonStart(lonStart);
-    wrappedGeoHandlers.longitude.setLonEnd(lonEnd);
+    ReactDOM.unstable_batchedUpdates(function () {
+      wrappedGeoHandlers.latitude.setLatStart(latStart);
+      wrappedGeoHandlers.latitude.setLatEnd(latEnd);
+      wrappedGeoHandlers.longitude.setLonStart(lonStart);
+      wrappedGeoHandlers.longitude.setLonEnd(lonEnd);
 
-    if (onExpandEndpoint) {
-      onExpandEndpoint(FIELD_TYPES.LAT, 'latMin', latStart);
-      onExpandEndpoint(FIELD_TYPES.LAT, 'latMax', latEnd);
-      onExpandEndpoint(FIELD_TYPES.LON, 'lonMin', lonStart, lonEnd);
-      onExpandEndpoint(FIELD_TYPES.LON, 'lonMax', lonEnd, lonStart);
-    }
+      if (onExpandEndpoint) {
+        onExpandEndpoint(FIELD_TYPES.LAT, 'latMin', latStart);
+        onExpandEndpoint(FIELD_TYPES.LAT, 'latMax', latEnd);
+        onExpandEndpoint(FIELD_TYPES.LON, 'lonMin', lonStart, lonEnd);
+        onExpandEndpoint(FIELD_TYPES.LON, 'lonMax', lonEnd, lonStart);
+      }
+    });
   }, [wrappedGeoHandlers, onExpandEndpoint]);
 
   const handleDepthValidation = useCallback((valid) => {
