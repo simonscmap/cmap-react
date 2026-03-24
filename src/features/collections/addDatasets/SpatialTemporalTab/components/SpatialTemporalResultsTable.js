@@ -51,7 +51,7 @@ const useStyles = makeStyles((theme) => ({
       lineHeight: 1.2,
     },
     '& .MuiTableCell-body': {
-      verticalAlign: 'top',
+      verticalAlign: 'middle',
     },
   },
   table: {
@@ -121,7 +121,7 @@ const useStyles = makeStyles((theme) => ({
   overlapCell: {
     width: '160px',
     fontSize: '0.8rem',
-    verticalAlign: 'top',
+    verticalAlign: 'middle',
   },
   rowsCell: {
     width: '120px',
