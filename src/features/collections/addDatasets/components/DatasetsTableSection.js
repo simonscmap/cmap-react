@@ -112,6 +112,7 @@ const DatasetsTableSection = ({
             ).length !== selectedCount
           : false
       }
+      // 'rows' column definition commented out in CollectionDatasetsTable
       columns={['status', 'name', 'type', 'region', 'dateRange', 'rows']}
       maxHeight={400}
     />
