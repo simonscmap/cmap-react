@@ -5,25 +5,25 @@ export const aggregateDatasetMetadata = (datasetsMetadata) => {
 
   const validDatasets = datasetsMetadata.filter(
     (d) =>
-      d.Lat_Min !== undefined &&
-      d.Lat_Max !== undefined &&
-      d.Lon_Min !== undefined &&
-      d.Lon_Max !== undefined,
+      d.latMin !== undefined &&
+      d.latMax !== undefined &&
+      d.lonMin !== undefined &&
+      d.lonMax !== undefined,
   );
 
   if (validDatasets.length === 0) return null;
 
   let timeMin = validDatasets.reduce(
-    (min, d) => (!min || (d.Time_Min && d.Time_Min < min) ? d.Time_Min : min),
+    (min, d) => (!min || (d.timeMin && d.timeMin < min) ? d.timeMin : min),
     null,
   );
   let timeMax = validDatasets.reduce(
-    (max, d) => (!max || (d.Time_Max && d.Time_Max > max) ? d.Time_Max : max),
+    (max, d) => (!max || (d.timeMax && d.timeMax > max) ? d.timeMax : max),
     null,
   );
 
   let allNullTime = validDatasets.every(
-    (d) => d.Time_Min === null && d.Time_Max === null,
+    (d) => d.timeMin === null && d.timeMax === null,
   );
   if (!timeMin && !timeMax && allNullTime) {
     timeMin = '2025-01-01T00:00:00.000Z';
@@ -31,17 +31,17 @@ export const aggregateDatasetMetadata = (datasetsMetadata) => {
   }
 
   let firstDataset = validDatasets[0];
-  let temporalResolution = firstDataset && firstDataset.Temporal_Resolution
-    ? firstDataset.Temporal_Resolution
+  let temporalResolution = firstDataset && firstDataset.temporalResolution
+    ? firstDataset.temporalResolution
     : 'daily';
 
   return {
-    Lat_Min: Math.min(...validDatasets.map((d) => d.Lat_Min)),
-    Lat_Max: Math.max(...validDatasets.map((d) => d.Lat_Max)),
-    Lon_Min: Math.min(...validDatasets.map((d) => d.Lon_Min)),
-    Lon_Max: Math.max(...validDatasets.map((d) => d.Lon_Max)),
-    Depth_Min: Math.max(0, Math.min(...validDatasets.map((d) => d.Depth_Min || 0))),
-    Depth_Max: Math.max(...validDatasets.map((d) => d.Depth_Max || 0)),
+    Lat_Min: Math.min(...validDatasets.map((d) => d.latMin)),
+    Lat_Max: Math.max(...validDatasets.map((d) => d.latMax)),
+    Lon_Min: Math.min(...validDatasets.map((d) => d.lonMin)),
+    Lon_Max: Math.max(...validDatasets.map((d) => d.lonMax)),
+    Depth_Min: Math.max(0, Math.min(...validDatasets.map((d) => d.depthMin || 0))),
+    Depth_Max: Math.max(...validDatasets.map((d) => d.depthMax || 0)),
     Time_Min: timeMin,
     Time_Max: timeMax,
     Temporal_Resolution: temporalResolution,

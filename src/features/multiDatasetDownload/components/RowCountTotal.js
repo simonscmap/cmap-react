@@ -51,13 +51,12 @@ const RowCountTotal = () => {
 
     return Array.from(selectedDatasets).some((datasetName) => {
       const dataset = datasetsMetadata.find(
-        (d) => d.Dataset_Name === datasetName,
+        (d) => d.shortName === datasetName,
       );
-      // Check either by explicit Temporal_Resolution or by null Time_Min AND Time_Max
       return (
-        dataset?.Temporal_Resolution ===
-          temporalResolutions.monthlyClimatology ||
-        (dataset?.Time_Min === null && dataset?.Time_Max === null)
+        dataset &&
+        (dataset.temporalResolution === temporalResolutions.monthlyClimatology ||
+         (dataset.timeMin === null && dataset.timeMax === null))
       );
     });
   }, [selectedDatasets, datasetsMetadata]);
