@@ -12,6 +12,11 @@ import {
   getIsMonthlyClimatology,
   formatDateToYearMonthDay,
   getInitialRangeValues,
+  dateToMonth,
+  monthToDate,
+  monthPairToDates,
+  getClimatologyMessage,
+  getMonthRangeMessage,
 } from '../dateHelpers';
 
 describe('parseUTCDateString', () => {
@@ -272,5 +277,203 @@ describe('getInitialRangeValues', () => {
     let result = getInitialRangeValues(dataset);
     expect(result.time.start).toBeInstanceOf(Date);
     expect(result.time.end).toBeInstanceOf(Date);
+  });
+});
+
+describe('dateToMonth', () => {
+  it('converts January date to 1', () => {
+    expect(dateToMonth(new Date(Date.UTC(2025, 0, 15)))).toBe(1);
+  });
+
+  it('converts December date to 12', () => {
+    expect(dateToMonth(new Date(Date.UTC(2025, 11, 1)))).toBe(12);
+  });
+
+  it('converts June date to 6', () => {
+    expect(dateToMonth(new Date(Date.UTC(2025, 5, 20)))).toBe(6);
+  });
+
+  it('returns 1 for null input', () => {
+    expect(dateToMonth(null)).toBe(1);
+  });
+
+  it('returns 1 for non-date input', () => {
+    expect(dateToMonth('not-a-date')).toBe(1);
+  });
+});
+
+describe('monthToDate', () => {
+  it('converts month 1 to January 1st UTC date', () => {
+    let result = monthToDate(1);
+    expect(result.getUTCMonth()).toBe(0);
+    expect(result.getUTCDate()).toBe(1);
+    expect(result.getUTCFullYear()).toBe(2025);
+  });
+
+  it('converts month 12 to December 1st UTC date', () => {
+    let result = monthToDate(12);
+    expect(result.getUTCMonth()).toBe(11);
+    expect(result.getUTCDate()).toBe(1);
+  });
+
+  it('converts month 6 to June 1st UTC date', () => {
+    let result = monthToDate(6);
+    expect(result.getUTCMonth()).toBe(5);
+  });
+
+  it('returns January for invalid input', () => {
+    let result = monthToDate('abc');
+    expect(result.getUTCMonth()).toBe(0);
+  });
+
+  it('returns January for out-of-range month 0', () => {
+    let result = monthToDate(0);
+    expect(result.getUTCMonth()).toBe(0);
+  });
+
+  it('returns January for out-of-range month 13', () => {
+    let result = monthToDate(13);
+    expect(result.getUTCMonth()).toBe(0);
+  });
+});
+
+describe('monthPairToDates', () => {
+  it('produces same-year dates for forward range (Mar to Aug)', () => {
+    let result = monthPairToDates(3, 8);
+    expect(result.startDate.getUTCFullYear()).toBe(2025);
+    expect(result.startDate.getUTCMonth()).toBe(2);
+    expect(result.endDate.getUTCFullYear()).toBe(2025);
+    expect(result.endDate.getUTCMonth()).toBe(7);
+  });
+
+  it('produces cross-year dates for wrap range (Nov to Feb)', () => {
+    let result = monthPairToDates(11, 2);
+    expect(result.startDate.getUTCFullYear()).toBe(2025);
+    expect(result.startDate.getUTCMonth()).toBe(10);
+    expect(result.endDate.getUTCFullYear()).toBe(2026);
+    expect(result.endDate.getUTCMonth()).toBe(1);
+    expect(result.endDate > result.startDate).toBe(true);
+  });
+
+  it('produces cross-year dates for Dec to Jan', () => {
+    let result = monthPairToDates(12, 1);
+    expect(result.startDate.getUTCFullYear()).toBe(2025);
+    expect(result.endDate.getUTCFullYear()).toBe(2026);
+    expect(result.endDate > result.startDate).toBe(true);
+  });
+
+  it('produces same-year dates for same month (Jun to Jun)', () => {
+    let result = monthPairToDates(6, 6);
+    expect(result.startDate.getUTCFullYear()).toBe(2025);
+    expect(result.endDate.getUTCFullYear()).toBe(2025);
+    expect(result.startDate.getTime()).toBe(result.endDate.getTime());
+  });
+
+  it('produces same-year dates for full year (Jan to Dec)', () => {
+    let result = monthPairToDates(1, 12);
+    expect(result.startDate.getUTCFullYear()).toBe(2025);
+    expect(result.endDate.getUTCFullYear()).toBe(2025);
+    expect(result.endDate > result.startDate).toBe(true);
+  });
+
+  it('end date is always >= start date', () => {
+    for (let s = 1; s <= 12; s++) {
+      for (let e = 1; e <= 12; e++) {
+        let result = monthPairToDates(s, e);
+        expect(result.endDate >= result.startDate).toBe(true);
+      }
+    }
+  });
+});
+
+describe('getClimatologyMessage', () => {
+  it('returns all 12 months with explanation for range >= 1 year', () => {
+    let start = new Date(Date.UTC(1988, 9, 20));
+    let end = new Date(Date.UTC(2022, 11, 16));
+    expect(getClimatologyMessage(start, end)).toBe(
+      'Climatology datasets: all 12 months included (range covers at least a full year)',
+    );
+  });
+
+  it('returns all 12 months with explanation for exactly 1 year', () => {
+    let start = new Date(Date.UTC(2020, 0, 1));
+    let end = new Date(Date.UTC(2021, 0, 1));
+    expect(getClimatologyMessage(start, end)).toBe(
+      'Climatology datasets: all 12 months included (range covers at least a full year)',
+    );
+  });
+
+  it('returns specific months for range < 1 year', () => {
+    let start = new Date(Date.UTC(2020, 2, 15));
+    let end = new Date(Date.UTC(2020, 7, 20));
+    expect(getClimatologyMessage(start, end)).toBe(
+      'Climatology datasets: 6 months included, Mar \u2013 Aug',
+    );
+  });
+
+  it('handles single month', () => {
+    let start = new Date(Date.UTC(2020, 4, 1));
+    let end = new Date(Date.UTC(2020, 4, 28));
+    expect(getClimatologyMessage(start, end)).toBe(
+      'Climatology datasets: May only',
+    );
+  });
+
+  it('handles cross-year range under 1 year (Nov to Feb)', () => {
+    let start = new Date(Date.UTC(2020, 10, 1));
+    let end = new Date(Date.UTC(2021, 1, 28));
+    expect(getClimatologyMessage(start, end)).toBe(
+      'Climatology datasets: 4 months included, Nov \u2013 Feb',
+    );
+  });
+
+  it('handles 2-month range', () => {
+    let start = new Date(Date.UTC(2020, 5, 1));
+    let end = new Date(Date.UTC(2020, 6, 31));
+    expect(getClimatologyMessage(start, end)).toBe(
+      'Climatology datasets: 2 months included, Jun \u2013 Jul',
+    );
+  });
+
+  it('returns all 12 months for null dates', () => {
+    expect(getClimatologyMessage(null, null)).toBe(
+      'Climatology datasets: all 12 months included',
+    );
+  });
+
+  it('returns all 12 months when start is null', () => {
+    expect(getClimatologyMessage(null, new Date())).toBe(
+      'Climatology datasets: all 12 months included',
+    );
+  });
+});
+
+describe('getMonthRangeMessage', () => {
+  it('returns all 12 months message for Jan to Dec', () => {
+    expect(getMonthRangeMessage(1, 12)).toBe('Climatology-only collection: all 12 months included');
+  });
+
+  it('returns single month message', () => {
+    expect(getMonthRangeMessage(5, 5)).toBe('Climatology-only collection: May only');
+  });
+
+  it('returns count and range for forward range', () => {
+    expect(getMonthRangeMessage(3, 8)).toBe('Climatology-only collection: 6 months included, Mar \u2013 Aug');
+  });
+
+  it('returns count and range for wrap range (Nov to Feb)', () => {
+    expect(getMonthRangeMessage(11, 2)).toBe('Climatology-only collection: 4 months included, Nov \u2013 Feb');
+  });
+
+  it('returns count and range for Dec to Jan', () => {
+    expect(getMonthRangeMessage(12, 1)).toBe('Climatology-only collection: 2 months included, Dec \u2013 Jan');
+  });
+
+  it('returns 2 months for adjacent months', () => {
+    expect(getMonthRangeMessage(6, 7)).toBe('Climatology-only collection: 2 months included, Jun \u2013 Jul');
+  });
+
+  it('returns all 12 for Dec to Nov (wrap full year)', () => {
+    expect(getMonthRangeMessage(12, 11)).toBe('Climatology-only collection: all 12 months included');
   });
 });

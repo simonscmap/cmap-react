@@ -13,6 +13,7 @@ let parseCommaSeparatedField = function (value) {
 let transformCatalogRow = function (row) {
   return {
     shortName: row.shortName,
+    longName: row.longName,
     latMin: row.latMin,
     latMax: row.latMax,
     lonMin: row.lonMin,
@@ -43,7 +44,7 @@ async function fetchMetadataFromLocalDb(datasetShortNames) {
 
   let placeholders = validNames.map(function () { return '?'; }).join(', ');
   let sql = `
-    SELECT shortName, latMin, latMax, lonMin, lonMax,
+    SELECT shortName, longName, latMin, latMax, lonMin, lonMax,
            depthMin, depthMax, timeMin, timeMax,
            rowCount, temporalResolution, programs, tableName
     FROM datasets

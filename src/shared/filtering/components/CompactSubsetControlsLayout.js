@@ -24,7 +24,7 @@ import CompactLatitudeInput from './compact/CompactLatitudeInput';
 import CompactLongitudeInput from './compact/CompactLongitudeInput';
 import CompactDepthInput from './compact/CompactDepthInput';
 import CompactPresetGeographicBounds from './compact/CompactPresetGeographicBounds';
-import MonthlyDateSubsetControl from './controls/MonthlyDateSubsetControl';
+import CompactMonthRangeInput from './compact/CompactMonthRangeInput';
 import ToggleWithHelp from '../../components/ToggleWithHelp';
 import useMultiDatasetRangeInput from '../hooks/useMultiDatasetRangeInput';
 import { FIELD_TYPES } from '../utils/endpointFields';
@@ -253,13 +253,11 @@ const CompactSubsetControlsLayout = ({
           <Box className={classes.temporalDepthRow}>
             {/* Temporal Bounds */}
             {date.data.isMonthlyClimatology ? (
-              <MonthlyDateSubsetControl
-                subsetState={{
-                  timeStart: date.data.timeStart,
-                  timeEnd: date.data.timeEnd,
-                }}
-                setTimeStart={date.handlers.setTimeStart}
-                setTimeEnd={date.handlers.setTimeEnd}
+              <CompactMonthRangeInput
+                startDate={date.data.timeStart}
+                endDate={date.data.timeEnd}
+                setStartDate={date.handlers.setTimeStart}
+                setEndDate={date.handlers.setTimeEnd}
               />
             ) : (
               <CompactDateRangeInput
@@ -271,6 +269,7 @@ const CompactSubsetControlsLayout = ({
                 minDate={date.data.timeMin}
                 maxDate={date.data.timeMax}
                 setInvalidFlag={handleDateInvalidFlag}
+                hasMixedClimatology={date.data.hasMixedClimatology}
               />
             )}
 
@@ -285,6 +284,7 @@ const CompactSubsetControlsLayout = ({
               step={0.1}
               onExpandEndpoint={onExpandEndpoint ? function (fieldName, value) { onExpandEndpoint(FIELD_TYPES.DEPTH, fieldName, value); } : null}
               onValidationChange={handleDepthValidation}
+              hasMixedClimatology={date.data.hasMixedClimatology}
             />
           </Box>
 

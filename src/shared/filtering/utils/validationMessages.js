@@ -40,6 +40,9 @@ const messages = {
   dateBelowMin: (label, minDate) => `${label} must be ${minDate} or later`,
   dateAboveMax: (label, maxDate) => `${label} must be ${maxDate} or earlier`,
   dateRangeInverted: () => 'Start Date must be before End Date',
+  startBeforeAvailable: (minDate) => `Start date is before available data (starts ${minDate}). Results are unaffected.`,
+  endPastAvailable: (maxDate) => `End date is past available data (ends ${maxDate}). Results are unaffected.`,
+  rangePastAvailable: (minDate, maxDate) => `Date range extends past available data (${minDate} \u2013 ${maxDate}). Results are unaffected.`,
 };
 
 export { fieldLabels, getFieldLabel, messages, isIntermediateSigned, isIntermediateUnsigned };

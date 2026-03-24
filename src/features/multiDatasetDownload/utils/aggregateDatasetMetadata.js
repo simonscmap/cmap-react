@@ -1,3 +1,5 @@
+import temporalResolutions from '../../../enums/temporalResolutions';
+
 export const aggregateDatasetMetadata = (datasetsMetadata) => {
   if (!datasetsMetadata || datasetsMetadata.length === 0) {
     return null;
@@ -30,10 +32,25 @@ export const aggregateDatasetMetadata = (datasetsMetadata) => {
     timeMax = '2025-12-31T00:00:00.000Z';
   }
 
-  let firstDataset = validDatasets[0];
-  let temporalResolution = firstDataset && firstDataset.temporalResolution
-    ? firstDataset.temporalResolution
-    : 'daily';
+  let allClimatology = validDatasets.every(function (d) {
+    return d.temporalResolution === temporalResolutions.monthlyClimatology;
+  });
+  let someClimatology = validDatasets.some(function (d) {
+    return d.temporalResolution === temporalResolutions.monthlyClimatology;
+  });
+  let hasMixedClimatology = someClimatology && !allClimatology;
+
+  let temporalResolution;
+  if (allClimatology) {
+    temporalResolution = temporalResolutions.monthlyClimatology;
+  } else if (hasMixedClimatology) {
+    temporalResolution = 'daily';
+  } else {
+    let firstDataset = validDatasets[0];
+    temporalResolution = firstDataset && firstDataset.temporalResolution
+      ? firstDataset.temporalResolution
+      : 'daily';
+  }
 
   return {
     Lat_Min: Math.min(...validDatasets.map((d) => d.latMin)),
@@ -45,5 +62,6 @@ export const aggregateDatasetMetadata = (datasetsMetadata) => {
     Time_Min: timeMin,
     Time_Max: timeMax,
     Temporal_Resolution: temporalResolution,
+    hasMixedClimatology: hasMixedClimatology,
   };
 };

@@ -86,6 +86,24 @@ export const getIsMonthlyClimatology = (temporalResolution) => {
   return Boolean(temporalResolution === temporalResolutions.monthlyClimatology);
 };
 
+export const dateToMonth = (date) => {
+  if (!date || typeof date.getUTCMonth !== 'function') return 1;
+  return date.getUTCMonth() + 1;
+};
+
+export const monthToDate = (month) => {
+  let m = Number(month);
+  if (isNaN(m) || m < 1 || m > 12) return new Date(Date.UTC(2025, 0, 1));
+  return new Date(Date.UTC(2025, m - 1, 1));
+};
+
+export const monthPairToDates = (startMonth, endMonth) => {
+  let startDate = new Date(Date.UTC(2025, startMonth - 1, 1));
+  let endYear = endMonth < startMonth ? 2026 : 2025;
+  let endDate = new Date(Date.UTC(endYear, endMonth - 1, 1));
+  return { startDate: startDate, endDate: endDate };
+};
+
 export const formatDateToYearMonthDay = (date) => {
   if (!date || typeof date.getUTCFullYear !== 'function') return date;
   const year = date.getUTCFullYear();
@@ -93,6 +111,86 @@ export const formatDateToYearMonthDay = (date) => {
   const day = String(date.getUTCDate()).padStart(2, '0');
   return `${year}/${month}/${day}`;
 };
+
+const SHORT_MONTH_NAMES = [
+  'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
+  'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec',
+];
+
+export const getClimatologyMessage = (startDate, endDate) => {
+  if (!startDate || !endDate) {
+    return 'Climatology datasets: all 12 months included';
+  }
+
+  let durationMs = endDate.getTime() - startDate.getTime();
+  let oneYearMs = 365.25 * 24 * 60 * 60 * 1000;
+
+  if (durationMs >= oneYearMs) {
+    return 'Climatology datasets: all 12 months included (range covers at least a full year)';
+  }
+
+  let startMonth = startDate.getUTCMonth() + 1;
+  let endMonth = endDate.getUTCMonth() + 1;
+
+  let months = [];
+  if (startMonth <= endMonth) {
+    for (let m = startMonth; m <= endMonth; m++) {
+      months.push(m);
+    }
+  } else {
+    for (let m = startMonth; m <= 12; m++) {
+      months.push(m);
+    }
+    for (let m = 1; m <= endMonth; m++) {
+      months.push(m);
+    }
+  }
+
+  let count = months.length;
+  let startName = SHORT_MONTH_NAMES[startMonth - 1];
+  let endName = SHORT_MONTH_NAMES[endMonth - 1];
+
+  if (count === 1) {
+    return 'Climatology datasets: ' + startName + ' only';
+  }
+
+  return `Climatology datasets: ${count} months included, ${startName} – ${endName}`;
+};
+
+export const getMonthRangeMessage = (startMonth, endMonth) => {
+  let months = [];
+  if (startMonth <= endMonth) {
+    for (let m = startMonth; m <= endMonth; m++) {
+      months.push(m);
+    }
+  } else {
+    for (let m = startMonth; m <= 12; m++) {
+      months.push(m);
+    }
+    for (let m = 1; m <= endMonth; m++) {
+      months.push(m);
+    }
+  }
+
+  let count = months.length;
+  let startName = SHORT_MONTH_NAMES[startMonth - 1];
+  let endName = SHORT_MONTH_NAMES[endMonth - 1];
+
+  if (count === 12) {
+    return 'Climatology-only collection: all 12 months included';
+  }
+
+  if (count === 1) {
+    return 'Climatology-only collection: ' + startName + ' only';
+  }
+
+  return `Climatology-only collection: ${count} months included, ${startName} – ${endName}`;
+};
+
+export const CLIMATOLOGY_TOOLTIP_TEXT =
+  'Climatology datasets contain monthly averages, not data at specific dates. ' +
+  'Your date range determines which calendar months are included. ' +
+  'Ranges over one year naturally cover all 12 months.';
 
 const SLIDER_STEP = 0.1;
 

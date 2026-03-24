@@ -17,7 +17,8 @@ import useMultiDatasetDateRangeInput from '../../hooks/useMultiDatasetDateRangeI
 import DateRangeSlider from '../controls/DateRangeControl/DateRangeSlider';
 import DateInput from '../../../components/DateInput';
 import ValidationMessages from '../../../components/ValidationMessages';
-import { dateToUTCDateString } from '../../utils/dateHelpers';
+import { dateToUTCDateString, getClimatologyMessage, CLIMATOLOGY_TOOLTIP_TEXT } from '../../utils/dateHelpers';
+import InfoTooltip from '../../../components/InfoTooltip';
 
 const useStyles = makeStyles((theme) => ({
   container: {
@@ -97,6 +98,7 @@ const CompactDateRangeInput = ({
   minDate,
   maxDate,
   setInvalidFlag,
+  hasMixedClimatology,
 }) => {
   const classes = useStyles();
 
@@ -148,6 +150,7 @@ const CompactDateRangeInput = ({
     handleDateEndBlur,
     startDateMessage,
     endDateMessage,
+    dateWarning,
     isDateRangeInverted,
     isValid,
   } = useMultiDatasetDateRangeInput({
@@ -210,8 +213,10 @@ const CompactDateRangeInput = ({
         messages={[
           startDateMessage ? { type: 'error', text: startDateMessage } : null,
           endDateMessage ? { type: 'error', text: endDateMessage } : null,
+          dateWarning ? { type: 'warning', text: dateWarning } : null,
+          hasMixedClimatology ? { type: 'info', text: isValid ? getClimatologyMessage(localStartDate, localEndDate) : 'Collection contains climatology datasets', suffix: React.createElement(InfoTooltip, { title: CLIMATOLOGY_TOOLTIP_TEXT }) } : null,
         ].filter(Boolean)}
-        maxMessages={2}
+        maxMessages={hasMixedClimatology ? 3 : 2}
       />
 
       {/* Slider */}
@@ -250,6 +255,7 @@ CompactDateRangeInput.propTypes = {
   minDate: PropTypes.instanceOf(Date).isRequired,
   maxDate: PropTypes.instanceOf(Date).isRequired,
   setInvalidFlag: PropTypes.func,
+  hasMixedClimatology: PropTypes.bool,
 };
 
 export default CompactDateRangeInput;

@@ -206,7 +206,17 @@ function calculateMonthlyCount(startDate, endDate) {
  * Count months for Monthly Climatology (capped at 12).
  */
 function calculateMonthlyClimatologyCount(startDate, endDate) {
-  return Math.min(12, calculateMonthlyCount(startDate, endDate));
+  let totalMonths = (endDate.getUTCFullYear() - startDate.getUTCFullYear()) * 12
+    + (endDate.getUTCMonth() - startDate.getUTCMonth());
+  if (totalMonths >= 12) {
+    return 12;
+  }
+  let startMonth = startDate.getUTCMonth();
+  let endMonth = endDate.getUTCMonth();
+  if (startMonth <= endMonth) {
+    return endMonth - startMonth + 1;
+  }
+  return 12 - startMonth + endMonth + 1;
 }
 
 /**
@@ -436,4 +446,5 @@ function performRowCountMath(resolvedInputs, constraints) {
   return Math.round(pointCount);
 }
 
+export { calculateMonthlyClimatologyCount };
 export default performRowCountMath;
