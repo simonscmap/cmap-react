@@ -10,17 +10,10 @@ let WORLD_EXTENT = {
 };
 
 let BASEMAPS = {
-  topographic: '6b4764e99107496f9193e4b68a77b73a', // best
-  terrainWithLabels: 'ccb943d91c134188a8815452514983fc', // best
-  imagery: '52bdc7ab7fb044d98add148764eaa30a', // stretching at extremes lats
-  imageryHybrid: '4c2b44abaa4841d08c938f4bbb548561',// stretching at extremes lats
-  natGeoStyleMap: 'f33a34de3a294590ab48f246e99958c9',
-  natGeoMap: 'd94dcdbe78e141c2b2d3a91d5ca8b9c9',
-  natGeoWorldMap: 'b9b1b422198944fbbd5250b3241691b6',
-  oceans: '67ab7f7c535c4687b6518e6d2343e8a2',
-  oceansWebmap: '5ae9e138a17842688b0b79283a4353f6',
-  usgsNationalMap: '6d9fa6d159ae4a1f80b9e296ed300767',
-  usgsNationalMapViewer: '5f9299ceb322435ab248509a0a553a9b',
+  topographic: '6b4764e99107496f9193e4b68a77b73a',
+  terrainWithLabels: 'ccb943d91c134188a8815452514983fc',
+  imagery: '52bdc7ab7fb044d98add148764eaa30a',
+  imageryHybrid: '4c2b44abaa4841d08c938f4bbb548561',
 };
 
 let ACTIVE_BASEMAP = BASEMAPS.imagery;

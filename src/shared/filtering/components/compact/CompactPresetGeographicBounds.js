@@ -83,7 +83,20 @@ const CompactPresetGeographicBounds = ({
           </MenuItem>
         )}
         {mergedPresets.map((preset) => (
-          <MenuItem key={preset.label} value={preset.label}>
+          <MenuItem
+            key={preset.label}
+            value={preset.label}
+            onClick={() => {
+              if (preset.label === selectedPreset) {
+                onPresetSelect(preset.label, {
+                  latStart: preset.southLatitude,
+                  latEnd: preset.northLatitude,
+                  lonStart: preset.westLongitude,
+                  lonEnd: preset.eastLongitude,
+                }, preset);
+              }
+            }}
+          >
             {preset.label}
           </MenuItem>
         ))}
