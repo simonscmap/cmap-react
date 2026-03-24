@@ -52,10 +52,10 @@ function formatDepth(value) {
 function formatTime(value, datasetMetadata, isStartDate) {
   if (value === null || value === undefined) {
     let isMonthlyClimatology =
-      (datasetMetadata && datasetMetadata.Temporal_Resolution) ===
+      (datasetMetadata && datasetMetadata.temporalResolution) ===
         temporalResolutions.monthlyClimatology ||
-      ((datasetMetadata && datasetMetadata.Time_Min) === null &&
-        (datasetMetadata && datasetMetadata.Time_Max) === null);
+      ((datasetMetadata && datasetMetadata.timeMin) === null &&
+        (datasetMetadata && datasetMetadata.timeMax) === null);
 
     if (isMonthlyClimatology) {
       return isStartDate ? 'Monthly' : 'Climatology';
@@ -67,7 +67,7 @@ function formatTime(value, datasetMetadata, isStartDate) {
 
 let MultiDatasetDownloadRow = React.memo(function MultiDatasetDownloadRow(props) {
   let { datasetMetadata, currentConstraints, handleProgramClick } = props;
-  let datasetName = datasetMetadata.Dataset_Name;
+  let datasetName = datasetMetadata.shortName;
 
   let isSelected = useMultiDatasetDownloadStore(function (state) {
     return state.selectedDatasets.has(datasetName);
@@ -82,7 +82,7 @@ let MultiDatasetDownloadRow = React.memo(function MultiDatasetDownloadRow(props)
     toggleDatasetSelection(datasetName);
   };
 
-  let programs = datasetMetadata.Programs;
+  let programs = datasetMetadata.programs;
   let filteredPrograms = programs
     ? programs.filter(function (program) { return program !== 'NA'; })
     : null;
@@ -111,42 +111,42 @@ let MultiDatasetDownloadRow = React.memo(function MultiDatasetDownloadRow(props)
       </TableCell>
       <TableCell style={bodyCellStyle}>
         <Typography variant="body2" noWrap>
-          {formatTime(datasetMetadata.Time_Min, datasetMetadata, true)}
+          {formatTime(datasetMetadata.timeMin, datasetMetadata, true)}
         </Typography>
       </TableCell>
       <TableCell style={bodyCellStyle}>
         <Typography variant="body2" noWrap>
-          {formatTime(datasetMetadata.Time_Max, datasetMetadata, false)}
+          {formatTime(datasetMetadata.timeMax, datasetMetadata, false)}
         </Typography>
       </TableCell>
       <TableCell align="right" style={bodyCellStyle}>
         <Typography variant="body2" noWrap>
-          {formatLatLon(datasetMetadata.Lat_Min)}
+          {formatLatLon(datasetMetadata.latMin)}
         </Typography>
       </TableCell>
       <TableCell align="right" style={bodyCellStyle}>
         <Typography variant="body2" noWrap>
-          {formatLatLon(datasetMetadata.Lat_Max)}
+          {formatLatLon(datasetMetadata.latMax)}
         </Typography>
       </TableCell>
       <TableCell align="right" style={bodyCellStyle}>
         <Typography variant="body2" noWrap>
-          {formatLatLon(datasetMetadata.Lon_Min)}
+          {formatLatLon(datasetMetadata.lonMin)}
         </Typography>
       </TableCell>
       <TableCell align="right" style={bodyCellStyle}>
         <Typography variant="body2" noWrap>
-          {formatLatLon(datasetMetadata.Lon_Max)}
+          {formatLatLon(datasetMetadata.lonMax)}
         </Typography>
       </TableCell>
       <TableCell align="right" style={bodyCellStyle}>
         <Typography variant="body2" noWrap>
-          {formatDepth(datasetMetadata.Depth_Min)}
+          {formatDepth(datasetMetadata.depthMin)}
         </Typography>
       </TableCell>
       <TableCell align="right" style={bodyCellStyle}>
         <Typography variant="body2" noWrap>
-          {formatDepth(datasetMetadata.Depth_Max)}
+          {formatDepth(datasetMetadata.depthMax)}
         </Typography>
       </TableCell>
       <TableCell style={bodyCellStyle}>

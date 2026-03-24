@@ -164,10 +164,9 @@ const DropboxFileSelectionModal = (props) => {
       className={classes.muiDialog}
       PaperProps={{
         className: classes.dialogPaper,
-        style: { overflow: 'visible' },
       }}
     >
-      <DialogContent style={{ overflow: 'visible' }}>
+      <DialogContent>
         <Typography variant="h6">Select Files to Download</Typography>
         <Typography variant="body2" gutterBottom>
           Dataset: {dataset.Short_Name}

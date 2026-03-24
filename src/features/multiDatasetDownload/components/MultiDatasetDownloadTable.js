@@ -260,7 +260,7 @@ let MultiDatasetDownloadTable = function MultiDatasetDownloadTable(props) {
             ) : (
               datasetsMetadata.map(function (datasetMetadata) {
                 return (
-                  <TableRow key={datasetMetadata.Dataset_Name} className={classes.hoverRow}>
+                  <TableRow key={datasetMetadata.shortName} className={classes.hoverRow}>
                     <MultiDatasetDownloadRow
                       datasetMetadata={datasetMetadata}
                       currentConstraints={currentConstraints}
