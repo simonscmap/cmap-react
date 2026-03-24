@@ -11,7 +11,7 @@
  * @module SpatialTemporalTab
  */
 
-import React, { useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import PropTypes from 'prop-types';
 import { useDispatch } from 'react-redux';
 import {
@@ -31,6 +31,7 @@ import OverlapModeCheckbox from './components/OverlapModeCheckbox';
 import SpatialTemporalResultsTable from './components/SpatialTemporalResultsTable';
 import ConstraintsSummary from './components/ConstraintsSummary';
 import UniversalButton from '../../../../shared/components/UniversalButton';
+import { MapBoundsSelector } from '../../../../shared/filtering/map';
 import DiagnosticQuery from './DiagnosticQuery';
 import { snackbarOpen } from '../../../../Redux/actions/ui';
 
@@ -218,6 +219,8 @@ const SpatialTemporalTab = ({
     selectedDataTypes,
     isConstraintsExpanded,
     toggleConstraintsExpanded,
+    spatialBounds,
+    setSpatialBounds,
   } = useSpatialTemporalSearchStore();
 
   // Track previous constraint values to avoid unnecessary callbacks
@@ -293,10 +296,17 @@ const SpatialTemporalTab = ({
     }
   }, [temporalEnabled, depthEnabled, onConstraintsChange]);
 
-  /**
-   * Handle search button click
-   * Validates constraints and executes search
-   */
+  let [previewBounds, setPreviewBounds] = useState(null);
+
+  let handleMapBoundsChange = useCallback(function (latStart, latEnd, lonStart, lonEnd) {
+    setSpatialBounds({ latMin: latStart, latMax: latEnd, lonMin: lonStart, lonMax: lonEnd });
+    setPreviewBounds(null);
+  }, [setSpatialBounds]);
+
+  let handleMapBoundsPreview = useCallback(function (latStart, latEnd, lonStart, lonEnd) {
+    setPreviewBounds({ latMin: latStart, latMax: latEnd, lonMin: lonStart, lonMax: lonEnd });
+  }, []);
+
   const handleSearch = () => {
     if (canSearch()) {
       search();
@@ -357,7 +367,17 @@ const SpatialTemporalTab = ({
             <Box className={classes.mainConstraintsRow}>
               {/* Spatial Bounds Section */}
               <Box className={classes.spatialSection}>
-                <SpatialBoundsInput />
+                <SpatialBoundsInput previewBounds={previewBounds}>
+                  <MapBoundsSelector
+                    mapWidth={630}
+                    latStart={spatialBounds.latMin}
+                    latEnd={spatialBounds.latMax}
+                    lonStart={spatialBounds.lonMin}
+                    lonEnd={spatialBounds.lonMax}
+                    onBoundsChange={handleMapBoundsChange}
+                    onBoundsPreview={handleMapBoundsPreview}
+                  />
+                </SpatialBoundsInput>
               </Box>
 
               {/* Temporal and Depth Column */}
