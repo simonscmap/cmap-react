@@ -102,6 +102,19 @@ let MultiDatasetDownloadRow = React.memo(function MultiDatasetDownloadRow(props)
           datasetShortName={datasetName}
           typographyProps={{ variant: 'body2' }}
         />
+        {datasetMetadata.longName && (
+          <Typography
+            variant="caption"
+            style={{
+              display: 'block',
+              color: 'rgba(255, 255, 255, 0.5)',
+              marginTop: 2,
+              lineHeight: 1.3,
+            }}
+          >
+            {datasetMetadata.longName}
+          </Typography>
+        )}
       </TableCell>
       <TableCell align="right" style={{ ...bodyCellStyle, paddingRight: '16px' }}>
         <RowCountCell

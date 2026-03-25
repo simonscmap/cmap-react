@@ -118,7 +118,7 @@ const useSubsetFiltering = (dataset) => {
 
   // Date validation functions
   const dateIsWithinBounds = useMemo(() => {
-    if (!dataset?.Time_Min || !dataset?.Time_Max) return () => true;
+    if (!dataset || !dataset.Time_Min || !dataset.Time_Max) return () => true;
 
     return (date) => {
       const tmin = dateToUTCDateString(dataset.Time_Min);
@@ -126,7 +126,7 @@ const useSubsetFiltering = (dataset) => {
       const d = dateToUTCDateString(date);
       return d >= tmin && d <= tmax;
     };
-  }, [dataset?.Time_Min, dataset?.Time_Max]);
+  }, [dataset && dataset.Time_Min, dataset && dataset.Time_Max]);
 
   // Date handlers for text inputs
   const handleSetStartDate = (value) => {
@@ -183,10 +183,14 @@ const useSubsetFiltering = (dataset) => {
 
   // Check if dataset is monthly climatology
   const isMonthlyClimatology = useMemo(() => {
-    return dataset?.Temporal_Resolution
+    return dataset && dataset.Temporal_Resolution
       ? getIsMonthlyClimatology(dataset.Temporal_Resolution)
       : false;
-  }, [dataset?.Temporal_Resolution]);
+  }, [dataset && dataset.Temporal_Resolution]);
+
+  const hasMixedClimatology = useMemo(() => {
+    return dataset && dataset.hasMixedClimatology ? true : false;
+  }, [dataset && dataset.hasMixedClimatology]);
 
   // Determine if filter is defined (different from defaults)
   const isFiltered = useMemo(() => {
@@ -223,7 +227,7 @@ const useSubsetFiltering = (dataset) => {
   const filterValues = useMemo(
     () => ({
       isFiltered,
-      temporalResolution: dataset?.Temporal_Resolution,
+      temporalResolution: dataset && dataset.Temporal_Resolution,
       lonStart,
       lonEnd,
       latStart,
@@ -232,12 +236,12 @@ const useSubsetFiltering = (dataset) => {
       timeEnd,
       depthStart,
       depthEnd,
-      Time_Min: dataset?.Time_Min,
-      Time_Max: dataset?.Time_Max,
+      Time_Min: dataset && dataset.Time_Min,
+      Time_Max: dataset && dataset.Time_Max,
     }),
     [
       isFiltered,
-      dataset?.Temporal_Resolution,
+      dataset && dataset.Temporal_Resolution,
       lonStart,
       lonEnd,
       latStart,
@@ -246,8 +250,8 @@ const useSubsetFiltering = (dataset) => {
       timeEnd,
       depthStart,
       depthEnd,
-      dataset?.Time_Min,
-      dataset?.Time_Max,
+      dataset && dataset.Time_Min,
+      dataset && dataset.Time_Max,
     ],
   );
 
@@ -273,18 +277,19 @@ const useSubsetFiltering = (dataset) => {
     filterSetters,
     sliderEndpoints,
     datasetFilterBounds: {
-      latMin: dataset?.Lat_Min != null ? floorToStep(dataset.Lat_Min, SLIDER_STEP) : null,
-      latMax: dataset?.Lat_Max != null ? ceilToStep(dataset.Lat_Max, SLIDER_STEP) : null,
-      lonMin: dataset?.Lon_Min != null ? floorToStep(dataset.Lon_Min, SLIDER_STEP) : null,
-      lonMax: dataset?.Lon_Max != null ? ceilToStep(dataset.Lon_Max, SLIDER_STEP) : null,
-      depthMin: dataset?.Depth_Min != null ? floorToStep(dataset.Depth_Min, SLIDER_STEP) : null,
-      depthMax: dataset?.Depth_Max != null ? ceilToStep(dataset.Depth_Max, SLIDER_STEP) : null,
-      timeMin: dataset?.Time_Min ? parseUTCDateString(dataset.Time_Min) : null,
-      timeMax: dataset?.Time_Max ? parseUTCDateString(dataset.Time_Max) : null,
+      latMin: dataset && dataset.Lat_Min != null ? floorToStep(dataset.Lat_Min, SLIDER_STEP) : null,
+      latMax: dataset && dataset.Lat_Max != null ? ceilToStep(dataset.Lat_Max, SLIDER_STEP) : null,
+      lonMin: dataset && dataset.Lon_Min != null ? floorToStep(dataset.Lon_Min, SLIDER_STEP) : null,
+      lonMax: dataset && dataset.Lon_Max != null ? ceilToStep(dataset.Lon_Max, SLIDER_STEP) : null,
+      depthMin: dataset && dataset.Depth_Min != null ? floorToStep(dataset.Depth_Min, SLIDER_STEP) : null,
+      depthMax: dataset && dataset.Depth_Max != null ? ceilToStep(dataset.Depth_Max, SLIDER_STEP) : null,
+      timeMin: dataset && dataset.Time_Min ? parseUTCDateString(dataset.Time_Min) : null,
+      timeMax: dataset && dataset.Time_Max ? parseUTCDateString(dataset.Time_Max) : null,
     },
 
     dateHandling: {
       isMonthlyClimatology,
+      hasMixedClimatology,
       handleSetStartDate,
       handleSetEndDate,
       validTimeMin,
