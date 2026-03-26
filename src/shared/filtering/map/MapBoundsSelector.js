@@ -1,9 +1,10 @@
-import React, { useRef, useEffect } from 'react';
+import React, { useRef, useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 import { Box, CircularProgress, Typography } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
 import useMapBoundsSelector from './useMapBoundsSelector';
 import MapToolbar from './MapToolbar';
+import { MAP_ASPECT_RATIO } from './mapConfig';
 import colors from '../../../enums/colors';
 
 const useStyles = makeStyles((theme) => ({
@@ -61,11 +62,30 @@ const MapBoundsSelector = ({
   onBoundsPreview,
   toolbarOrientation,
   redrawRef,
+  responsive,
 }) => {
   let classes = useStyles();
   let mapContainerRef = useRef(null);
   let initRef = useRef(false);
-  let mapHeight = Math.round(mapWidth / 2);
+  let measureRef = useRef(null);
+  let [measuredWidth, setMeasuredWidth] = useState(null);
+
+  useEffect(function () {
+    if (!responsive) return;
+    let el = measureRef.current;
+    if (!el) return;
+    let observer = new ResizeObserver(function (entries) {
+      let width = Math.floor(entries[0].contentRect.width);
+      if (width > 0) {
+        setMeasuredWidth(width);
+      }
+    });
+    observer.observe(el);
+    return function () { observer.disconnect(); };
+  }, [responsive]);
+
+  let effectiveWidth = responsive && measuredWidth !== null ? Math.min(measuredWidth, mapWidth) : mapWidth;
+  let effectiveHeight = Math.round(effectiveWidth / MAP_ASPECT_RATIO);
 
   let {
     loading,
@@ -109,39 +129,48 @@ const MapBoundsSelector = ({
     };
   }, [loading, error, initializeView]);
 
-  let sizeStyle = { width: mapWidth, height: mapHeight };
+  let sizeStyle = { width: effectiveWidth, height: effectiveHeight };
 
+  let content;
   if (loading) {
-    return (
+    content = (
       <Box className={classes.loadingContainer} style={sizeStyle}>
         <CircularProgress size={40} />
       </Box>
     );
-  }
-
-  if (error) {
-    return (
+  } else if (error) {
+    content = (
       <Box className={classes.errorContainer} style={sizeStyle}>
         <Typography color="error">
           Failed to load map: {error.message}
         </Typography>
       </Box>
     );
+  } else {
+    content = (
+      <Box className={classes.mapWrapper} style={sizeStyle}>
+        <Box ref={mapContainerRef} className={classes.mapContainer} />
+        <Box className={classes.toolbarOverlay}>
+          <MapToolbar
+            orientation={toolbarOrientation}
+            mode={mode}
+            onModeChange={setMode}
+            onZoomIn={zoomIn}
+            onZoomOut={zoomOut}
+            zoomOutDisabled={atMinZoom}
+          />
+        </Box>
+      </Box>
+    );
+  }
+
+  if (!responsive) {
+    return content;
   }
 
   return (
-    <Box className={classes.mapWrapper} style={sizeStyle}>
-      <Box ref={mapContainerRef} className={classes.mapContainer} />
-      <Box className={classes.toolbarOverlay}>
-        <MapToolbar
-          orientation={toolbarOrientation}
-          mode={mode}
-          onModeChange={setMode}
-          onZoomIn={zoomIn}
-          onZoomOut={zoomOut}
-          zoomOutDisabled={atMinZoom}
-        />
-      </Box>
+    <Box ref={measureRef} style={{ width: '100%', maxWidth: mapWidth }}>
+      {measuredWidth !== null ? content : null}
     </Box>
   );
 };
@@ -160,10 +189,12 @@ MapBoundsSelector.propTypes = {
   onBoundsPreview: PropTypes.func,
   toolbarOrientation: PropTypes.oneOf(['vertical', 'horizontal']),
   redrawRef: PropTypes.object,
+  responsive: PropTypes.bool,
 };
 
 MapBoundsSelector.defaultProps = {
   toolbarOrientation: 'vertical',
+  responsive: false,
 };
 
 export default MapBoundsSelector;
