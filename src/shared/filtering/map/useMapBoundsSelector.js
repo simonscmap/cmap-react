@@ -7,20 +7,17 @@ import {
   CREATE_SYMBOL,
   STATIC_SYMBOL,
   HIGHLIGHT_OPTIONS,
+  MODE_PAN,
+  MODE_SELECT,
 } from './mapConfig';
 import initLog from '../../../Services/log-service';
 import {
   clampAndRound,
   normalizeLon,
-  constrainLonSpan,
-  constrainLatBounds,
-  clampLatBounds,
+  applyExtentConstraints,
 } from './mapGeometryUtils';
 
 let log = initLog('shared/filtering/map/useMapBoundsSelector');
-
-const MODE_PAN = 'pan';
-const MODE_SELECT = 'select';
 
 const useMapBoundsSelector = ({
   latStart,
@@ -85,6 +82,17 @@ const useMapBoundsSelector = ({
     };
   }, []);
 
+  function buildPolygonFromExtent(extent) {
+    return new modules.Polygon({
+      rings: [[
+        [extent.xmin, extent.ymin], [extent.xmax, extent.ymin],
+        [extent.xmax, extent.ymax], [extent.xmin, extent.ymax],
+        [extent.xmin, extent.ymin],
+      ]],
+      spatialReference: SPATIAL_REFERENCE,
+    });
+  }
+
   let createBoundsGraphic = useCallback(
     (lat1, lat2, lon1, lon2) => {
       if (!modules) return null;
@@ -98,14 +106,8 @@ const useMapBoundsSelector = ({
         maxLon = maxLon + 360;
       }
 
-      let polygon = new modules.Polygon({
-        rings: [
-          [
-            [minLon, minLat], [maxLon, minLat], [maxLon, maxLat],
-            [minLon, maxLat], [minLon, minLat],
-          ],
-        ],
-        spatialReference: SPATIAL_REFERENCE,
+      let polygon = buildPolygonFromExtent({
+        xmin: minLon, xmax: maxLon, ymin: minLat, ymax: maxLat,
       });
 
       return new modules.Graphic({
@@ -337,26 +339,18 @@ const useMapBoundsSelector = ({
 
           sketchViewModelRef.current = sketchViewModel;
 
-          sketchViewModel.on('create', function (event) {
+          function handleSketchCreate(event) {
             if (event.state === 'start') {
               isUpdatingFromMapRef.current = true;
               prevExtentRef.current = null;
             } else if (event.state === 'active') {
               let extent = event.graphic.geometry && event.graphic.geometry.extent;
               if (extent) {
-                let result = constrainLonSpan(extent, prevExtentRef.current) || extent;
-                result = clampLatBounds(result) || result;
-                if (result !== extent) {
-                  event.graphic.geometry = new modules.Polygon({
-                    rings: [[
-                      [result.xmin, result.ymin], [result.xmax, result.ymin],
-                      [result.xmax, result.ymax], [result.xmin, result.ymax],
-                      [result.xmin, result.ymin],
-                    ]],
-                    spatialReference: SPATIAL_REFERENCE,
-                  });
+                let constrained = applyExtentConstraints(extent, prevExtentRef.current, { clampLat: true });
+                if (constrained.changed) {
+                  event.graphic.geometry = buildPolygonFromExtent(constrained.extent);
                 }
-                prevExtentRef.current = { xmin: result.xmin, xmax: result.xmax, ymin: result.ymin, ymax: result.ymax };
+                prevExtentRef.current = { xmin: constrained.extent.xmin, xmax: constrained.extent.xmax, ymin: constrained.extent.ymin, ymax: constrained.extent.ymax };
               }
               if (onBoundsPreviewRef.current) {
                 previewBoundsRef.current(event.graphic.geometry);
@@ -374,28 +368,21 @@ const useMapBoundsSelector = ({
             } else if (event.state === 'cancel') {
               isUpdatingFromMapRef.current = false;
             }
-          });
+          }
+          sketchViewModel.on('create', handleSketchCreate);
 
-          sketchViewModel.on('update', function (event) {
+          function handleSketchUpdate(event) {
             if (event.state === 'active' && event.graphics && event.graphics.length > 0) {
               let graphic = event.graphics[0];
               let extent = graphic.geometry && graphic.geometry.extent;
               if (extent) {
-                let result = constrainLonSpan(extent, prevExtentRef.current) || extent;
                 let isResize = event.toolEventInfo && event.toolEventInfo.type
                   && event.toolEventInfo.type.indexOf('scale') === 0;
-                result = isResize ? (clampLatBounds(result) || result) : (constrainLatBounds(result) || result);
-                if (result !== extent) {
-                  graphic.geometry = new modules.Polygon({
-                    rings: [[
-                      [result.xmin, result.ymin], [result.xmax, result.ymin],
-                      [result.xmax, result.ymax], [result.xmin, result.ymax],
-                      [result.xmin, result.ymin],
-                    ]],
-                    spatialReference: SPATIAL_REFERENCE,
-                  });
+                let constrained = applyExtentConstraints(extent, prevExtentRef.current, { clampLat: isResize });
+                if (constrained.changed) {
+                  graphic.geometry = buildPolygonFromExtent(constrained.extent);
                 }
-                prevExtentRef.current = { xmin: result.xmin, xmax: result.xmax, ymin: result.ymin, ymax: result.ymax };
+                prevExtentRef.current = { xmin: constrained.extent.xmin, xmax: constrained.extent.xmax, ymin: constrained.extent.ymin, ymax: constrained.extent.ymax };
               }
               isUpdatingFromMapRef.current = true;
               let isMoveOrScaleStop = event.toolEventInfo && event.toolEventInfo.type
@@ -412,7 +399,8 @@ const useMapBoundsSelector = ({
                 updateBoundsRef.current(event.graphics[0].geometry);
               }
             }
-          });
+          }
+          sketchViewModel.on('update', handleSketchUpdate);
 
           view.on('drag', function (event) {
             if (event.action === 'end' && modeRef.current === MODE_PAN) {

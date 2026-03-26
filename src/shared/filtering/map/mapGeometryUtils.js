@@ -64,6 +64,14 @@ function clampLatBounds(extent) {
   return { xmin: extent.xmin, xmax: extent.xmax, ymin: ymin, ymax: ymax };
 }
 
+function applyExtentConstraints(extent, prevExtent, options) {
+  let clampLat = options && options.clampLat;
+  let result = constrainLonSpan(extent, prevExtent) || extent;
+  result = clampLat ? (clampLatBounds(result) || result) : (constrainLatBounds(result) || result);
+  let changed = result !== extent;
+  return { extent: result, changed: changed };
+}
+
 export {
   MAX_LON_SPAN,
   clampAndRound,
@@ -71,4 +79,5 @@ export {
   constrainLonSpan,
   constrainLatBounds,
   clampLatBounds,
+  applyExtentConstraints,
 };

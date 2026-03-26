@@ -5,6 +5,7 @@ import {
   constrainLonSpan,
   constrainLatBounds,
   clampLatBounds,
+  applyExtentConstraints,
 } from '../mapGeometryUtils';
 
 describe('clampAndRound', () => {
@@ -196,5 +197,65 @@ describe('clampLatBounds', () => {
 describe('MAX_LON_SPAN', () => {
   it('is 359.9', () => {
     expect(MAX_LON_SPAN).toBe(359.9);
+  });
+});
+
+describe('applyExtentConstraints', () => {
+  it('returns unchanged extent when no constraints needed', () => {
+    let extent = { xmin: -100, xmax: 100, ymin: -45, ymax: 45 };
+    let result = applyExtentConstraints(extent, null, { clampLat: true });
+    expect(result.extent).toBe(extent);
+    expect(result.changed).toBe(false);
+  });
+
+  it('constrains lon span with no prevExtent', () => {
+    let extent = { xmin: -200, xmax: 200, ymin: -45, ymax: 45 };
+    let result = applyExtentConstraints(extent, null, { clampLat: true });
+    expect(result.changed).toBe(true);
+    expect(result.extent.xmin).toBe(-180);
+    expect(result.extent.xmax).toBe(180);
+  });
+
+  it('clamps latitude when clampLat is true (create mode)', () => {
+    let extent = { xmin: -100, xmax: 100, ymin: -100, ymax: 100 };
+    let result = applyExtentConstraints(extent, null, { clampLat: true });
+    expect(result.changed).toBe(true);
+    expect(result.extent.ymin).toBe(-90);
+    expect(result.extent.ymax).toBe(90);
+  });
+
+  it('shifts latitude when clampLat is false (move mode)', () => {
+    let extent = { xmin: -100, xmax: 100, ymin: 10, ymax: 100 };
+    let result = applyExtentConstraints(extent, null, { clampLat: false });
+    expect(result.changed).toBe(true);
+    expect(result.extent.ymax).toBe(90);
+    expect(result.extent.ymin).toBe(0);
+  });
+
+  it('applies both lon and lat constraints together', () => {
+    let extent = { xmin: -200, xmax: 200, ymin: -100, ymax: 100 };
+    let result = applyExtentConstraints(extent, null, { clampLat: true });
+    expect(result.changed).toBe(true);
+    expect(result.extent.xmin).toBe(-180);
+    expect(result.extent.xmax).toBe(180);
+    expect(result.extent.ymin).toBe(-90);
+    expect(result.extent.ymax).toBe(90);
+  });
+
+  it('uses prevExtent for lon constraint direction', () => {
+    let prevExtent = { xmin: -100, xmax: 100 };
+    let extent = { xmin: -300, xmax: 110, ymin: -45, ymax: 45 };
+    let result = applyExtentConstraints(extent, prevExtent, { clampLat: true });
+    expect(result.changed).toBe(true);
+    expect(result.extent.xmax).toBe(110);
+    expect(result.extent.xmin).toBe(110 - MAX_LON_SPAN);
+  });
+
+  it('defaults to clampLat false when options not provided', () => {
+    let extent = { xmin: -100, xmax: 100, ymin: 10, ymax: 100 };
+    let result = applyExtentConstraints(extent, null, {});
+    expect(result.changed).toBe(true);
+    expect(result.extent.ymax).toBe(90);
+    expect(result.extent.ymin).toBe(0);
   });
 });

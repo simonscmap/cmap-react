@@ -33,11 +33,7 @@ let CREATE_SYMBOL = {
   outline: { color: [157, 209, 98, 1], width: 2 },
 };
 
-let STATIC_SYMBOL = {
-  type: 'simple-fill',
-  color: [157, 209, 98, 0.3],
-  outline: { color: [157, 209, 98, 1], width: 2 },
-}
+let STATIC_SYMBOL = CREATE_SYMBOL;
 
 let HIGHLIGHT_OPTIONS = {
   color: [157, 209, 98, .3],
@@ -46,6 +42,9 @@ let HIGHLIGHT_OPTIONS = {
 };
 
 let ESRI_VERSION = '4.24';
+
+let MODE_PAN = 'pan';
+let MODE_SELECT = 'select';
 
 export {
   SPATIAL_REFERENCE,
@@ -57,4 +56,6 @@ export {
   STATIC_SYMBOL,
   HIGHLIGHT_OPTIONS,
   ESRI_VERSION,
+  MODE_PAN,
+  MODE_SELECT,
 };
