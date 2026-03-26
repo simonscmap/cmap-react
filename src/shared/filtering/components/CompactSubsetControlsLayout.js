@@ -103,6 +103,7 @@ const useStyles = makeStyles((theme) => ({
     justifyContent: 'flex-end',
     [theme.breakpoints.down('sm')]: {
       width: '100%',
+      justifyContent: 'center',
     },
   },
 }));
@@ -353,6 +354,7 @@ const CompactSubsetControlsLayout = ({
             <Box className={classes.mapColumn}>
               <MapBoundsSelector
                 mapWidth={630}
+                responsive
                 latStart={latRange.sliderStart}
                 latEnd={latRange.sliderEnd}
                 lonStart={lonRange.sliderStart}
