@@ -12,10 +12,18 @@ import {
 } from './mapConfig';
 import initLog from '../../../Services/log-service';
 import {
-  clampAndRound,
-  normalizeLon,
-  applyExtentConstraints,
+  extractBoundsFromGeometry,
+  normalizeBoundsForPolygon,
+  extentToRings,
+  constrainAndSnapshot,
+  isNearMinZoom,
+  computeZoomOutScale,
+  shouldBlockZoomOut,
 } from './mapGeometryUtils';
+import {
+  isStopEvent,
+  getConstraintOptions,
+} from './mapEventUtils';
 
 let log = initLog('shared/filtering/map/useMapBoundsSelector');
 
@@ -84,11 +92,7 @@ const useMapBoundsSelector = ({
 
   function buildPolygonFromExtent(extent) {
     return new modules.Polygon({
-      rings: [[
-        [extent.xmin, extent.ymin], [extent.xmax, extent.ymin],
-        [extent.xmax, extent.ymax], [extent.xmin, extent.ymax],
-        [extent.xmin, extent.ymin],
-      ]],
+      rings: extentToRings(extent),
       spatialReference: SPATIAL_REFERENCE,
     });
   }
@@ -97,17 +101,10 @@ const useMapBoundsSelector = ({
     (lat1, lat2, lon1, lon2) => {
       if (!modules) return null;
 
-      let minLat = Math.min(lat1, lat2);
-      let maxLat = Math.max(lat1, lat2);
-      let minLon = lon1;
-      let maxLon = lon2;
-
-      if (minLon > maxLon) {
-        maxLon = maxLon + 360;
-      }
+      let bounds = normalizeBoundsForPolygon(lat1, lat2, lon1, lon2);
 
       let polygon = buildPolygonFromExtent({
-        xmin: minLon, xmax: maxLon, ymin: minLat, ymax: maxLat,
+        xmin: bounds.minLon, xmax: bounds.maxLon, ymin: bounds.minLat, ymax: bounds.maxLat,
       });
 
       return new modules.Graphic({
@@ -117,18 +114,6 @@ const useMapBoundsSelector = ({
     },
     [modules],
   );
-
-  let extractBoundsFromGeometry = function (geometry) {
-    if (!geometry) return null;
-    let extent = geometry.extent;
-    if (!extent) return null;
-    return {
-      minLat: clampAndRound(extent.ymin, -90, 90),
-      maxLat: clampAndRound(extent.ymax, -90, 90),
-      westLon: clampAndRound(normalizeLon(extent.xmin), -180, 180),
-      eastLon: clampAndRound(normalizeLon(extent.xmax), -180, 180),
-    };
-  };
 
   let markUpdatingFromMap = function () {
     isUpdatingFromMapRef.current = true;
@@ -308,13 +293,12 @@ const useMapBoundsSelector = ({
               setAtMinZoom(true);
               return;
             }
-            let nearLimit = newScale >= minZoomThresholdRef.current * 0.95;
+            let nearLimit = isNearMinZoom(newScale, minZoomThresholdRef.current);
             setAtMinZoom(nearLimit);
           });
 
           let wheelHandler = function (e) {
-            let isZoomingOut = e.deltaY > 0;
-            if (isZoomingOut && view.scale >= minZoomThresholdRef.current) {
+            if (shouldBlockZoomOut(e.deltaY, view.scale, minZoomThresholdRef.current)) {
               e.stopImmediatePropagation();
               e.preventDefault();
             }
@@ -346,11 +330,11 @@ const useMapBoundsSelector = ({
             } else if (event.state === 'active') {
               let extent = event.graphic.geometry && event.graphic.geometry.extent;
               if (extent) {
-                let constrained = applyExtentConstraints(extent, prevExtentRef.current, { clampLat: true });
-                if (constrained.changed) {
-                  event.graphic.geometry = buildPolygonFromExtent(constrained.extent);
+                let result = constrainAndSnapshot(extent, prevExtentRef.current, getConstraintOptions(true, null));
+                if (result.changed) {
+                  event.graphic.geometry = buildPolygonFromExtent(result.extent);
                 }
-                prevExtentRef.current = { xmin: constrained.extent.xmin, xmax: constrained.extent.xmax, ymin: constrained.extent.ymin, ymax: constrained.extent.ymax };
+                prevExtentRef.current = result.snapshot;
               }
               if (onBoundsPreviewRef.current) {
                 previewBoundsRef.current(event.graphic.geometry);
@@ -376,18 +360,14 @@ const useMapBoundsSelector = ({
               let graphic = event.graphics[0];
               let extent = graphic.geometry && graphic.geometry.extent;
               if (extent) {
-                let isResize = event.toolEventInfo && event.toolEventInfo.type
-                  && event.toolEventInfo.type.indexOf('scale') === 0;
-                let constrained = applyExtentConstraints(extent, prevExtentRef.current, { clampLat: isResize });
-                if (constrained.changed) {
-                  graphic.geometry = buildPolygonFromExtent(constrained.extent);
+                let result = constrainAndSnapshot(extent, prevExtentRef.current, getConstraintOptions(false, event.toolEventInfo));
+                if (result.changed) {
+                  graphic.geometry = buildPolygonFromExtent(result.extent);
                 }
-                prevExtentRef.current = { xmin: constrained.extent.xmin, xmax: constrained.extent.xmax, ymin: constrained.extent.ymin, ymax: constrained.extent.ymax };
+                prevExtentRef.current = result.snapshot;
               }
               isUpdatingFromMapRef.current = true;
-              let isMoveOrScaleStop = event.toolEventInfo && event.toolEventInfo.type
-                && (event.toolEventInfo.type === 'move-stop' || event.toolEventInfo.type === 'scale-stop');
-              if (isMoveOrScaleStop) {
+              if (isStopEvent(event.toolEventInfo)) {
                 updateBoundsRef.current(graphic.geometry);
               } else if (onBoundsPreviewRef.current) {
                 previewBoundsRef.current(graphic.geometry);
@@ -469,10 +449,7 @@ const useMapBoundsSelector = ({
 
   let zoomOut = useCallback(() => {
     if (viewRef.current && minZoomThresholdRef.current) {
-      let targetScale = Math.min(
-        viewRef.current.scale * 2,
-        minZoomThresholdRef.current
-      );
+      let targetScale = computeZoomOutScale(viewRef.current.scale, minZoomThresholdRef.current);
       viewRef.current.goTo({ scale: targetScale });
     }
   }, []);

@@ -72,6 +72,60 @@ function applyExtentConstraints(extent, prevExtent, options) {
   return { extent: result, changed: changed };
 }
 
+function extractBoundsFromGeometry(geometry) {
+  if (!geometry) return null;
+  let extent = geometry.extent;
+  if (!extent) return null;
+  return {
+    minLat: clampAndRound(extent.ymin, -90, 90),
+    maxLat: clampAndRound(extent.ymax, -90, 90),
+    westLon: clampAndRound(normalizeLon(extent.xmin), -180, 180),
+    eastLon: clampAndRound(normalizeLon(extent.xmax), -180, 180),
+  };
+}
+
+function normalizeBoundsForPolygon(lat1, lat2, lon1, lon2) {
+  let minLat = Math.min(lat1, lat2);
+  let maxLat = Math.max(lat1, lat2);
+  let minLon = lon1;
+  let maxLon = lon2;
+  if (minLon > maxLon) {
+    maxLon = maxLon + 360;
+  }
+  return { minLat: minLat, maxLat: maxLat, minLon: minLon, maxLon: maxLon };
+}
+
+function extentToRings(extent) {
+  return [[
+    [extent.xmin, extent.ymin], [extent.xmax, extent.ymin],
+    [extent.xmax, extent.ymax], [extent.xmin, extent.ymax],
+    [extent.xmin, extent.ymin],
+  ]];
+}
+
+function constrainAndSnapshot(extent, prevExtent, options) {
+  let constrained = applyExtentConstraints(extent, prevExtent, options);
+  let snapshot = {
+    xmin: constrained.extent.xmin,
+    xmax: constrained.extent.xmax,
+    ymin: constrained.extent.ymin,
+    ymax: constrained.extent.ymax,
+  };
+  return { extent: constrained.extent, changed: constrained.changed, snapshot: snapshot };
+}
+
+function isNearMinZoom(scale, minZoomThreshold) {
+  return scale >= minZoomThreshold * 0.95;
+}
+
+function computeZoomOutScale(currentScale, maxScale) {
+  return Math.min(currentScale * 2, maxScale);
+}
+
+function shouldBlockZoomOut(deltaY, currentScale, minZoomThreshold) {
+  return deltaY > 0 && currentScale >= minZoomThreshold;
+}
+
 export {
   MAX_LON_SPAN,
   clampAndRound,
@@ -80,4 +134,11 @@ export {
   constrainLatBounds,
   clampLatBounds,
   applyExtentConstraints,
+  extractBoundsFromGeometry,
+  normalizeBoundsForPolygon,
+  extentToRings,
+  constrainAndSnapshot,
+  isNearMinZoom,
+  computeZoomOutScale,
+  shouldBlockZoomOut,
 };
