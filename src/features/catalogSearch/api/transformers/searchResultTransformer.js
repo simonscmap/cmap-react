@@ -128,6 +128,7 @@ export const transformSearchResult = (row) => {
     // Temporal aliases for UI compatibility (CollectionDatasetsTable format)
     timeStart: row.timeMin,
     timeEnd: row.timeMax,
+    temporalResolution: row.temporalResolution || null,
 
     // Depth bounds object
     depth: {

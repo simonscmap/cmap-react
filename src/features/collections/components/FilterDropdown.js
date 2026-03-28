@@ -1,34 +1,32 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { FormControl, InputLabel, Select, MenuItem } from '@material-ui/core';
+import { makeStyles } from '@material-ui/core/styles';
+import colors from '../../../enums/colors';
 
-/**
- * FilterDropdown Component
- *
- * Generic dropdown selector for filtering data by a specific criterion.
- * Reusable across different features and filter types.
- *
- * @param {Object} props - Component props
- * @param {Array} props.options - Array of filter option objects with value and label properties
- * @param {string} props.selectedValue - Currently selected filter value
- * @param {function} props.onChange - Callback when user selects a different option
- * @param {string} [props.label='Filter'] - Label text displayed above/before dropdown
- * @param {boolean} [props.disabled=false] - Disable dropdown interaction
- * @param {string} [props.className] - Additional CSS class for styling container
- * @param {string} [props.size='medium'] - Size variant: 'small' | 'medium'
- *
- * @example
- * <FilterDropdown
- *   options={[
- *     { value: 'all', label: 'All Items' },
- *     { value: 'active', label: 'Active Only' },
- *     { value: 'inactive', label: 'Inactive Only' }
- *   ]}
- *   selectedValue={filterValue}
- *   onChange={setFilterValue}
- *   label="Status Filter"
- * />
- */
+let useStyles = makeStyles(() => ({
+  formControl: {
+    '& .MuiInput-underline:before': {
+      borderBottomColor: 'rgba(157, 209, 98, 0.4)',
+    },
+    '& .MuiInput-underline:hover:not(.Mui-disabled):before': {
+      borderBottomColor: colors.primary,
+    },
+    '& .MuiInput-underline:after': {
+      borderBottomColor: colors.primary,
+    },
+  },
+  select: {
+    color: colors.primary,
+    '& .MuiSelect-icon': {
+      color: colors.primary,
+    },
+  },
+  label: {
+    color: colors.primary,
+  },
+}));
+
 const FilterDropdown = ({
   options,
   selectedValue,
@@ -38,7 +36,8 @@ const FilterDropdown = ({
   size = 'medium',
   label,
 }) => {
-  // Handle change event from Material-UI Select
+  let classes = useStyles();
+
   const handleChange = (event) => {
     const value = event.target.value;
     onChange(value);
@@ -66,14 +65,15 @@ const FilterDropdown = ({
   const isDisabled = disabled || isEmpty;
 
   return (
-    <FormControl disabled={isDisabled} className={className} size={size}>
-      {label && <InputLabel id="filter-dropdown-label">{label}</InputLabel>}
+    <FormControl disabled={isDisabled} className={`${classes.formControl} ${className || ''}`} size={size}>
+      {label && <InputLabel id="filter-dropdown-label" className={classes.label}>{label}</InputLabel>}
       <Select
         labelId="filter-dropdown-label"
         value={selectedValue || ''}
         onChange={handleChange}
         displayEmpty={isEmpty}
         autoWidth={true}
+        className={classes.select}
         style={{ textAlign: 'left' }}
         MenuProps={{
           disableScrollLock: true,

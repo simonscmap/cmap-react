@@ -145,19 +145,19 @@ describe('messages', () => {
 
   it('generates startBeforeAvailable warning', () => {
     expect(messages.startBeforeAvailable('1997/09/02')).toBe(
-      'Start date is before available data (starts 1997/09/02). Results are unaffected.',
+      'Start date before data start (1997/09/02). Results unaffected.',
     );
   });
 
   it('generates endPastAvailable warning', () => {
     expect(messages.endPastAvailable('2022/12/16')).toBe(
-      'End date is past available data (ends 2022/12/16). Results are unaffected.',
+      'End date past data end (2022/12/16). Results unaffected.',
     );
   });
 
   it('generates rangePastAvailable warning', () => {
     expect(messages.rangePastAvailable('1997/09/02', '2022/12/16')).toBe(
-      'Date range extends past available data (1997/09/02 \u2013 2022/12/16). Results are unaffected.',
+      'Date range outside available data (1997/09/02–2022/12/16). Results unaffected.',
     );
   });
 });

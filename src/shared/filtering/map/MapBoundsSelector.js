@@ -65,8 +65,7 @@ const MapBoundsSelector = ({
   responsive,
 }) => {
   let classes = useStyles();
-  let mapContainerRef = useRef(null);
-  let initRef = useRef(false);
+  let [mapContainerEl, setMapContainerEl] = useState(null);
   let measureRef = useRef(null);
   let [measuredWidth, setMeasuredWidth] = useState(null);
 
@@ -117,9 +116,8 @@ const MapBoundsSelector = ({
   let cleanupRef = useRef(null);
 
   useEffect(() => {
-    if (!loading && !error && mapContainerRef.current && !initRef.current) {
-      initRef.current = true;
-      cleanupRef.current = initializeView(mapContainerRef.current);
+    if (!loading && !error && mapContainerEl) {
+      cleanupRef.current = initializeView(mapContainerEl);
     }
     return () => {
       if (cleanupRef.current) {
@@ -127,7 +125,7 @@ const MapBoundsSelector = ({
         cleanupRef.current = null;
       }
     };
-  }, [loading, error, initializeView]);
+  }, [loading, error, initializeView, mapContainerEl]);
 
   let sizeStyle = { width: effectiveWidth, height: effectiveHeight };
 
@@ -149,7 +147,7 @@ const MapBoundsSelector = ({
   } else {
     content = (
       <Box className={classes.mapWrapper} style={sizeStyle}>
-        <Box ref={mapContainerRef} className={classes.mapContainer} />
+        <Box ref={setMapContainerEl} className={classes.mapContainer} />
         <Box className={classes.toolbarOverlay}>
           <MapToolbar
             orientation={toolbarOrientation}

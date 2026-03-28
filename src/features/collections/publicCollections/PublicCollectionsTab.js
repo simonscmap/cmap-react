@@ -54,24 +54,28 @@ const sortConfig = {
       type: 'number',
       label: 'Sort by Popularity',
       path: 'downloads',
+      defaultDirection: 'desc',
     },
     {
       key: 'date',
       type: 'date',
       label: 'Sort by Date',
       path: 'createdDate',
+      defaultDirection: 'desc',
     },
     {
       key: 'datasetCount',
       type: 'number',
       label: 'Sort by Dataset Count',
       path: 'datasetCount',
+      defaultDirection: 'desc',
     },
     {
       key: 'name',
       type: 'string',
       label: 'Sort by Name',
       path: 'name',
+      defaultDirection: 'asc',
     },
   ],
   defaultSort: {
@@ -85,7 +89,7 @@ const sortConfig = {
 const PublicCollectionsContent = () => {
   const classes = useStyles();
   const filteredCollections = useFilteredItems();
-  const { activeSort, comparator, setSort } = useSorting(sortConfig);
+  const { activeSort, comparator, setSort, toggleDirection } = useSorting(sortConfig);
 
   // Sort the filtered collections
   const sortedCollections = [...filteredCollections].sort(comparator);
@@ -105,6 +109,8 @@ const PublicCollectionsContent = () => {
             fields={sortConfig.fields}
             activeField={activeSort.field}
             onFieldChange={setSort}
+            direction={activeSort.direction}
+            onToggleDirection={toggleDirection}
             label=""
           />
         </Box>

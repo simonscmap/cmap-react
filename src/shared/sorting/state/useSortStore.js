@@ -50,10 +50,10 @@ export const createSortStore = (config) => {
         );
       }
 
-      // Set new field and reset direction to ascending
+      let fieldConfig = _config.fields.find((f) => f.key === fieldKey);
       set({
         activeField: fieldKey,
-        direction: 'asc',
+        direction: fieldConfig.defaultDirection || 'asc',
       });
     },
 

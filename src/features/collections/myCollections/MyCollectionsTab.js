@@ -77,12 +77,13 @@ const useStyles = makeStyles((theme) => ({
 // Sort configuration
 const sortConfig = {
   fields: [
-    { key: 'name', type: 'string', label: 'Sort by Name', path: 'name' },
+    { key: 'name', type: 'string', label: 'Sort by Name', path: 'name', defaultDirection: 'asc' },
     {
       key: 'modified',
       type: 'date',
       label: 'Sort by Date',
       path: 'sortDate',
+      defaultDirection: 'desc',
     },
   ],
   defaultSort: {
@@ -104,7 +105,7 @@ const VISIBILITY_FILTERS = [
 const MyCollectionsContent = ({ visibilityFilter, setVisibilityFilter }) => {
   const classes = useStyles();
   const filteredCollections = useFilteredItems();
-  const { activeSort, comparator, setSort } = useSorting(sortConfig);
+  const { activeSort, comparator, setSort, toggleDirection } = useSorting(sortConfig);
   const pendingDeletions = useCollectionsStore(
     (state) => state.pendingDeletions,
   );
@@ -177,6 +178,8 @@ const MyCollectionsContent = ({ visibilityFilter, setVisibilityFilter }) => {
             fields={sortConfig.fields}
             activeField={activeSort.field}
             onFieldChange={handleSortChange}
+            direction={activeSort.direction}
+            onToggleDirection={toggleDirection}
             label=""
           />
         </Box>

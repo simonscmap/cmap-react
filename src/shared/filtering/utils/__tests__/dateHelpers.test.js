@@ -391,7 +391,7 @@ describe('getClimatologyMessage', () => {
     let start = new Date(Date.UTC(1988, 9, 20));
     let end = new Date(Date.UTC(2022, 11, 16));
     expect(getClimatologyMessage(start, end)).toBe(
-      'Climatology datasets: all 12 months included (range covers at least a full year)',
+      'Climatology datasets: all 12 months (date span ≥ 12 months)',
     );
   });
 
@@ -399,7 +399,7 @@ describe('getClimatologyMessage', () => {
     let start = new Date(Date.UTC(2020, 0, 1));
     let end = new Date(Date.UTC(2021, 0, 1));
     expect(getClimatologyMessage(start, end)).toBe(
-      'Climatology datasets: all 12 months included (range covers at least a full year)',
+      'Climatology datasets: all 12 months (date span ≥ 12 months)',
     );
   });
 
@@ -407,7 +407,7 @@ describe('getClimatologyMessage', () => {
     let start = new Date(Date.UTC(2020, 2, 15));
     let end = new Date(Date.UTC(2020, 7, 20));
     expect(getClimatologyMessage(start, end)).toBe(
-      'Climatology datasets: 6 months included, Mar \u2013 Aug',
+      'Climatology datasets: Mar – Aug (6 months)',
     );
   });
 
@@ -423,7 +423,7 @@ describe('getClimatologyMessage', () => {
     let start = new Date(Date.UTC(2020, 10, 1));
     let end = new Date(Date.UTC(2021, 1, 28));
     expect(getClimatologyMessage(start, end)).toBe(
-      'Climatology datasets: 4 months included, Nov \u2013 Feb',
+      'Climatology datasets: Nov – Feb (4 months)',
     );
   });
 
@@ -431,26 +431,26 @@ describe('getClimatologyMessage', () => {
     let start = new Date(Date.UTC(2020, 5, 1));
     let end = new Date(Date.UTC(2020, 6, 31));
     expect(getClimatologyMessage(start, end)).toBe(
-      'Climatology datasets: 2 months included, Jun \u2013 Jul',
+      'Climatology datasets: Jun – Jul (2 months)',
     );
   });
 
   it('returns all 12 months for null dates', () => {
     expect(getClimatologyMessage(null, null)).toBe(
-      'Climatology datasets: all 12 months included',
+      'Climatology datasets: all 12 months',
     );
   });
 
   it('returns all 12 months when start is null', () => {
     expect(getClimatologyMessage(null, new Date())).toBe(
-      'Climatology datasets: all 12 months included',
+      'Climatology datasets: all 12 months',
     );
   });
 });
 
 describe('getMonthRangeMessage', () => {
   it('returns all 12 months message for Jan to Dec', () => {
-    expect(getMonthRangeMessage(1, 12)).toBe('Climatology-only collection: all 12 months included');
+    expect(getMonthRangeMessage(1, 12)).toBe('Climatology-only collection: all 12 months');
   });
 
   it('returns single month message', () => {
@@ -458,22 +458,22 @@ describe('getMonthRangeMessage', () => {
   });
 
   it('returns count and range for forward range', () => {
-    expect(getMonthRangeMessage(3, 8)).toBe('Climatology-only collection: 6 months included, Mar \u2013 Aug');
+    expect(getMonthRangeMessage(3, 8)).toBe('Climatology-only collection: Mar – Aug (6 months)');
   });
 
   it('returns count and range for wrap range (Nov to Feb)', () => {
-    expect(getMonthRangeMessage(11, 2)).toBe('Climatology-only collection: 4 months included, Nov \u2013 Feb');
+    expect(getMonthRangeMessage(11, 2)).toBe('Climatology-only collection: Nov – Feb (4 months)');
   });
 
   it('returns count and range for Dec to Jan', () => {
-    expect(getMonthRangeMessage(12, 1)).toBe('Climatology-only collection: 2 months included, Dec \u2013 Jan');
+    expect(getMonthRangeMessage(12, 1)).toBe('Climatology-only collection: Dec – Jan (2 months)');
   });
 
   it('returns 2 months for adjacent months', () => {
-    expect(getMonthRangeMessage(6, 7)).toBe('Climatology-only collection: 2 months included, Jun \u2013 Jul');
+    expect(getMonthRangeMessage(6, 7)).toBe('Climatology-only collection: Jun – Jul (2 months)');
   });
 
   it('returns all 12 for Dec to Nov (wrap full year)', () => {
-    expect(getMonthRangeMessage(12, 11)).toBe('Climatology-only collection: all 12 months included');
+    expect(getMonthRangeMessage(12, 11)).toBe('Climatology-only collection: all 12 months');
   });
 });
