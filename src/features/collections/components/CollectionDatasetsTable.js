@@ -567,7 +567,7 @@ const CollectionDatasetsTable = ({
               <TableCell colSpan={totalColumnCount} align="center">
                 <Box className={classes.emptyState}>
                   <Typography variant="body2" color="textSecondary">
-                    {emptyMessage || 'No dataset data available'}
+                    {emptyMessage != null ? emptyMessage : ''}
                   </Typography>
                 </Box>
               </TableCell>

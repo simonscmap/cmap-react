@@ -7,23 +7,30 @@ import {
 export const useFilePagination = (dataset, vaultFilesPagination) => {
   const dispatch = useDispatch();
 
-  const handlePageChange = (direction) => {
+  const handlePageChange = (directionOrPage) => {
     const { local, allCachedFiles, totalFileCount } = vaultFilesPagination;
+    let targetPage;
 
-    if (direction === 'next') {
-      const nextPage = local.currentPage + 1;
-      const requiredFiles = nextPage * local.pageSize;
+    if (typeof directionOrPage === 'number') {
+      targetPage = directionOrPage;
+    } else if (directionOrPage === 'next') {
+      targetPage = local.currentPage + 1;
+    } else if (directionOrPage === 'prev') {
+      targetPage = local.currentPage - 1;
+    } else {
+      return;
+    }
 
-      // Check if we have enough cached files for next page
-      if (
-        allCachedFiles.length >= requiredFiles ||
-        allCachedFiles.length >= totalFileCount
-      ) {
-        dispatch(setLocalPaginationPage(nextPage));
-      }
-      // No backend fetching - only navigate if we have enough local files
-    } else if (direction === 'prev' && local.currentPage > 1) {
-      dispatch(setLocalPaginationPage(local.currentPage - 1));
+    if (targetPage < 1) {
+      return;
+    }
+
+    let requiredFiles = targetPage * local.pageSize;
+    if (
+      allCachedFiles.length >= requiredFiles ||
+      allCachedFiles.length >= totalFileCount
+    ) {
+      dispatch(setLocalPaginationPage(targetPage));
     }
   };
 

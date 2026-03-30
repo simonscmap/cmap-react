@@ -25,7 +25,7 @@ import {
 
 const useStyles = makeStyles((theme) => ({
   tableContainer: {
-    maxHeight: 400,
+    maxHeight: 'none',
     backgroundColor: 'rgba(16, 43, 60, 0.6)',
     borderRadius: '6px',
     boxShadow:
@@ -216,7 +216,7 @@ const PublicCollectionsTable = ({ collections = [] }) => {
   };
 
   const tableContainerStyle = {
-    maxHeight: 400,
+    maxHeight: 'none',
     backgroundColor: 'rgba(16, 43, 60, 0.6)',
     borderRadius: '6px',
     boxShadow:

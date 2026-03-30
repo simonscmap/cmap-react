@@ -73,6 +73,12 @@ const useStyles = makeStyles((theme) => ({
   datasetCount: {
     fontVariantNumeric: 'tabular-nums',
   },
+  loadedLabel: {
+    marginLeft: 8,
+    fontSize: '0.75rem',
+    fontStyle: 'italic',
+    color: 'rgba(157, 209, 98, 0.7)',
+  },
 }));
 
 /**
@@ -130,9 +136,11 @@ const CollectionSearchSection = ({
     return option.name;
   };
 
-  // Disable selection for headers and group headers
   const getOptionDisabled = (option) => {
-    return option.isHeader === true || option.isGroupHeader === true;
+    if (option.isHeader === true || option.isGroupHeader === true) {
+      return true;
+    }
+    return option.id === selectedCollectionId;
   };
 
   // Custom render option to include all columns
@@ -194,24 +202,29 @@ const CollectionSearchSection = ({
       );
     }
 
-    // Render normal collection row
+    let isDisabled = option.id === selectedCollectionId;
+    let cellStyle = isDisabled ? { opacity: 0.5 } : undefined;
+
     return (
       <>
-        <div className={`${classes.dataCell} ${classes.collectionName}`}>
+        <div className={`${classes.dataCell} ${classes.collectionName}`} style={cellStyle}>
           {option.name}
+          {isDisabled && (
+            <span className={classes.loadedLabel}>(currently loaded)</span>
+          )}
         </div>
-        <div className={`${classes.dataCell} ${classes.description}`}>
+        <div className={`${classes.dataCell} ${classes.description}`} style={cellStyle}>
           {option.description || 'No description'}
         </div>
         <div
           className={`${classes.dataCell} ${classes.datasetCount}`}
-          style={{ justifyContent: 'flex-end' }}
+          style={Object.assign({ justifyContent: 'flex-end' }, cellStyle)}
         >
           {option.datasetCount}
         </div>
         <div
           className={classes.dataCell}
-          style={{ justifyContent: 'center', paddingRight: '16px' }}
+          style={Object.assign({ justifyContent: 'center', paddingRight: '16px' }, cellStyle)}
         >
           <CollectionStatusBadge isPublic={option.isPublic} />
         </div>
@@ -282,10 +295,12 @@ const CollectionSearchSection = ({
         getOptionDisabled={getOptionDisabled}
         renderOption={renderOption}
         popperZIndex={zIndex.MODAL_LAYER_2_POPPER}
-        loadAllOnFocus={true}
+        loadAllOnFocus={false}
         disablePortal={true}
         prependOptions={prependOptions}
         processItems={processItems}
+        closeOnSelect={true}
+        clearOnSelect={true}
         listboxGridColumns="minmax(150px, 1.5fr) minmax(200px, 2fr) minmax(80px, 0.5fr) minmax(100px, 0.75fr)"
       />
     </Box>

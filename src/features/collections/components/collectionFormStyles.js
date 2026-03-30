@@ -57,8 +57,9 @@ export const useCollectionFormStyles = makeStyles((theme) => ({
   },
   descriptionField: {
     '& .MuiOutlinedInput-root': {
-      resize: 'both',
+      resize: 'vertical',
       overflow: 'auto',
+      alignItems: 'flex-start',
     },
   },
   visibilitySection: {
