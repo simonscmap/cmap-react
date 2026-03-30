@@ -34,7 +34,7 @@ const useCollectionsStore = create((set, get) => ({
 
   // Search and filter state
   searchQuery: '',
-  visibilityFilter: 'all',
+  visibilityFilter: new Set(['public', 'private', 'following']),
   filteredUserCollections: [],
   filteredPublicCollections: [],
 
@@ -713,13 +713,15 @@ const useCollectionsStore = create((set, get) => ({
   applyFilters: (collections, query, visibilityFilter) => {
     let filtered = collections;
 
-    // Apply visibility filter
-    if (visibilityFilter === 'public') {
-      filtered = filtered.filter((c) => c.isPublic === true);
-    } else if (visibilityFilter === 'private') {
-      filtered = filtered.filter((c) => c.isPublic !== true);
+    if (visibilityFilter && visibilityFilter instanceof Set) {
+      let hasPublic = visibilityFilter.has('public');
+      let hasPrivate = visibilityFilter.has('private');
+      if (hasPublic && !hasPrivate) {
+        filtered = filtered.filter((c) => c.isPublic === true);
+      } else if (hasPrivate && !hasPublic) {
+        filtered = filtered.filter((c) => c.isPublic !== true);
+      }
     }
-    // 'all' shows everything, so no filter needed
 
     // Apply search filter
     if (query && query.trim() !== '') {
@@ -875,7 +877,7 @@ const useCollectionsStore = create((set, get) => ({
       isLoading: false,
       error: null,
       searchQuery: '',
-      visibilityFilter: 'all',
+      visibilityFilter: new Set(['public', 'private', 'following']),
       filteredUserCollections: [],
       filteredPublicCollections: [],
       statistics: {

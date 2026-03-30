@@ -17,11 +17,11 @@ const validateDateValue = (date, isStart, otherDate, min, max) => {
   let dateStr = dateToUTCDateString(date);
 
   if (isStart && min !== undefined && dateStr < dateToUTCDateString(min)) {
-    return { valid: false, message: messages.dateBelowMin(label, formatDateToYearMonthDay(min)), blurOnly: false };
+    return { valid: true, warning: 'startBefore', blurOnly: false };
   }
 
   if (!isStart && max !== undefined && dateStr > dateToUTCDateString(max)) {
-    return { valid: false, message: messages.dateAboveMax(label, formatDateToYearMonthDay(max)), blurOnly: false };
+    return { valid: true, warning: 'endPast', blurOnly: false };
   }
 
   if (isStart && otherDate !== null) {
@@ -46,6 +46,7 @@ const useMultiDatasetDateRangeInput = ({
 }) => {
   const [startDateMessage, setStartDateMessage] = useState('');
   const [endDateMessage, setEndDateMessage] = useState('');
+  const [dateWarning, setDateWarning] = useState('');
 
   const [startDateValidationState, setStartDateValidationState] = useState('valid');
   const [endDateValidationState, setEndDateValidationState] = useState('valid');
@@ -62,30 +63,46 @@ const useMultiDatasetDateRangeInput = ({
   }, [committedEnd]);
 
   useEffect(() => {
-    let result = validateDateValue(localStart, true, localEnd, min, max);
-    setStartDateValidationState(result.valid ? 'valid' : 'error');
-    if (result.valid) {
+    let startResult = validateDateValue(localStart, true, localEnd, min, max);
+    let endResult = validateDateValue(localEnd, false, localStart, min, max);
+
+    setStartDateValidationState(startResult.valid ? 'valid' : 'error');
+    setEndDateValidationState(endResult.valid ? 'valid' : 'error');
+
+    if (startResult.valid) {
       setStartHasBlurred(false);
     }
-    if (!result.blurOnly || startHasBlurred) {
-      setStartDateMessage(result.message);
+    if (endResult.valid) {
+      setEndHasBlurred(false);
+    }
+
+    if (!startResult.blurOnly || startHasBlurred) {
+      setStartDateMessage(startResult.message || '');
     } else {
       setStartDateMessage('');
     }
-  }, [localStart, localEnd, min, max, startHasBlurred]);
 
-  useEffect(() => {
-    let result = validateDateValue(localEnd, false, localStart, min, max);
-    setEndDateValidationState(result.valid ? 'valid' : 'error');
-    if (result.valid) {
-      setEndHasBlurred(false);
-    }
-    if (!result.blurOnly || endHasBlurred) {
-      setEndDateMessage(result.message);
+    if (!endResult.blurOnly || endHasBlurred) {
+      setEndDateMessage(endResult.message || '');
     } else {
       setEndDateMessage('');
     }
-  }, [localEnd, localStart, min, max, endHasBlurred]);
+
+    let startOutOfBounds = startResult.warning === 'startBefore';
+    let endOutOfBounds = endResult.warning === 'endPast';
+    let minFormatted = formatDateToYearMonthDay(min);
+    let maxFormatted = formatDateToYearMonthDay(max);
+
+    if (startOutOfBounds && endOutOfBounds) {
+      setDateWarning(messages.rangePastAvailable(minFormatted, maxFormatted));
+    } else if (startOutOfBounds) {
+      setDateWarning(messages.startBeforeAvailable(minFormatted));
+    } else if (endOutOfBounds) {
+      setDateWarning(messages.endPastAvailable(maxFormatted));
+    } else {
+      setDateWarning('');
+    }
+  }, [localStart, localEnd, min, max, startHasBlurred, endHasBlurred]);
 
   const handleDateStartBlur = () => {
     setStartHasBlurred(true);
@@ -123,6 +140,7 @@ const useMultiDatasetDateRangeInput = ({
     handleDateEndBlur,
     startDateMessage,
     endDateMessage,
+    dateWarning,
     isDateRangeInverted,
     isValid,
   };

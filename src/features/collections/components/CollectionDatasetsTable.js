@@ -51,7 +51,7 @@ const useStyles = makeStyles((theme) => ({
       lineHeight: 1.2,
     },
     '& .MuiTableCell-body': {
-      verticalAlign: 'top',
+      verticalAlign: 'middle',
     },
   },
   table: {
@@ -468,6 +468,12 @@ const CollectionDatasetsTable = ({
         if (dataset.isInvalid) {
           return <>N/A</>;
         }
+        if (
+          dataset.temporalResolution &&
+          dataset.temporalResolution.toLowerCase().indexOf('climatology') !== -1
+        ) {
+          return <>Monthly<br />Climatology</>;
+        }
         const dateRange = formatDateRange(dataset.timeStart, dataset.timeEnd);
         return (
           <>
@@ -478,13 +484,13 @@ const CollectionDatasetsTable = ({
         );
       },
     },
-    rows: {
-      header: 'Dataset Total Rows',
-      cellClass: '',
-      align: 'right',
-      render: (dataset) =>
-        dataset.isInvalid ? 'N/A' : (dataset.rowCount || 0).toLocaleString(),
-    },
+    // rows: {
+    //   header: 'Dataset Total Rows',
+    //   cellClass: '',
+    //   align: 'right',
+    //   render: (dataset) =>
+    //     dataset.isInvalid ? 'N/A' : (dataset.rowCount || 0).toLocaleString(),
+    // },
   };
 
   // Determine if we should show selection
@@ -561,7 +567,7 @@ const CollectionDatasetsTable = ({
               <TableCell colSpan={totalColumnCount} align="center">
                 <Box className={classes.emptyState}>
                   <Typography variant="body2" color="textSecondary">
-                    {emptyMessage || 'No dataset data available'}
+                    {emptyMessage != null ? emptyMessage : ''}
                   </Typography>
                 </Box>
               </TableCell>

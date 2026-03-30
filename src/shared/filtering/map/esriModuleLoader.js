@@ -8,7 +8,7 @@ const loadEsriModules = async () => {
     return cachedModules;
   }
 
-  let [Map, MapView, GraphicsLayer, Graphic, Polygon, SketchViewModel, Basemap, reactiveUtils] =
+  let [Map, MapView, GraphicsLayer, Graphic, Polygon, SketchViewModel, Basemap, reactiveUtils, TileInfo] =
     await loadModules(
       [
         'esri/Map',
@@ -19,6 +19,7 @@ const loadEsriModules = async () => {
         'esri/widgets/Sketch/SketchViewModel',
         'esri/Basemap',
         'esri/core/reactiveUtils',
+        'esri/layers/support/TileInfo',
       ],
       { version: ESRI_VERSION },
     );
@@ -32,6 +33,7 @@ const loadEsriModules = async () => {
     SketchViewModel,
     Basemap,
     reactiveUtils,
+    TileInfo,
   };
 
   return cachedModules;

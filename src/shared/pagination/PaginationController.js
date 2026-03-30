@@ -63,6 +63,7 @@ import Pagination from './Pagination';
 const PaginationController = ({
   data,
   itemsPerPage,
+  rowsPerPageOptions,
   renderItem,
   containerProps = {},
   paginationProps = {},
@@ -72,11 +73,11 @@ const PaginationController = ({
   emptyComponent,
   ...restProps
 }) => {
-  // Use foundation hook
   const { paginatedData, paginationProps: hookPaginationProps } = usePagination(
     {
       data,
       itemsPerPage,
+      rowsPerPageOptions,
     },
   );
 

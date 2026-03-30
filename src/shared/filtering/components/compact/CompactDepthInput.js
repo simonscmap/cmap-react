@@ -26,6 +26,7 @@ const CompactDepthInput = ({
   step,
   onExpandEndpoint,
   onValidationChange,
+  hasMixedClimatology,
 }) => {
   const classes = useCompactRangeInputStyles();
 
@@ -105,7 +106,7 @@ const CompactDepthInput = ({
           startMessage ? { type: 'error', text: startMessage } : null,
           endMessage ? { type: 'error', text: endMessage } : null,
         ].filter(Boolean)}
-        maxMessages={2}
+        maxMessages={hasMixedClimatology ? 3 : 2}
       />
       {/* Slider */}
       <Box className={classes.sliderBox}>
@@ -145,6 +146,7 @@ CompactDepthInput.propTypes = {
   step: PropTypes.number.isRequired,
   onExpandEndpoint: PropTypes.func,
   onValidationChange: PropTypes.func,
+  hasMixedClimatology: PropTypes.bool,
 };
 
 export default CompactDepthInput;

@@ -1,89 +1,54 @@
-/**
- * usePagination Hook
- *
- * A reusable pagination hook that manages pagination state and provides
- * paginated data slices. Eliminates the need for store-based pagination
- * boilerplate by encapsulating all pagination logic.
- *
- * USAGE:
- * ```jsx
- * const { paginatedData, paginationProps } = usePagination({
- *   data: filteredUserCollections,
- *   itemsPerPage: 9
- * });
- *
- * // Render paginated data
- * {paginatedData.map(item => <Component key={item.id} item={item} />)}
- *
- * // Render pagination controls
- * {paginationProps.shouldShow && <Pagination {...paginationProps} />}
- * ```
- *
- * FEATURES:
- * - Auto-resets to page 1 when data changes
- * - Handles edge cases (empty data, invalid pages)
- * - Isolated state per hook instance
- * - Smart page correction when data shrinks
- * - Minimal prop interface for UI components
- */
-
 import { useState, useEffect, useMemo } from 'react';
 
-/**
- * @param {Object} options
- * @param {Array} options.data - Array of data to paginate
- * @param {number} [options.itemsPerPage=10] - Items per page
- * @returns {Object} { paginatedData, paginationProps }
- */
-const usePagination = ({ data, itemsPerPage = 10 }) => {
-  // Validate and normalize itemsPerPage
-  const validItemsPerPage = itemsPerPage > 0 ? itemsPerPage : 10;
+const usePagination = ({ data, itemsPerPage = 10, rowsPerPageOptions = null }) => {
+  let [currentPage, setCurrentPage] = useState(1);
+  let [perPage, setPerPage] = useState(itemsPerPage);
 
-  // Internal pagination state
-  const [currentPage, setCurrentPage] = useState(1);
+  let validPerPage = perPage > 0 ? perPage : 10;
 
-  // Calculate total pages
-  const totalPages = useMemo(() => {
+  let totalPages = useMemo(() => {
     if (!data || data.length === 0) return 0;
-    return Math.ceil(data.length / validItemsPerPage);
-  }, [data, validItemsPerPage]);
+    return Math.ceil(data.length / validPerPage);
+  }, [data, validPerPage]);
 
-  // Auto-reset to page 1 when data length changes
   useEffect(() => {
     setCurrentPage(1);
   }, [data.length]);
 
-  // Smart page correction when current page exceeds available pages
   useEffect(() => {
     if (totalPages > 0 && currentPage > totalPages) {
       setCurrentPage(totalPages);
     }
   }, [currentPage, totalPages]);
 
-  // Calculate paginated data slice
-  const paginatedData = useMemo(() => {
+  let paginatedData = useMemo(() => {
     if (!data || data.length === 0) return [];
-
-    const startIndex = (currentPage - 1) * validItemsPerPage;
-    const endIndex = startIndex + validItemsPerPage;
-
+    let startIndex = (currentPage - 1) * validPerPage;
+    let endIndex = startIndex + validPerPage;
     return data.slice(startIndex, endIndex);
-  }, [data, currentPage, validItemsPerPage]);
+  }, [data, currentPage, validPerPage]);
 
-  // Page change handler
-  const handlePageChange = (event, page) => {
+  let handlePageChange = (event, page) => {
     setCurrentPage(page);
   };
 
-  // Pagination props for UI component
-  const paginationProps = useMemo(
+  let handlePerPageChange = (event) => {
+    setPerPage(Number(event.target.value));
+    setCurrentPage(1);
+  };
+
+  let paginationProps = useMemo(
     () => ({
       count: totalPages,
       page: currentPage,
       onChange: handlePageChange,
-      shouldShow: totalPages > 1,
+      shouldShow: totalPages > 1 || (rowsPerPageOptions && data && data.length > 0),
+      rowsPerPageOptions: rowsPerPageOptions,
+      rowsPerPage: validPerPage,
+      onRowsPerPageChange: handlePerPageChange,
+      totalItems: data ? data.length : 0,
     }),
-    [totalPages, currentPage],
+    [totalPages, currentPage, validPerPage, rowsPerPageOptions, data],
   );
 
   return {

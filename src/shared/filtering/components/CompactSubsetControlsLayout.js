@@ -14,7 +14,8 @@
  * @module CompactSubsetControlsLayout
  */
 
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
+import ReactDOM from 'react-dom';
 import PropTypes from 'prop-types';
 import { Box, Collapse, Typography } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
@@ -23,7 +24,7 @@ import CompactLatitudeInput from './compact/CompactLatitudeInput';
 import CompactLongitudeInput from './compact/CompactLongitudeInput';
 import CompactDepthInput from './compact/CompactDepthInput';
 import CompactPresetGeographicBounds from './compact/CompactPresetGeographicBounds';
-import MonthlyDateSubsetControl from './controls/MonthlyDateSubsetControl';
+import CompactMonthRangeInput from './compact/CompactMonthRangeInput';
 import ToggleWithHelp from '../../components/ToggleWithHelp';
 import useMultiDatasetRangeInput from '../hooks/useMultiDatasetRangeInput';
 import { FIELD_TYPES } from '../utils/endpointFields';
@@ -102,6 +103,7 @@ const useStyles = makeStyles((theme) => ({
     justifyContent: 'flex-end',
     [theme.breakpoints.down('sm')]: {
       width: '100%',
+      justifyContent: 'center',
     },
   },
 }));
@@ -131,10 +133,17 @@ const CompactSubsetControlsLayout = ({
   sliderEndpoints,
   onExpandEndpoint,
   onSubsetValidationChange,
-  onGeoLocalChange,
   resetButton,
 }) => {
   const classes = useStyles();
+  let mapRedrawRef = useRef(null);
+
+  let handlePresetWithRedraw = useCallback(function (label, bounds, preset) {
+    onPresetSelect(label, bounds, preset);
+    if (mapRedrawRef.current) {
+      mapRedrawRef.current();
+    }
+  }, [onPresetSelect]);
 
   const { date, latitude, longitude, depth } = controls;
 
@@ -189,6 +198,36 @@ const CompactSubsetControlsLayout = ({
     setLonValid(lonRange.isValid);
   }, [lonRange.isValid]);
 
+  let handleMapBoundsPreview = useCallback(function (latStart, latEnd, lonStart, lonEnd) {
+    ReactDOM.unstable_batchedUpdates(function () {
+      latRange.preview(latStart, latEnd);
+      lonRange.preview(lonStart, lonEnd);
+
+      if (onExpandEndpoint) {
+        onExpandEndpoint(FIELD_TYPES.LAT, 'latMin', latStart);
+        onExpandEndpoint(FIELD_TYPES.LAT, 'latMax', latEnd);
+        onExpandEndpoint(FIELD_TYPES.LON, 'lonMin', lonStart, lonEnd);
+        onExpandEndpoint(FIELD_TYPES.LON, 'lonMax', lonEnd, lonStart);
+      }
+    });
+  }, [latRange.preview, lonRange.preview, onExpandEndpoint]);
+
+  let handleMapBoundsChange = useCallback(function (latStart, latEnd, lonStart, lonEnd) {
+    ReactDOM.unstable_batchedUpdates(function () {
+      wrappedGeoHandlers.latitude.setLatStart(latStart);
+      wrappedGeoHandlers.latitude.setLatEnd(latEnd);
+      wrappedGeoHandlers.longitude.setLonStart(lonStart);
+      wrappedGeoHandlers.longitude.setLonEnd(lonEnd);
+
+      if (onExpandEndpoint) {
+        onExpandEndpoint(FIELD_TYPES.LAT, 'latMin', latStart);
+        onExpandEndpoint(FIELD_TYPES.LAT, 'latMax', latEnd);
+        onExpandEndpoint(FIELD_TYPES.LON, 'lonMin', lonStart, lonEnd);
+        onExpandEndpoint(FIELD_TYPES.LON, 'lonMax', lonEnd, lonStart);
+      }
+    });
+  }, [wrappedGeoHandlers, onExpandEndpoint]);
+
   const handleDepthValidation = useCallback((valid) => {
     setDepthValid(valid);
   }, []);
@@ -196,12 +235,6 @@ const CompactSubsetControlsLayout = ({
   const handleDateInvalidFlag = useCallback((invalid) => {
     setDateInvalid(invalid);
   }, []);
-
-  const handleGeoLocalChange = useCallback(() => {
-    if (onGeoLocalChange) {
-      onGeoLocalChange();
-    }
-  }, [onGeoLocalChange]);
 
   return (
     <React.Fragment>
@@ -221,13 +254,11 @@ const CompactSubsetControlsLayout = ({
           <Box className={classes.temporalDepthRow}>
             {/* Temporal Bounds */}
             {date.data.isMonthlyClimatology ? (
-              <MonthlyDateSubsetControl
-                subsetState={{
-                  timeStart: date.data.timeStart,
-                  timeEnd: date.data.timeEnd,
-                }}
-                setTimeStart={date.handlers.setTimeStart}
-                setTimeEnd={date.handlers.setTimeEnd}
+              <CompactMonthRangeInput
+                startDate={date.data.timeStart}
+                endDate={date.data.timeEnd}
+                setStartDate={date.handlers.setTimeStart}
+                setEndDate={date.handlers.setTimeEnd}
               />
             ) : (
               <CompactDateRangeInput
@@ -239,6 +270,7 @@ const CompactSubsetControlsLayout = ({
                 minDate={date.data.timeMin}
                 maxDate={date.data.timeMax}
                 setInvalidFlag={handleDateInvalidFlag}
+                hasMixedClimatology={date.data.hasMixedClimatology}
               />
             )}
 
@@ -253,6 +285,7 @@ const CompactSubsetControlsLayout = ({
               step={0.1}
               onExpandEndpoint={onExpandEndpoint ? function (fieldName, value) { onExpandEndpoint(FIELD_TYPES.DEPTH, fieldName, value); } : null}
               onValidationChange={handleDepthValidation}
+              hasMixedClimatology={date.data.hasMixedClimatology}
             />
           </Box>
 
@@ -268,7 +301,7 @@ const CompactSubsetControlsLayout = ({
 
               <CompactPresetGeographicBounds
                 selectedPreset={selectedPreset}
-                onPresetSelect={onPresetSelect}
+                onPresetSelect={handlePresetWithRedraw}
                 geographicPresets={geographicPresets}
                 collectionExtent={collectionExtent}
               />
@@ -291,7 +324,6 @@ const CompactSubsetControlsLayout = ({
                 sliderStart={latRange.sliderStart}
                 sliderEnd={latRange.sliderEnd}
                 bounds={latRange.bounds}
-                onLocalChange={handleGeoLocalChange}
               />
 
               <CompactLongitudeInput
@@ -312,7 +344,6 @@ const CompactSubsetControlsLayout = ({
                 sliderStart={lonRange.sliderStart}
                 sliderEnd={lonRange.sliderEnd}
                 bounds={lonRange.bounds}
-                onLocalChange={handleGeoLocalChange}
               />
 
               <Box style={{ marginTop: 'auto' }}>
@@ -323,14 +354,14 @@ const CompactSubsetControlsLayout = ({
             <Box className={classes.mapColumn}>
               <MapBoundsSelector
                 mapWidth={630}
+                responsive
                 latStart={latRange.sliderStart}
                 latEnd={latRange.sliderEnd}
                 lonStart={lonRange.sliderStart}
                 lonEnd={lonRange.sliderEnd}
-                setLatStart={wrappedGeoHandlers.latitude.setLatStart}
-                setLatEnd={wrappedGeoHandlers.latitude.setLatEnd}
-                setLonStart={wrappedGeoHandlers.longitude.setLonStart}
-                setLonEnd={wrappedGeoHandlers.longitude.setLonEnd}
+                onBoundsChange={handleMapBoundsChange}
+                onBoundsPreview={handleMapBoundsPreview}
+                redrawRef={mapRedrawRef}
               />
             </Box>
           </Box>
@@ -428,7 +459,6 @@ CompactSubsetControlsLayout.propTypes = {
   }),
   onExpandEndpoint: PropTypes.func,
   onSubsetValidationChange: PropTypes.func,
-  onGeoLocalChange: PropTypes.func,
 };
 
 export default CompactSubsetControlsLayout;

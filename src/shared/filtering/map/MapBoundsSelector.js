@@ -1,9 +1,10 @@
-import React, { useRef, useEffect } from 'react';
+import React, { useRef, useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 import { Box, CircularProgress, Typography } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
 import useMapBoundsSelector from './useMapBoundsSelector';
 import MapToolbar from './MapToolbar';
+import { MAP_ASPECT_RATIO } from './mapConfig';
 import colors from '../../../enums/colors';
 
 const useStyles = makeStyles((theme) => ({
@@ -57,12 +58,33 @@ const MapBoundsSelector = ({
   setLatEnd,
   setLonStart,
   setLonEnd,
+  onBoundsChange,
+  onBoundsPreview,
   toolbarOrientation,
+  redrawRef,
+  responsive,
 }) => {
   let classes = useStyles();
-  let mapContainerRef = useRef(null);
-  let initRef = useRef(false);
-  let mapHeight = Math.round(mapWidth / 2);
+  let [mapContainerEl, setMapContainerEl] = useState(null);
+  let measureRef = useRef(null);
+  let [measuredWidth, setMeasuredWidth] = useState(null);
+
+  useEffect(function () {
+    if (!responsive) return;
+    let el = measureRef.current;
+    if (!el) return;
+    let observer = new ResizeObserver(function (entries) {
+      let width = Math.floor(entries[0].contentRect.width);
+      if (width > 0) {
+        setMeasuredWidth(width);
+      }
+    });
+    observer.observe(el);
+    return function () { observer.disconnect(); };
+  }, [responsive]);
+
+  let effectiveWidth = responsive && measuredWidth !== null ? Math.min(measuredWidth, mapWidth) : mapWidth;
+  let effectiveHeight = Math.round(effectiveWidth / MAP_ASPECT_RATIO);
 
   let {
     loading,
@@ -73,6 +95,7 @@ const MapBoundsSelector = ({
     setMode,
     zoomIn,
     zoomOut,
+    redrawGraphic,
   } = useMapBoundsSelector({
     latStart,
     latEnd,
@@ -82,14 +105,19 @@ const MapBoundsSelector = ({
     setLatEnd,
     setLonStart,
     setLonEnd,
+    onBoundsChange,
+    onBoundsPreview,
   });
+
+  if (redrawRef) {
+    redrawRef.current = redrawGraphic;
+  }
 
   let cleanupRef = useRef(null);
 
   useEffect(() => {
-    if (!loading && !error && mapContainerRef.current && !initRef.current) {
-      initRef.current = true;
-      cleanupRef.current = initializeView(mapContainerRef.current);
+    if (!loading && !error && mapContainerEl) {
+      cleanupRef.current = initializeView(mapContainerEl);
     }
     return () => {
       if (cleanupRef.current) {
@@ -97,41 +125,50 @@ const MapBoundsSelector = ({
         cleanupRef.current = null;
       }
     };
-  }, [loading, error, initializeView]);
+  }, [loading, error, initializeView, mapContainerEl]);
 
-  let sizeStyle = { width: mapWidth, height: mapHeight };
+  let sizeStyle = { width: effectiveWidth, height: effectiveHeight };
 
+  let content;
   if (loading) {
-    return (
+    content = (
       <Box className={classes.loadingContainer} style={sizeStyle}>
         <CircularProgress size={40} />
       </Box>
     );
-  }
-
-  if (error) {
-    return (
+  } else if (error) {
+    content = (
       <Box className={classes.errorContainer} style={sizeStyle}>
         <Typography color="error">
           Failed to load map: {error.message}
         </Typography>
       </Box>
     );
+  } else {
+    content = (
+      <Box className={classes.mapWrapper} style={sizeStyle}>
+        <Box ref={setMapContainerEl} className={classes.mapContainer} />
+        <Box className={classes.toolbarOverlay}>
+          <MapToolbar
+            orientation={toolbarOrientation}
+            mode={mode}
+            onModeChange={setMode}
+            onZoomIn={zoomIn}
+            onZoomOut={zoomOut}
+            zoomOutDisabled={atMinZoom}
+          />
+        </Box>
+      </Box>
+    );
+  }
+
+  if (!responsive) {
+    return content;
   }
 
   return (
-    <Box className={classes.mapWrapper} style={sizeStyle}>
-      <Box ref={mapContainerRef} className={classes.mapContainer} />
-      <Box className={classes.toolbarOverlay}>
-        <MapToolbar
-          orientation={toolbarOrientation}
-          mode={mode}
-          onModeChange={setMode}
-          onZoomIn={zoomIn}
-          onZoomOut={zoomOut}
-          zoomOutDisabled={atMinZoom}
-        />
-      </Box>
+    <Box ref={measureRef} style={{ width: '100%', maxWidth: mapWidth }}>
+      {measuredWidth !== null ? content : null}
     </Box>
   );
 };
@@ -142,15 +179,20 @@ MapBoundsSelector.propTypes = {
   latEnd: PropTypes.number.isRequired,
   lonStart: PropTypes.number.isRequired,
   lonEnd: PropTypes.number.isRequired,
-  setLatStart: PropTypes.func.isRequired,
-  setLatEnd: PropTypes.func.isRequired,
-  setLonStart: PropTypes.func.isRequired,
-  setLonEnd: PropTypes.func.isRequired,
+  setLatStart: PropTypes.func,
+  setLatEnd: PropTypes.func,
+  setLonStart: PropTypes.func,
+  setLonEnd: PropTypes.func,
+  onBoundsChange: PropTypes.func,
+  onBoundsPreview: PropTypes.func,
   toolbarOrientation: PropTypes.oneOf(['vertical', 'horizontal']),
+  redrawRef: PropTypes.object,
+  responsive: PropTypes.bool,
 };
 
 MapBoundsSelector.defaultProps = {
   toolbarOrientation: 'vertical',
+  responsive: false,
 };
 
 export default MapBoundsSelector;

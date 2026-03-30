@@ -1,25 +1,16 @@
-/**
- * Pure Row Count Math
- *
- * Performs row count calculation using pre-resolved inputs.
- * No database access - all values must be numeric and resolved.
- *
- * Contains pure, synchronous calculation functions for:
- * - Spatial grid cell counting
- * - Temporal data point counting
- * - Constraint clamping to dataset bounds
- */
-
 import { longitudeRangesOverlap } from '../../../shared/utility/longitudeRange';
 
-/**
- * Clamp a value between min and max bounds.
- */
+function countDimension(rules, inputs, effective) {
+  const rule = rules.find((r) => r.appliesWhen(inputs, effective));
+  const value = rule ? rule.apply(inputs, effective) : 1;
+  return Math.max(1, value);
+}
+
 function clamp(value, min, max) {
   return Math.max(min, Math.min(max, value));
 }
 
-export function clampSpatialBounds(queryBounds, datasetBounds) {
+function clampSpatialBounds(queryBounds, datasetBounds) {
   if (
     queryBounds.latMin > datasetBounds.latMax ||
     queryBounds.latMax < datasetBounds.latMin
@@ -51,7 +42,12 @@ export function clampSpatialBounds(queryBounds, datasetBounds) {
 
   let clampedLonMin, clampedLonMax;
 
-  if (queryCrossesDateline) {
+  const datasetCrossesDateline = datasetBounds.lonMin > datasetBounds.lonMax;
+
+  if (queryCrossesDateline && datasetCrossesDateline) {
+    clampedLonMin = Math.max(queryBounds.lonMin, datasetBounds.lonMin);
+    clampedLonMax = Math.min(queryBounds.lonMax, datasetBounds.lonMax);
+  } else if (queryCrossesDateline) {
     const overlapsEast = datasetBounds.lonMax >= queryBounds.lonMin;
     const overlapsWest = datasetBounds.lonMin <= queryBounds.lonMax;
 
@@ -78,10 +74,7 @@ export function clampSpatialBounds(queryBounds, datasetBounds) {
   };
 }
 
-/**
- * Clamp query temporal range to dataset coverage. Returns null if no overlap.
- */
-export function clampTemporalRange(queryRange, datasetRange) {
+function clampTemporalRange(queryRange, datasetRange) {
   const queryMin = new Date(queryRange.timeMin);
   const queryMax = new Date(queryRange.timeMax);
   const datasetMin = new Date(datasetRange.timeMin);
@@ -97,10 +90,7 @@ export function clampTemporalRange(queryRange, datasetRange) {
   };
 }
 
-/**
- * Clamp query depth range to dataset coverage. Returns null if no overlap.
- */
-export function clampDepthRange(queryRange, datasetRange) {
+function clampDepthRange(queryRange, datasetRange) {
   if (
     queryRange.depthMin > datasetRange.depthMax ||
     queryRange.depthMax < datasetRange.depthMin
@@ -109,23 +99,63 @@ export function clampDepthRange(queryRange, datasetRange) {
   }
 
   return {
-    depthMin: clamp(
-      queryRange.depthMin,
-      datasetRange.depthMin,
-      datasetRange.depthMax,
-    ),
-    depthMax: clamp(
-      queryRange.depthMax,
-      datasetRange.depthMin,
-      datasetRange.depthMax,
-    ),
+    depthMin: clamp(queryRange.depthMin, datasetRange.depthMin, datasetRange.depthMax),
+    depthMax: clamp(queryRange.depthMax, datasetRange.depthMin, datasetRange.depthMax),
   };
 }
 
-/**
- * Count data points within a query range for a single spatial dimension.
- * Finds first point >= queryMin and last point <= queryMax, returns inclusive count.
- */
+function clampAllBounds(inputs, constraints) {
+  const { spatialBounds: dsBounds, temporalBounds: dsTemporal, depthBounds: dsDepth } = inputs;
+  let effective = { ...constraints };
+
+  const hasDatasetSpatialBounds =
+    dsBounds.latMin !== null &&
+    dsBounds.latMin !== undefined &&
+    dsBounds.latMax !== null &&
+    dsBounds.latMax !== undefined;
+
+  if (hasDatasetSpatialBounds) {
+    const clampedSpatial = clampSpatialBounds(constraints.spatialBounds, dsBounds);
+    if (clampedSpatial === null) return null;
+    effective.spatialBounds = clampedSpatial;
+  }
+
+  const hasTemporalConstraints =
+    constraints.temporalEnabled &&
+    constraints.temporalRange.timeMin &&
+    constraints.temporalRange.timeMax;
+
+  const hasDatasetTemporalBounds = dsTemporal.timeMin && dsTemporal.timeMax;
+
+  if (hasTemporalConstraints && hasDatasetTemporalBounds) {
+    const clampedTemporal = clampTemporalRange(constraints.temporalRange, dsTemporal);
+    if (clampedTemporal === null) return null;
+    effective.temporalRange = {
+      timeMin: clampedTemporal.timeMin.toISOString(),
+      timeMax: clampedTemporal.timeMax.toISOString(),
+    };
+  }
+
+  const hasDepthConstraints =
+    constraints.depthEnabled &&
+    constraints.depthRange.depthMin !== null &&
+    constraints.depthRange.depthMax !== null;
+
+  const hasDatasetDepthBounds =
+    dsDepth.depthMin !== null &&
+    dsDepth.depthMin !== undefined &&
+    dsDepth.depthMax !== null &&
+    dsDepth.depthMax !== undefined;
+
+  if (hasDepthConstraints && hasDatasetDepthBounds) {
+    const clampedDepth = clampDepthRange(constraints.depthRange, dsDepth);
+    if (clampedDepth === null) return null;
+    effective.depthRange = clampedDepth;
+  }
+
+  return effective;
+}
+
 function countSpatialDataPoints(queryMin, queryMax, datasetMin, resolution) {
   const offsetToQueryMin = queryMin - datasetMin;
   const offsetToQueryMax = queryMax - datasetMin;
@@ -135,305 +165,248 @@ function countSpatialDataPoints(queryMin, queryMax, datasetMin, resolution) {
   return count < 1 ? 1 : count;
 }
 
-/**
- * Calculate spatial grid cell count. Handles date line crossing.
- */
-function calculateSpatialCount(
-  spatialBounds,
-  spatialResolutionDegrees,
-  datasetLatMin,
-  datasetLonMin,
-  datasetLonMax,
-) {
-  const { latMin, latMax, lonMin, lonMax } = spatialBounds;
-
-  const effectiveLonMin =
-    datasetLonMin !== null && datasetLonMin !== undefined
-      ? datasetLonMin
-      : datasetLatMin;
-
-  const latCount = countSpatialDataPoints(
-    latMin,
-    latMax,
-    datasetLatMin,
-    spatialResolutionDegrees,
-  );
-
-  let lonCount;
-  if (lonMax > lonMin) {
-    // Normal case
-    lonCount = countSpatialDataPoints(
-      lonMin,
-      lonMax,
-      effectiveLonMin,
-      spatialResolutionDegrees,
-    );
-  } else {
-    // Date line crossing - cap to dataset's actual bounds
-    const eastEnd = Math.min(180, datasetLonMax);
-    const westStart = Math.max(-180, datasetLonMin);
-    const countToDateLine = countSpatialDataPoints(
-      lonMin,
-      eastEnd,
-      effectiveLonMin,
-      spatialResolutionDegrees,
-    );
-    const countFromDateLine = countSpatialDataPoints(
-      westStart,
-      lonMax,
-      effectiveLonMin,
-      spatialResolutionDegrees,
-    );
-    lonCount = countToDateLine + countFromDateLine;
-  }
-
-  return { latCount, lonCount };
-}
-
-/**
- * Count calendar months between two dates.
- */
 function calculateMonthlyCount(startDate, endDate) {
   const startYear = startDate.getUTCFullYear();
   const startMonth = startDate.getUTCMonth();
   const endYear = endDate.getUTCFullYear();
   const endMonth = endDate.getUTCMonth();
-
   return (endYear - startYear) * 12 + (endMonth - startMonth) + 1;
 }
 
-/**
- * Count months for Monthly Climatology (capped at 12).
- */
 function calculateMonthlyClimatologyCount(startDate, endDate) {
-  return Math.min(12, calculateMonthlyCount(startDate, endDate));
+  let totalMonths = (endDate.getUTCFullYear() - startDate.getUTCFullYear()) * 12
+    + (endDate.getUTCMonth() - startDate.getUTCMonth());
+  if (totalMonths >= 12) {
+    return 12;
+  }
+  let startMonth = startDate.getUTCMonth();
+  let endMonth = endDate.getUTCMonth();
+  if (startMonth <= endMonth) {
+    return endMonth - startMonth + 1;
+  }
+  return 12 - startMonth + endMonth + 1;
 }
 
-/**
- * Count data points for multi-day resolution datasets (3-day, weekly, 8-day).
- * Finds first point >= queryStart and last point <= queryEnd, returns inclusive count.
- */
-function countWeeklyDataPoints(
-  queryStart,
-  queryEnd,
-  datasetMin,
-  resolutionDays,
-) {
-  const daysToQueryMin = (queryStart - datasetMin) / 86400000;
-  const daysToQueryMax = (queryEnd - datasetMin) / 86400000;
+function calculateAnchoredCount(startDate, endDate, datasetStartDate, resolutionDays) {
+  const datasetMin = new Date(datasetStartDate);
+  const daysToQueryMin = (startDate - datasetMin) / 86400000;
+  const daysToQueryMax = (endDate - datasetMin) / 86400000;
   const firstPointIndex = Math.ceil(daysToQueryMin / resolutionDays);
   const lastPointIndex = Math.floor(daysToQueryMax / resolutionDays);
   const count = lastPointIndex - firstPointIndex + 1;
   return count < 1 ? 1 : count;
 }
 
-/**
- * Calculate temporal data point count based on resolution type.
- */
-function calculateTemporalCount(
-  temporalRange,
-  temporalResolutionDays,
-  isMonthlyClimatology,
-  datasetTimeMin,
-) {
-  const date1 = new Date(temporalRange.timeMin);
-  const date2 = new Date(temporalRange.timeMax);
-
-  let dateCount;
-
-  if (isMonthlyClimatology) {
-    dateCount = calculateMonthlyClimatologyCount(date1, date2);
-  } else if (temporalResolutionDays === 30) {
-    dateCount = calculateMonthlyCount(date1, date2);
-  } else {
-    const dayDiff = (date2 - date1) / 86400000;
-    const inclusiveDays = dayDiff + 1;
-
-    // Multi-day resolutions need anchor-based counting
-    const needsTemporalAnchor =
-      temporalResolutionDays === 3 ||
-      temporalResolutionDays === 7 ||
-      temporalResolutionDays === 8;
-
-    if (needsTemporalAnchor && datasetTimeMin) {
-      dateCount = countWeeklyDataPoints(
-        date1,
-        date2,
-        new Date(datasetTimeMin),
-        temporalResolutionDays,
-      );
-    } else {
-      dateCount = Math.ceil(inclusiveDays / temporalResolutionDays);
-    }
-  }
-
-  return Math.max(1, dateCount);
+function calculateSimpleTemporalCount(startDate, endDate, resolutionDays) {
+  const dayDiff = (endDate - startDate) / 86400000;
+  const inclusiveDays = dayDiff + 1;
+  return Math.ceil(inclusiveDays / resolutionDays);
 }
 
-/**
- * Performs pure row count calculation using pre-resolved inputs.
- * No database access - all values must be numeric and resolved.
- *
- * @param {Object} resolvedInputs - Pre-resolved dataset inputs
- * @param {Object} resolvedInputs.spatialBounds - Dataset spatial bounds
- * @param {Object} resolvedInputs.temporalBounds - Dataset temporal bounds
- * @param {Object} resolvedInputs.depthBounds - Dataset depth bounds
- * @param {Object} resolvedInputs.resolutions - Resolved resolution values
- * @param {number} resolvedInputs.resolutions.spatialDegrees - Spatial resolution in degrees
- * @param {number} resolvedInputs.resolutions.temporalDays - Temporal resolution in days
- * @param {boolean} resolvedInputs.resolutions.isMonthlyClimatology - Whether dataset is monthly climatology
- * @param {boolean} resolvedInputs.hasDepth - Whether dataset has depth data
- * @param {number} resolvedInputs.tableCount - Number of tables (default 1)
- * @param {number} resolvedInputs.depthCountInRange - Number of depth levels in constrained range
- * @param {Object} constraints - Store constraints object
- * @param {Object} constraints.spatialBounds - Spatial bounds { latMin, latMax, lonMin, lonMax }
- * @param {boolean} constraints.temporalEnabled - Whether temporal constraints are enabled
- * @param {Object} constraints.temporalRange - Temporal range { timeMin, timeMax }
- * @param {boolean} constraints.depthEnabled - Whether depth constraints are enabled
- * @param {Object} constraints.depthRange - Depth range { depthMin, depthMax }
- * @returns {number} Estimated row count
- */
+// Rule arrays use first-match-wins: countDimension picks the first rule whose
+// appliesWhen returns true. ORDER MATTERS — rules are arranged from most
+// specific to least specific, with a catch-all default at the end.
+//
+// Each rule has an implicitlyExcludes predicate that documents which prior
+// rules it depends on having already been checked. If you &&'d a rule's
+// appliesWhen with its implicitlyExcludes, the result would be a fully
+// self-contained predicate with no ordering dependency. If we want to switch to 
+// idempotent execution (run all rules, exactly one matches), the 
+// implicitlyExcludes predicates need test coverage first.
+
+const latitudeRules = [
+  {
+    name: 'gridPointCounting',
+    description: 'Count grid points based on spatial resolution',
+    appliesWhen: () => true,
+    implicitlyExcludes: () => true, // only rule
+    apply: (inputs, effective) => {
+      const { spatialBounds: dsBounds, resolutions } = inputs;
+      const { latMin, latMax } = effective.spatialBounds;
+      return countSpatialDataPoints(latMin, latMax, dsBounds.latMin, resolutions.spatialDegrees);
+    },
+  },
+];
+
+function getLonOrigin(dsBounds) {
+  return dsBounds.lonMin !== null && dsBounds.lonMin !== undefined
+    ? dsBounds.lonMin
+    : -180;
+}
+
+const longitudeRules = [
+  {
+    name: 'dateLineCrossing',
+    description: 'Split calculation when query crosses the date line',
+    appliesWhen: (inputs, effective) => effective.spatialBounds.lonMax < effective.spatialBounds.lonMin,
+    implicitlyExcludes: () => true, // most specific lon rule
+    apply: (inputs, effective) => {
+      const { spatialBounds: dsBounds, resolutions } = inputs;
+      const { lonMin, lonMax } = effective.spatialBounds;
+      const origin = getLonOrigin(dsBounds);
+      const eastEnd = Math.min(180, dsBounds.lonMax);
+      const westStart = Math.max(-180, dsBounds.lonMin);
+      const countToDateLine = countSpatialDataPoints(lonMin, eastEnd, origin, resolutions.spatialDegrees);
+      const countFromDateLine = countSpatialDataPoints(westStart, lonMax, origin, resolutions.spatialDegrees);
+      return countToDateLine + countFromDateLine;
+    },
+  },
+  {
+    name: 'gridPointCounting',
+    description: 'Count grid points based on spatial resolution',
+    appliesWhen: () => true,
+    implicitlyExcludes: (inputs, effective) => effective.spatialBounds.lonMax >= effective.spatialBounds.lonMin, // not dateline crossing
+    apply: (inputs, effective) => {
+      const { spatialBounds: dsBounds, resolutions } = inputs;
+      const { lonMin, lonMax } = effective.spatialBounds;
+      return countSpatialDataPoints(lonMin, lonMax, getLonOrigin(dsBounds), resolutions.spatialDegrees);
+    },
+  },
+];
+
+const temporalRules = [
+  {
+    name: 'noConstraints_climatology',
+    description: 'No temporal constraints + climatology = 12 months',
+    appliesWhen: (inputs, effective) =>
+      !effective.temporalEnabled && inputs.resolutions.isMonthlyClimatology,
+    implicitlyExcludes: () => true, // most specific unconstrained rule
+    apply: () => 12,
+  },
+  {
+    name: 'noConstraints_withDatasetRange',
+    description: 'No temporal constraints - use full dataset range',
+    appliesWhen: (inputs, effective) =>
+      !effective.temporalEnabled &&
+      inputs.temporalBounds.timeMin &&
+      inputs.temporalBounds.timeMax,
+    implicitlyExcludes: (inputs) => !inputs.resolutions.isMonthlyClimatology, // caught by noConstraints_climatology
+    apply: (inputs) => {
+      const { resolutions, temporalBounds } = inputs;
+      const date1 = new Date(temporalBounds.timeMin);
+      const date2 = new Date(temporalBounds.timeMax);
+
+      if (resolutions.temporalDays === 30) {
+        return calculateMonthlyCount(date1, date2);
+      }
+      if ([3, 7, 8].includes(resolutions.temporalDays)) {
+        return calculateAnchoredCount(date1, date2, temporalBounds.timeMin, resolutions.temporalDays);
+      }
+      return calculateSimpleTemporalCount(date1, date2, resolutions.temporalDays);
+    },
+  },
+  {
+    name: 'noConstraints_default',
+    description: 'No temporal constraints and no dataset range = 1',
+    appliesWhen: (inputs, effective) => !effective.temporalEnabled,
+    implicitlyExcludes: (inputs) =>
+      !inputs.resolutions.isMonthlyClimatology // caught by noConstraints_climatology
+      && !(inputs.temporalBounds.timeMin && inputs.temporalBounds.timeMax), // caught by noConstraints_withDatasetRange
+    apply: () => 1,
+  },
+  {
+    name: 'climatology',
+    description: 'Monthly climatology uses climatology month counting',
+    appliesWhen: (inputs) => inputs.resolutions.isMonthlyClimatology,
+    implicitlyExcludes: (inputs, effective) => effective.temporalEnabled, // unconstrained cases caught above
+    apply: (inputs, effective) => {
+      const date1 = new Date(effective.temporalRange.timeMin);
+      const date2 = new Date(effective.temporalRange.timeMax);
+      return calculateMonthlyClimatologyCount(date1, date2);
+    },
+  },
+  {
+    name: 'monthly',
+    description: '30-day resolution uses calendar month counting',
+    appliesWhen: (inputs) => inputs.resolutions.temporalDays === 30,
+    implicitlyExcludes: (inputs, effective) =>
+      effective.temporalEnabled // unconstrained caught above
+      && !inputs.resolutions.isMonthlyClimatology, // caught by climatology
+    apply: (inputs, effective) => {
+      const date1 = new Date(effective.temporalRange.timeMin);
+      const date2 = new Date(effective.temporalRange.timeMax);
+      return calculateMonthlyCount(date1, date2);
+    },
+  },
+  {
+    name: 'anchored',
+    description: '3/7/8-day resolutions use dataset start as anchor',
+    appliesWhen: (inputs) =>
+      [3, 7, 8].includes(inputs.resolutions.temporalDays) && inputs.temporalBounds.timeMin,
+    implicitlyExcludes: (inputs, effective) =>
+      effective.temporalEnabled // unconstrained caught above
+      && !inputs.resolutions.isMonthlyClimatology // caught by climatology
+      && inputs.resolutions.temporalDays !== 30, // caught by monthly
+    apply: (inputs, effective) => {
+      const date1 = new Date(effective.temporalRange.timeMin);
+      const date2 = new Date(effective.temporalRange.timeMax);
+      return calculateAnchoredCount(date1, date2, inputs.temporalBounds.timeMin, inputs.resolutions.temporalDays);
+    },
+  },
+  {
+    name: 'default',
+    description: 'Simple day division for all other resolutions',
+    appliesWhen: () => true,
+    implicitlyExcludes: (inputs, effective) =>
+      effective.temporalEnabled // unconstrained caught above
+      && !inputs.resolutions.isMonthlyClimatology // caught by climatology
+      && inputs.resolutions.temporalDays !== 30 // caught by monthly
+      && !([3, 7, 8].includes(inputs.resolutions.temporalDays) && inputs.temporalBounds.timeMin), // caught by anchored
+    apply: (inputs, effective) => {
+      const date1 = new Date(effective.temporalRange.timeMin);
+      const date2 = new Date(effective.temporalRange.timeMax);
+      return calculateSimpleTemporalCount(date1, date2, inputs.resolutions.temporalDays);
+    },
+  },
+];
+
+const depthRules = [
+  {
+    name: 'noDepth',
+    description: 'Dataset has no depth dimension',
+    appliesWhen: (inputs) => !inputs.hasDepth,
+    implicitlyExcludes: () => true, // most specific depth rule
+    apply: () => 1,
+  },
+  {
+    name: 'useProvidedCount',
+    description: 'Use depth count from depth model query',
+    appliesWhen: (inputs) => inputs.depthCountInRange > 0,
+    implicitlyExcludes: (inputs) => inputs.hasDepth, // noDepth caught above
+    apply: (inputs) => inputs.depthCountInRange,
+  },
+  {
+    name: 'default',
+    description: 'Default depth count of 1',
+    appliesWhen: () => true,
+    implicitlyExcludes: (inputs) => inputs.hasDepth && !(inputs.depthCountInRange > 0), // noDepth and useProvidedCount caught above
+    apply: () => 1,
+  },
+];
+
 function performRowCountMath(resolvedInputs, constraints) {
-  const {
-    spatialBounds: datasetSpatialBounds,
-    temporalBounds: datasetTemporalBounds,
-    depthBounds: datasetDepthBounds,
-    resolutions,
-    hasDepth,
-    tableCount,
-    depthCountInRange,
-  } = resolvedInputs;
+  const effective = clampAllBounds(resolvedInputs, constraints);
+  if (!effective) return 0;
 
-  const { spatialDegrees, temporalDays, isMonthlyClimatology } = resolutions;
+  const latCount = countDimension(latitudeRules, resolvedInputs, effective);
+  const lonCount = countDimension(longitudeRules, resolvedInputs, effective);
+  const temporalCount = countDimension(temporalRules, resolvedInputs, effective);
+  const depthCount = countDimension(depthRules, resolvedInputs, effective);
 
-  // Start with the query constraints
-  let effectiveConstraints = { ...constraints };
-
-  // Clamp spatial bounds to dataset coverage
-  const hasDatasetSpatialBounds =
-    datasetSpatialBounds.latMin !== null &&
-    datasetSpatialBounds.latMin !== undefined &&
-    datasetSpatialBounds.latMax !== null &&
-    datasetSpatialBounds.latMax !== undefined;
-
-  if (hasDatasetSpatialBounds) {
-    const clampedSpatial = clampSpatialBounds(
-      constraints.spatialBounds,
-      datasetSpatialBounds,
-    );
-
-    if (clampedSpatial === null) {
-      return 0;
-    }
-
-    effectiveConstraints = {
-      ...effectiveConstraints,
-      spatialBounds: clampedSpatial,
-    };
-  }
-
-  // Clamp temporal range to dataset coverage
-  const hasTemporalConstraints =
-    constraints.temporalEnabled &&
-    constraints.temporalRange.timeMin &&
-    constraints.temporalRange.timeMax;
-
-  const hasDatasetTemporalBounds =
-    datasetTemporalBounds.timeMin && datasetTemporalBounds.timeMax;
-
-  if (hasTemporalConstraints && hasDatasetTemporalBounds) {
-    const clampedTemporal = clampTemporalRange(
-      constraints.temporalRange,
-      datasetTemporalBounds,
-    );
-
-    if (clampedTemporal === null) {
-      return 0;
-    }
-
-    effectiveConstraints = {
-      ...effectiveConstraints,
-      temporalRange: {
-        timeMin: clampedTemporal.timeMin.toISOString(),
-        timeMax: clampedTemporal.timeMax.toISOString(),
-      },
-    };
-  }
-
-  // Clamp depth range to dataset coverage
-  const hasDepthConstraints =
-    constraints.depthEnabled &&
-    constraints.depthRange.depthMin !== null &&
-    constraints.depthRange.depthMax !== null;
-
-  const hasDatasetDepthBounds =
-    datasetDepthBounds.depthMin !== null &&
-    datasetDepthBounds.depthMin !== undefined &&
-    datasetDepthBounds.depthMax !== null &&
-    datasetDepthBounds.depthMax !== undefined;
-
-  if (hasDepthConstraints && hasDatasetDepthBounds) {
-    const clampedDepth = clampDepthRange(
-      constraints.depthRange,
-      datasetDepthBounds,
-    );
-
-    if (clampedDepth === null) {
-      return 0;
-    }
-
-    effectiveConstraints = {
-      ...effectiveConstraints,
-      depthRange: clampedDepth,
-    };
-  }
-
-  // Calculate spatial count
-  const { latCount, lonCount } = calculateSpatialCount(
-    effectiveConstraints.spatialBounds,
-    spatialDegrees,
-    datasetSpatialBounds.latMin,
-    datasetSpatialBounds.lonMin,
-    datasetSpatialBounds.lonMax,
-  );
-
-  // Calculate temporal count
-  let dateCount = 1;
-
-  if (hasTemporalConstraints) {
-    dateCount = calculateTemporalCount(
-      effectiveConstraints.temporalRange,
-      temporalDays,
-      isMonthlyClimatology,
-      datasetTemporalBounds.timeMin,
-    );
-  } else if (isMonthlyClimatology) {
-    dateCount = 12;
-  } else if (hasDatasetTemporalBounds) {
-    const datasetTemporalRange = {
-      timeMin: datasetTemporalBounds.timeMin,
-      timeMax: datasetTemporalBounds.timeMax,
-    };
-    dateCount = calculateTemporalCount(
-      datasetTemporalRange,
-      temporalDays,
-      false,
-      datasetTemporalBounds.timeMin,
-    );
-  }
-
-  // Calculate depth count
-  let depthCount = 1;
-  if (hasDepth && depthCountInRange > 0) {
-    depthCount = depthCountInRange;
-  }
-
-  // Calculate final row count
-  const effectiveTableCount = tableCount || 1;
-  const pointCount =
-    lonCount * latCount * depthCount * dateCount * effectiveTableCount;
-
-  return Math.round(pointCount);
+  const tableCount = resolvedInputs.tableCount || 1;
+  return Math.round(latCount * lonCount * temporalCount * depthCount * tableCount);
 }
 
+export {
+  clampSpatialBounds,
+  clampTemporalRange,
+  clampDepthRange,
+  countSpatialDataPoints,
+  calculateMonthlyCount,
+  calculateMonthlyClimatologyCount,
+  latitudeRules,
+  longitudeRules,
+  temporalRules,
+  depthRules,
+};
 export default performRowCountMath;

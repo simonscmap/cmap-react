@@ -550,6 +550,7 @@ const EditCollectionModal = ({ open, onClose, collectionId }) => {
                 onClearAll={clearAllSelections}
                 areAllSelected={allDatasetsSelected}
                 areIndeterminate={isIndeterminate}
+                emptyMessage='No datasets have been added to this collection. Click + Add Datasets to add datasets.'
                 columns={['name', 'status', 'type', 'dateRange']}
                 actions={[
                   {

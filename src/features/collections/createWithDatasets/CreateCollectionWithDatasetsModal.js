@@ -178,6 +178,8 @@ const CreateCollectionWithDatasetsModal = ({ open, onClose }) => {
                 onClearAll={handleClearAll}
                 areAllSelected={areAllSelected}
                 areIndeterminate={areIndeterminate}
+                emptyMessage='No datasets have been added to this collection. Click + Add Datasets to add datasets.'
+                // 'rows' column definition commented out in CollectionDatasetsTable
                 columns={['name', 'status', 'type', 'dateRange', 'rows']}
                 actions={[
                   {

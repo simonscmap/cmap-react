@@ -33,7 +33,7 @@ const useMultiDatasetDownloadStore = create((set, get) => ({
 
   selectAll: (filteredDatasets) => {
     const allDatasetNames = new Set(
-      filteredDatasets.map((dataset) => dataset.Dataset_Name),
+      filteredDatasets.map((dataset) => dataset.shortName),
     );
     set({ selectedDatasets: allDatasetNames });
     return {
@@ -55,7 +55,7 @@ const useMultiDatasetDownloadStore = create((set, get) => ({
     // Clear only filtered datasets from selections
     const newSelectedDatasets = new Set(selectedDatasets);
     filteredDatasets.forEach((dataset) => {
-      newSelectedDatasets.delete(dataset.Dataset_Name);
+      newSelectedDatasets.delete(dataset.shortName);
     });
 
     set({ selectedDatasets: newSelectedDatasets });
@@ -138,7 +138,7 @@ const useMultiDatasetDownloadStore = create((set, get) => ({
     const { selectedDatasets } = get();
     const totalCount = filteredDatasets.length;
     const selectedInFilteredCount = filteredDatasets.filter((dataset) =>
-      selectedDatasets.has(dataset.Dataset_Name),
+      selectedDatasets.has(dataset.shortName),
     ).length;
 
     if (selectedInFilteredCount === 0) {

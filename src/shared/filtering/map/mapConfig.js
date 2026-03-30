@@ -10,13 +10,10 @@ let WORLD_EXTENT = {
 };
 
 let BASEMAPS = {
-  topographic: '6b4764e99107496f9193e4b68a77b73a', // best
-  terrainWithLabels: 'ccb943d91c134188a8815452514983fc', // best
-  imagery: '52bdc7ab7fb044d98add148764eaa30a', // stretching at extremes lats
-  imageryHybrid: '4c2b44abaa4841d08c938f4bbb548561',// stretching at extremes lats
-  natGeoStyleMap: 'f33a34de3a294590ab48f246e99958c9',
-  oceans: '67ab7f7c535c4687b6518e6d2343e8a2',
-  usgsNationalMap: '6d9fa6d159ae4a1f80b9e296ed300767',
+  topographic: '6b4764e99107496f9193e4b68a77b73a',
+  terrainWithLabels: 'ccb943d91c134188a8815452514983fc',
+  imagery: '52bdc7ab7fb044d98add148764eaa30a',
+  imageryHybrid: '4c2b44abaa4841d08c938f4bbb548561',
 };
 
 let ACTIVE_BASEMAP = BASEMAPS.imagery;
@@ -36,11 +33,7 @@ let CREATE_SYMBOL = {
   outline: { color: [157, 209, 98, 1], width: 2 },
 };
 
-let STATIC_SYMBOL = {
-  type: 'simple-fill',
-  color: [157, 209, 98, 0.3],
-  outline: { color: [157, 209, 98, 1], width: 2 },
-}
+let STATIC_SYMBOL = CREATE_SYMBOL;
 
 let HIGHLIGHT_OPTIONS = {
   color: [157, 209, 98, .3],
@@ -49,6 +42,11 @@ let HIGHLIGHT_OPTIONS = {
 };
 
 let ESRI_VERSION = '4.24';
+
+let MAP_ASPECT_RATIO = 2;
+
+let MODE_PAN = 'pan';
+let MODE_SELECT = 'select';
 
 export {
   SPATIAL_REFERENCE,
@@ -59,5 +57,8 @@ export {
   CREATE_SYMBOL,
   STATIC_SYMBOL,
   HIGHLIGHT_OPTIONS,
+  MAP_ASPECT_RATIO,
   ESRI_VERSION,
+  MODE_PAN,
+  MODE_SELECT,
 };

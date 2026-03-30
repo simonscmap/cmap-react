@@ -42,12 +42,18 @@ const useStyles = makeStyles((theme) => ({
   sortDropdown: {
     display: 'flex',
     alignItems: 'center',
-    height: '40px', // Match TextField height for 'small' size
+    '& .MuiFormControl-root': {
+      minWidth: 130,
+      maxWidth: 130,
+    },
   },
   filterDropdown: {
     display: 'flex',
     alignItems: 'center',
-    height: '40px', // Match TextField height for 'small' size
+    '& .MuiFormControl-root': {
+      minWidth: 180,
+      maxWidth: 180,
+    },
   },
   collectionsGrid: {
     marginTop: theme.spacing(2),
@@ -77,12 +83,13 @@ const useStyles = makeStyles((theme) => ({
 // Sort configuration
 const sortConfig = {
   fields: [
-    { key: 'name', type: 'string', label: 'Sort by Name', path: 'name' },
+    { key: 'name', type: 'string', label: 'Name', path: 'name', defaultDirection: 'asc' },
     {
       key: 'modified',
       type: 'date',
-      label: 'Sort by Date',
+      label: 'Date',
       path: 'sortDate',
+      defaultDirection: 'desc',
     },
   ],
   defaultSort: {
@@ -92,9 +99,7 @@ const sortConfig = {
   uiPattern: 'dropdown-headers',
 };
 
-// Visibility filter options
-const VISIBILITY_FILTERS = [
-  { value: 'all', label: 'All Collections' },
+const VISIBILITY_OPTIONS = [
   { value: 'public', label: 'Public' },
   { value: 'private', label: 'Private' },
   { value: 'following', label: 'Following' },
@@ -104,7 +109,7 @@ const VISIBILITY_FILTERS = [
 const MyCollectionsContent = ({ visibilityFilter, setVisibilityFilter }) => {
   const classes = useStyles();
   const filteredCollections = useFilteredItems();
-  const { activeSort, comparator, setSort } = useSorting(sortConfig);
+  const { activeSort, comparator, setSort, toggleDirection } = useSorting(sortConfig);
   const pendingDeletions = useCollectionsStore(
     (state) => state.pendingDeletions,
   );
@@ -166,10 +171,11 @@ const MyCollectionsContent = ({ visibilityFilter, setVisibilityFilter }) => {
         </Box>
         <Box className={classes.filterDropdown}>
           <FilterDropdown
-            options={VISIBILITY_FILTERS}
-            selectedValue={visibilityFilter}
+            options={VISIBILITY_OPTIONS}
+            selectedValues={visibilityFilter}
             onChange={setVisibilityFilter}
-            label=""
+            allLabel="All Collections"
+            label="Filter By"
           />
         </Box>
         <Box className={classes.sortDropdown}>
@@ -177,7 +183,8 @@ const MyCollectionsContent = ({ visibilityFilter, setVisibilityFilter }) => {
             fields={sortConfig.fields}
             activeField={activeSort.field}
             onFieldChange={handleSortChange}
-            label=""
+            direction={activeSort.direction}
+            onToggleDirection={toggleDirection}
           />
         </Box>
       </Box>
@@ -195,12 +202,12 @@ const MyCollectionsContent = ({ visibilityFilter, setVisibilityFilter }) => {
         emptyComponent={
           <Box className={classes.emptyState}>
             <Typography variant="h6" gutterBottom>
-              {visibilityFilter === 'following'
+              {visibilityFilter.size === 1 && visibilityFilter.has('following')
                 ? 'No Followed Collections'
                 : 'No Collections Found'}
             </Typography>
             <Typography variant="body1" color="textSecondary">
-              {visibilityFilter === 'following'
+              {visibilityFilter.size === 1 && visibilityFilter.has('following')
                 ? 'You are not following any collections yet. Browse public collections to find ones to follow.'
                 : "You haven't created any collections yet. Start by creating your first collection to organize your datasets."}
             </Typography>
@@ -233,27 +240,31 @@ const MyCollectionsTab = () => {
   );
 
   const mergedCollections = useMemo(() => {
-    const userCollectionsWithSortDate = filteredUserCollections.map((c) => ({
+    let userCollectionsWithSortDate = filteredUserCollections.map((c) => ({
       ...c,
       sortDate: c.modifiedDate,
     }));
 
-    const markedFollowed = followedCollections.map((c) => ({
+    let markedFollowed = followedCollections.map((c) => ({
       ...c,
       isFollowed: true,
       isPublic: true,
       sortDate: c.followDate || c.modifiedDate,
     }));
 
-    if (visibilityFilter === 'following') {
+    let showOwned = visibilityFilter.has('public') || visibilityFilter.has('private');
+    let showFollowing = visibilityFilter.has('following');
+
+    if (showOwned && showFollowing) {
+      return [...userCollectionsWithSortDate, ...markedFollowed];
+    }
+    if (showFollowing) {
       return markedFollowed;
     }
-
-    if (visibilityFilter === 'public' || visibilityFilter === 'private') {
+    if (showOwned) {
       return userCollectionsWithSortDate;
     }
-
-    return [...userCollectionsWithSortDate, ...markedFollowed];
+    return [];
   }, [filteredUserCollections, followedCollections, visibilityFilter]);
 
   const handleLoginClick = () => {

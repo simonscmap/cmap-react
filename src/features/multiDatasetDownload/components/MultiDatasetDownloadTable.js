@@ -3,37 +3,44 @@ import {
   Table,
   TableBody,
   TableCell,
-  TableContainer,
   TableHead,
   TableRow,
   Paper,
-  Checkbox,
   Typography,
   Box,
-  Chip,
 } from '@material-ui/core';
+import { makeStyles } from '@material-ui/core/styles';
+import { TableVirtuoso } from 'react-virtuoso';
 import { useDispatch } from 'react-redux';
-
 import useMultiDatasetDownloadStore from '../stores/multiDatasetDownloadStore';
-import { dateToUTCDateString } from '../../../shared/filtering/utils/dateHelpers';
-import { DatasetNameLink } from '../../../shared/components';
 import SelectAllDropdown from './SelectAllDropdown';
+import MultiDatasetDownloadRow from './MultiDatasetDownloadRow';
 import { snackbarOpen } from '../../../Redux/actions/ui';
-import temporalResolutions from '../../../enums/temporalResolutions';
-import { RowCountCell, RecalculateAllButton } from '../../rowCount';
+import { RecalculateAllButton } from '../../rowCount';
 import { transformConstraintsForRowCount } from '../utils/constraintTransformer';
 import colors from '../../../enums/colors';
+import logInit from '../../../Services/log-service';
 
-const styles = {
+let log = logInit('MultiDatasetDownloadTable');
+
+let useStyles = makeStyles({
+  hoverRow: {
+    border: 0,
+    '&:hover': {
+      backgroundColor: colors.darkBlue,
+    },
+  },
+});
+
+let styles = {
   tableContainerStyle: {
-    maxHeight: 400,
     maxWidth: 1400,
     margin: '0 auto',
     backgroundColor: colors.darkBlueLight,
     borderRadius: '6px',
     boxShadow:
       '0px 2px 1px -1px rgba(0,0,0,0.2),0px 1px 1px 0px rgba(0,0,0,0.14),0px 1px 3px 0px rgba(0,0,0,0.12)',
-    overflow: 'auto',
+    overflow: 'hidden',
     position: 'relative',
     zIndex: 1,
   },
@@ -43,9 +50,6 @@ const styles = {
   },
   tableHeadStyle: {
     backgroundColor: colors.deepSlate,
-    position: 'sticky',
-    top: 0,
-    zIndex: 2,
   },
   headerCellStyle: {
     padding: '8px',
@@ -78,61 +82,46 @@ const styles = {
     textAlign: 'right',
     lineHeight: 1.3,
   },
-  tableRowStyle: {
-    border: 0,
-  },
-  tableRowHoverStyle: {
-    border: 0,
-    backgroundColor: colors.darkBlue,
-  },
   bodyCellStyle: {
     padding: '12px 8px',
     border: 0,
     color: '#ffffff',
     lineHeight: 1.4,
-    verticalAlign: 'top',
+    verticalAlign: 'middle',
     overflow: 'hidden',
     textOverflow: 'ellipsis',
     whiteSpace: 'nowrap',
   },
-  datasetNameCellStyle: {
-    padding: '12px 8px',
-    border: 0,
-    color: '#ffffff',
-    lineHeight: 1.4,
-    verticalAlign: 'top',
-    minWidth: 150,
-    whiteSpace: 'normal',
-    wordBreak: 'break-word',
-  },
 };
 
-const MultiDatasetDownloadTable = ({ datasetsMetadata, filterValues }) => {
-  const dispatch = useDispatch();
-  const {
-    isDatasetSelected,
-    toggleDatasetSelection,
-    selectAll,
-    clearSelections,
-    getSelectAllCheckboxState,
-  } = useMultiDatasetDownloadStore();
-  const [hoveredRow, setHoveredRow] = React.useState(null);
+let MultiDatasetDownloadTable = function MultiDatasetDownloadTable(props) {
+  let { datasetsMetadata, filterValues } = props;
+  let dispatch = useDispatch();
+  let classes = useStyles();
 
-  const handleToggle = (datasetName) => (event) => {
-    event.stopPropagation();
-    toggleDatasetSelection(datasetName);
-  };
+  let selectAll = useMultiDatasetDownloadStore(function (state) {
+    return state.selectAll;
+  });
+  let clearSelections = useMultiDatasetDownloadStore(function (state) {
+    return state.clearSelections;
+  });
+  let getSelectAllCheckboxState = useMultiDatasetDownloadStore(function (state) {
+    return state.getSelectAllCheckboxState;
+  });
 
-  const handleProgramClick = (program) => (event) => {
-    event.stopPropagation();
-    window.open(`/programs/${program}`, '_blank');
-  };
+  let checkboxState = getSelectAllCheckboxState(datasetsMetadata || []);
+  let areAllSelected = checkboxState.checked;
+  let areIndeterminate = checkboxState.indeterminate;
 
-  const handleSelectAll = () => {
+  let currentConstraints = React.useMemo(function () {
+    return transformConstraintsForRowCount(filterValues);
+  }, [filterValues]);
+
+  let handleSelectAll = React.useCallback(function () {
     try {
       selectAll(datasetsMetadata);
     } catch (error) {
-      console.error('Failed to select all datasets:', error);
+      log.error('Failed to select all datasets', error);
       dispatch(
         snackbarOpen('Failed to select datasets. Please try again.', {
           position: 'bottom',
@@ -140,232 +129,163 @@ const MultiDatasetDownloadTable = ({ datasetsMetadata, filterValues }) => {
         }),
       );
     }
-  };
+  }, [selectAll, datasetsMetadata, dispatch]);
 
-  const handleClearAll = () => {
+  let handleClearAll = React.useCallback(function () {
     clearSelections(datasetsMetadata);
+  }, [clearSelections, datasetsMetadata]);
+
+  let handleProgramClick = React.useCallback(function (program) {
+    return function (event) {
+      event.stopPropagation();
+      window.open('/programs/' + program, '_blank');
+    };
+  }, []);
+
+  let hasData = datasetsMetadata && datasetsMetadata.length > 0;
+
+  let MuiTableComponents = React.useMemo(function () {
+    return {
+      Table: function (tableProps) {
+        return (
+          <Table
+            stickyHeader
+            size="small"
+            aria-label="dataset selection table"
+            style={styles.tableStyle}
+            {...tableProps}
+          />
+        );
+      },
+      TableHead: function (headProps) {
+        return <TableHead style={styles.tableHeadStyle} {...headProps} />;
+      },
+      TableRow: function (rowProps) {
+        return <TableRow className={classes.hoverRow} {...rowProps} />;
+      },
+      TableBody: React.forwardRef(function (bodyProps, ref) {
+        return <TableBody ref={ref} {...bodyProps} />;
+      }),
+    };
+  }, [classes.hoverRow]);
+
+  let fixedHeaderContent = function () {
+    return (
+      <TableRow>
+        <TableCell width={50} style={styles.headerCellStyle}>
+          <SelectAllDropdown
+            areAllSelected={areAllSelected}
+            areIndeterminate={areIndeterminate}
+            onSelectAll={handleSelectAll}
+            onClearAll={handleClearAll}
+            disabled={!hasData}
+          />
+        </TableCell>
+        <TableCell style={{ ...styles.headerCellStyle, minWidth: 150 }}>
+          Dataset Name
+        </TableCell>
+        <TableCell align="right" style={styles.rowCountHeaderCell}>
+          <Box
+            display="flex"
+            flexDirection="row"
+            flexWrap="wrap"
+            alignItems="center"
+            justifyContent="flex-end"
+            style={{ gap: '4px' }}
+          >
+            <span>Row Count</span>
+            <RecalculateAllButton constraints={currentConstraints} />
+          </Box>
+        </TableCell>
+        <TableCell width={90} style={styles.headerCellStyle}>
+          Start Date
+        </TableCell>
+        <TableCell width={90} style={styles.headerCellStyle}>
+          End Date
+        </TableCell>
+        <TableCell width={50} align="right" style={styles.twoLineHeaderCell}>
+          Lat<br />Min
+        </TableCell>
+        <TableCell width={50} align="right" style={styles.twoLineHeaderCell}>
+          Lat<br />Max
+        </TableCell>
+        <TableCell width={50} align="right" style={styles.twoLineHeaderCell}>
+          Lon<br />Min
+        </TableCell>
+        <TableCell width={50} align="right" style={styles.twoLineHeaderCell}>
+          Lon<br />Max
+        </TableCell>
+        <TableCell width={50} align="right" style={styles.twoLineHeaderCell}>
+          Depth<br />Min
+        </TableCell>
+        <TableCell width={50} align="right" style={styles.twoLineHeaderCell}>
+          Depth<br />Max
+        </TableCell>
+        <TableCell width={80} style={styles.headerCellStyle}>
+          Programs
+        </TableCell>
+      </TableRow>
+    );
   };
 
-  const formatLatLon = (value) => {
-    if (value === null || value === undefined) return 'N/A';
-    return Number(value).toFixed(1);
+  let itemContent = function (_index, datasetMetadata) {
+    return (
+      <MultiDatasetDownloadRow
+        datasetMetadata={datasetMetadata}
+        currentConstraints={currentConstraints}
+        handleProgramClick={handleProgramClick}
+      />
+    );
   };
 
-  const formatDepth = (value) => {
-    if (value === null || value === undefined) return 'N/A';
-    return Math.round(Number(value)).toLocaleString();
-  };
-
-  const formatTime = (value, datasetMetadata, isStartDate = true) => {
-    // Monthly Climatology datasets have null Time_Min/Time_Max
-    if (value === null || value === undefined) {
-      // Check if this is a Monthly Climatology dataset
-      // Either by explicit Temporal_Resolution field or by null Time_Min AND Time_Max
-      const isMonthlyClimatology =
-        datasetMetadata?.Temporal_Resolution ===
-          temporalResolutions.monthlyClimatology ||
-        (datasetMetadata?.Time_Min === null &&
-          datasetMetadata?.Time_Max === null);
-
-      if (isMonthlyClimatology) {
-        return isStartDate ? 'Monthly' : 'Climatology';
-      }
-      return 'N/A';
-    }
-    return dateToUTCDateString(value) || 'N/A';
-  };
+  if (!hasData || datasetsMetadata.length <= 5) {
+    return (
+      <Paper style={{ ...styles.tableContainerStyle, maxHeight: 400, overflow: 'auto' }}>
+        <Table stickyHeader size="small" style={styles.tableStyle}>
+          <TableHead style={styles.tableHeadStyle}>
+            {fixedHeaderContent()}
+          </TableHead>
+          <TableBody>
+            {!hasData ? (
+              <TableRow>
+                <TableCell
+                  colSpan={12}
+                  style={{ ...styles.bodyCellStyle, textAlign: 'center' }}
+                >
+                  <Typography variant="body1" color="textSecondary">
+                    No datasets available
+                  </Typography>
+                </TableCell>
+              </TableRow>
+            ) : (
+              datasetsMetadata.map(function (datasetMetadata) {
+                return (
+                  <TableRow key={datasetMetadata.shortName} className={classes.hoverRow}>
+                    <MultiDatasetDownloadRow
+                      datasetMetadata={datasetMetadata}
+                      currentConstraints={currentConstraints}
+                      handleProgramClick={handleProgramClick}
+                    />
+                  </TableRow>
+                );
+              })
+            )}
+          </TableBody>
+        </Table>
+      </Paper>
+    );
+  }
 
   return (
-    <TableContainer component={Paper} style={styles.tableContainerStyle}>
-      <Table stickyHeader size="small" aria-label="dataset selection table" style={styles.tableStyle}>
-        <TableHead style={styles.tableHeadStyle}>
-          <TableRow>
-            <TableCell width={50} style={styles.headerCellStyle}>
-              <SelectAllDropdown
-                areAllSelected={
-                  getSelectAllCheckboxState(datasetsMetadata).checked
-                }
-                areIndeterminate={
-                  getSelectAllCheckboxState(datasetsMetadata).indeterminate
-                }
-                onSelectAll={handleSelectAll}
-                onClearAll={handleClearAll}
-                disabled={!datasetsMetadata || datasetsMetadata.length === 0}
-              />
-            </TableCell>
-            <TableCell
-              style={{ ...styles.headerCellStyle, minWidth: 150 }}
-            >
-              Dataset Name
-            </TableCell>
-            <TableCell align="right" style={styles.rowCountHeaderCell}>
-              <Box display="flex" flexDirection="row" flexWrap="wrap" alignItems="center" justifyContent="flex-end" style={{ gap: '4px' }}>
-                <span>Row Count</span>
-                <RecalculateAllButton
-                  constraints={transformConstraintsForRowCount(filterValues)}
-                />
-              </Box>
-            </TableCell>
-            <TableCell width={90} style={styles.headerCellStyle}>
-              Start Date
-            </TableCell>
-            <TableCell width={90} style={styles.headerCellStyle}>
-              End Date
-            </TableCell>
-            <TableCell width={50} align="right" style={styles.twoLineHeaderCell}>
-              Lat<br />Min
-            </TableCell>
-            <TableCell width={50} align="right" style={styles.twoLineHeaderCell}>
-              Lat<br />Max
-            </TableCell>
-            <TableCell width={50} align="right" style={styles.twoLineHeaderCell}>
-              Lon<br />Min
-            </TableCell>
-            <TableCell width={50} align="right" style={styles.twoLineHeaderCell}>
-              Lon<br />Max
-            </TableCell>
-            <TableCell width={50} align="right" style={styles.twoLineHeaderCell}>
-              Depth<br />Min
-            </TableCell>
-            <TableCell width={50} align="right" style={styles.twoLineHeaderCell}>
-              Depth<br />Max
-            </TableCell>
-            <TableCell width={80} style={styles.headerCellStyle}>
-              Programs
-            </TableCell>
-          </TableRow>
-        </TableHead>
-        <TableBody>
-          {!datasetsMetadata || datasetsMetadata.length === 0 ? (
-            <TableRow>
-              <TableCell
-                colSpan={12}
-                style={{ ...styles.bodyCellStyle, textAlign: 'center' }}
-              >
-                <Typography variant="body1" color="textSecondary">
-                  No datasets available
-                </Typography>
-              </TableCell>
-            </TableRow>
-          ) : (
-            datasetsMetadata.map((datasetMetadata) => {
-              const isSelected = isDatasetSelected(
-                datasetMetadata.Dataset_Name,
-              );
-              const isHovered = hoveredRow === datasetMetadata.Dataset_Name;
-              return (
-                <TableRow
-                  key={datasetMetadata.Dataset_Name}
-                  selected={isSelected}
-                  style={
-                    isHovered ? styles.tableRowHoverStyle : styles.tableRowStyle
-                  }
-                  onMouseEnter={() =>
-                    setHoveredRow(datasetMetadata.Dataset_Name)
-                  }
-                  onMouseLeave={() => setHoveredRow(null)}
-                >
-                  <TableCell style={styles.bodyCellStyle}>
-                    <Checkbox
-                      checked={isSelected}
-                      onChange={handleToggle(datasetMetadata.Dataset_Name)}
-                      color="primary"
-                      size="small"
-                    />
-                  </TableCell>
-                  <TableCell style={styles.datasetNameCellStyle}>
-                    <DatasetNameLink
-                      datasetShortName={datasetMetadata.Dataset_Name}
-                      typographyProps={{ variant: 'body2' }}
-                    />
-                  </TableCell>
-                  <TableCell align="right" style={{ ...styles.bodyCellStyle, paddingRight: '16px' }}>
-                    <RowCountCell
-                      shortName={datasetMetadata.Dataset_Name}
-                      currentConstraints={transformConstraintsForRowCount(filterValues)}
-                    />
-                  </TableCell>
-                  <TableCell style={styles.bodyCellStyle}>
-                    <Typography variant="body2" noWrap>
-                      {formatTime(
-                        datasetMetadata.Time_Min,
-                        datasetMetadata,
-                        true,
-                      )}
-                    </Typography>
-                  </TableCell>
-                  <TableCell style={styles.bodyCellStyle}>
-                    <Typography variant="body2" noWrap>
-                      {formatTime(
-                        datasetMetadata.Time_Max,
-                        datasetMetadata,
-                        false,
-                      )}
-                    </Typography>
-                  </TableCell>
-                  <TableCell align="right" style={styles.bodyCellStyle}>
-                    <Typography variant="body2" noWrap>
-                      {formatLatLon(datasetMetadata.Lat_Min)}
-                    </Typography>
-                  </TableCell>
-                  <TableCell align="right" style={styles.bodyCellStyle}>
-                    <Typography variant="body2" noWrap>
-                      {formatLatLon(datasetMetadata.Lat_Max)}
-                    </Typography>
-                  </TableCell>
-                  <TableCell align="right" style={styles.bodyCellStyle}>
-                    <Typography variant="body2" noWrap>
-                      {formatLatLon(datasetMetadata.Lon_Min)}
-                    </Typography>
-                  </TableCell>
-                  <TableCell align="right" style={styles.bodyCellStyle}>
-                    <Typography variant="body2" noWrap>
-                      {formatLatLon(datasetMetadata.Lon_Max)}
-                    </Typography>
-                  </TableCell>
-                  <TableCell align="right" style={styles.bodyCellStyle}>
-                    <Typography variant="body2" noWrap>
-                      {formatDepth(datasetMetadata.Depth_Min)}
-                    </Typography>
-                  </TableCell>
-                  <TableCell align="right" style={styles.bodyCellStyle}>
-                    <Typography variant="body2" noWrap>
-                      {formatDepth(datasetMetadata.Depth_Max)}
-                    </Typography>
-                  </TableCell>
-                  <TableCell style={styles.bodyCellStyle}>
-                    <Box display="flex" flexWrap="wrap" style={{ gap: '3px' }}>
-                      {datasetMetadata.Programs?.filter(
-                        (program) => program !== 'NA',
-                      ).map((program, index) => (
-                        <Chip
-                          key={index}
-                          label={program}
-                          size="small"
-                          clickable
-                          onClick={handleProgramClick(program)}
-                          style={{
-                            backgroundColor: colors.lightGreen,
-                            color: '#000000',
-                            fontSize: '0.75rem',
-                            height: '20px',
-                            cursor: 'pointer',
-                          }}
-                        />
-                      )) || (
-                        <Typography variant="body2" noWrap>
-                          N/A
-                        </Typography>
-                      )}
-                    </Box>
-                  </TableCell>
-                </TableRow>
-              );
-            })
-          )}
-        </TableBody>
-      </Table>
-    </TableContainer>
+    <Paper style={styles.tableContainerStyle}>
+      <TableVirtuoso
+        style={{ height: 400 }}
+        data={datasetsMetadata}
+        components={MuiTableComponents}
+        fixedHeaderContent={fixedHeaderContent}
+        itemContent={itemContent}
+      />
+    </Paper>
   );
 };
 

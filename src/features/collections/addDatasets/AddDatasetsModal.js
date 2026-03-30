@@ -81,15 +81,16 @@ const useStyles = makeStyles((theme) => ({
  * TabPanel component for rendering tab content
  */
 function TabPanel({ children, value, index, ...other }) {
+  let isActive = value === index;
   return (
     <div
       role="tabpanel"
-      hidden={value !== index}
       id={`add-datasets-tabpanel-${index}`}
       aria-labelledby={`add-datasets-tab-${index}`}
+      style={isActive ? {} : { visibility: 'hidden', height: 0, overflow: 'hidden' }}
       {...other}
     >
-      {value === index && <Box>{children}</Box>}
+      <Box>{children}</Box>
     </div>
   );
 }
@@ -320,6 +321,7 @@ const AddDatasetsModal = ({
           isPublic: pendingCollection.isPublic || false,
         };
         selectCollection(pendingCollectionId, summary);
+        loadCollectionDatasets();
       }
     }
   };
@@ -344,8 +346,8 @@ const AddDatasetsModal = ({
       // Show confirmation dialog for switching collections
       showSwitchWarning(collectionId);
     } else {
-      // No selections, set the collection immediately
       selectCollection(collectionId, summary);
+      loadCollectionDatasets();
     }
   };
 

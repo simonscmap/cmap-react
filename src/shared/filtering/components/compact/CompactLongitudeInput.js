@@ -22,26 +22,11 @@ const CompactLongitudeInput = ({
   sliderStart,
   sliderEnd,
   bounds,
-  onLocalChange,
 }) => {
   const classes = useCompactRangeInputStyles();
 
   const startHasError = Boolean(startMessage) || isRangeInverted;
   const endHasError = Boolean(endMessage) || isRangeInverted;
-
-  const handleStartChange = (e) => {
-    handleSetStart(e);
-    if (onLocalChange) {
-      onLocalChange();
-    }
-  };
-
-  const handleEndChange = (e) => {
-    handleSetEnd(e);
-    if (onLocalChange) {
-      onLocalChange();
-    }
-  };
 
   const localStartNum = parseFloat(localStartValue);
   const localEndNum = parseFloat(localEndValue);
@@ -59,7 +44,7 @@ const CompactLongitudeInput = ({
             variant="outlined"
             label="W Longitude (°)"
             value={localStartValue}
-            onChange={handleStartChange}
+            onChange={handleSetStart}
             onBlur={handleBlurStart}
             onKeyDown={(e) => { if (e.key === 'Enter') e.target.blur(); }}
             className={`${classes.textField} ${startHasError ? classes.textFieldError : ''}`}
@@ -76,7 +61,7 @@ const CompactLongitudeInput = ({
             variant="outlined"
             label="E Longitude (°)"
             value={localEndValue}
-            onChange={handleEndChange}
+            onChange={handleSetEnd}
             onBlur={handleBlurEnd}
             onKeyDown={(e) => { if (e.key === 'Enter') e.target.blur(); }}
             className={`${classes.textField} ${endHasError ? classes.textFieldError : ''}`}
@@ -147,7 +132,6 @@ CompactLongitudeInput.propTypes = {
     min: PropTypes.number.isRequired,
     max: PropTypes.number.isRequired,
   }).isRequired,
-  onLocalChange: PropTypes.func,
 };
 
 export default CompactLongitudeInput;

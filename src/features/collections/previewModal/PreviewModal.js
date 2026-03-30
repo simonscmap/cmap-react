@@ -13,6 +13,7 @@ import { Close } from '@material-ui/icons';
 import { useDispatch } from 'react-redux';
 import { usePreviewModalStyles } from './previewModalStyles';
 import CollectionStatistics from '../components/CollectionStatistics';
+import { formatCompactNumber } from '../../../shared/utility/formatCompactNumber';
 import UniversalButton from '../../../shared/components/UniversalButton';
 import CollectionDownloadButton from '../shared/CollectionDownloadButton';
 import CollectionDownloadModal from '../myCollections/CollectionDownloadModal';
@@ -75,7 +76,7 @@ const PreviewModal = ({ open, onClose, collection }) => {
       label: 'Datasets',
     },
     {
-      value: totalRows.toLocaleString(),
+      value: formatCompactNumber(totalRows),
       label: 'Rows',
     },
     {
@@ -211,6 +212,7 @@ const PreviewModal = ({ open, onClose, collection }) => {
             <CollectionDatasetsTable
               collectionId={collection.id}
               skipViewTracking={collection.isOwner}
+              emptyMessage='This collection does not contain any datasets.'
               datasetShortNames={
                 collection.datasets
                   ?.map((d) => d.datasetShortName)
@@ -219,6 +221,7 @@ const PreviewModal = ({ open, onClose, collection }) => {
                       name !== undefined && name !== null && name !== '',
                   ) || []
               }
+              // 'rows' column definition commented out in CollectionDatasetsTable
               columns={['name', 'type', 'region', 'dateRange', 'rows']}
               onDataLoaded={handleDataLoaded}
               onError={handleTableError}

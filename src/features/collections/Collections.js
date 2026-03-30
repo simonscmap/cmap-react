@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useSelector } from 'react-redux';
 import { makeStyles } from '@material-ui/core/styles';
 import { Grid, Typography, Tabs, Tab, Box } from '@material-ui/core';
@@ -60,8 +60,18 @@ const Collections = () => {
   const user = useSelector((state) => state.user);
   const { fetchCollections } = useCollectionsStore();
 
+  let prevUser = useRef(user);
+
   useEffect(() => {
     fetchCollections({ includeDatasets: true });
+  }, [fetchCollections]);
+
+  useEffect(() => {
+    let loggedIn = !prevUser.current && user;
+    prevUser.current = user;
+    if (loggedIn) {
+      fetchCollections({ includeDatasets: true });
+    }
   }, [user, fetchCollections]);
 
   // Pre-load so modals avoid db init for better UX

@@ -1,80 +1,85 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { FormControl, InputLabel, Select, MenuItem } from '@material-ui/core';
+import {
+  Checkbox,
+  FormControl,
+  InputLabel,
+  ListItemText,
+  MenuItem,
+  Select,
+} from '@material-ui/core';
+import { makeStyles } from '@material-ui/core/styles';
+import colors from '../../../enums/colors';
 
-/**
- * FilterDropdown Component
- *
- * Generic dropdown selector for filtering data by a specific criterion.
- * Reusable across different features and filter types.
- *
- * @param {Object} props - Component props
- * @param {Array} props.options - Array of filter option objects with value and label properties
- * @param {string} props.selectedValue - Currently selected filter value
- * @param {function} props.onChange - Callback when user selects a different option
- * @param {string} [props.label='Filter'] - Label text displayed above/before dropdown
- * @param {boolean} [props.disabled=false] - Disable dropdown interaction
- * @param {string} [props.className] - Additional CSS class for styling container
- * @param {string} [props.size='medium'] - Size variant: 'small' | 'medium'
- *
- * @example
- * <FilterDropdown
- *   options={[
- *     { value: 'all', label: 'All Items' },
- *     { value: 'active', label: 'Active Only' },
- *     { value: 'inactive', label: 'Inactive Only' }
- *   ]}
- *   selectedValue={filterValue}
- *   onChange={setFilterValue}
- *   label="Status Filter"
- * />
- */
+let useStyles = makeStyles(() => ({
+  formControl: {
+    minWidth: 140,
+    maxWidth: 200,
+    '& .MuiOutlinedInput-notchedOutline': {
+      borderColor: 'rgba(157, 209, 98, 0.4)',
+    },
+    '& .MuiOutlinedInput-root:hover .MuiOutlinedInput-notchedOutline': {
+      borderColor: colors.primary,
+    },
+    '& .MuiOutlinedInput-root.Mui-focused .MuiOutlinedInput-notchedOutline': {
+      borderColor: colors.primary,
+    },
+  },
+  select: {
+    color: '#ffffff',
+    '& .MuiSelect-icon': {
+      color: '#ffffff',
+    },
+  },
+  label: {
+    color: colors.primary,
+    '&.Mui-focused': {
+      color: colors.primary,
+    },
+  },
+}));
+
 const FilterDropdown = ({
   options,
-  selectedValue,
+  selectedValues,
   onChange,
+  allLabel = 'All',
+  label = 'Filter By',
   disabled = false,
   className,
-  size = 'medium',
-  label,
 }) => {
-  // Handle change event from Material-UI Select
-  const handleChange = (event) => {
-    const value = event.target.value;
-    onChange(value);
+  let classes = useStyles();
+
+  let handleChange = (event) => {
+    let value = event.target.value;
+    onChange(new Set(value));
   };
 
-  // Validate options and warn about missing required properties
-  const validOptions = options.filter((option) => {
-    if (option.value === undefined || option.value === null) {
-      console.warn(
-        'FilterDropdown: Option missing "value" property, skipping:',
-        option,
-      );
-      return false;
+  let getDisplayLabel = () => {
+    if (selectedValues.size === 0 || selectedValues.size === options.length) {
+      return allLabel;
     }
-    if (!option.label) {
-      console.warn(
-        `FilterDropdown: Option "${option.value}" missing "label" property, using value as fallback`,
-      );
-    }
-    return true;
-  });
-
-  // Handle empty options array
-  const isEmpty = validOptions.length === 0;
-  const isDisabled = disabled || isEmpty;
+    return options
+      .filter((opt) => selectedValues.has(opt.value))
+      .map((opt) => opt.label)
+      .join(', ');
+  };
 
   return (
-    <FormControl disabled={isDisabled} className={className} size={size}>
-      {label && <InputLabel id="filter-dropdown-label">{label}</InputLabel>}
+    <FormControl
+      variant="outlined"
+      size="small"
+      disabled={disabled}
+      className={`${classes.formControl} ${className || ''}`}
+    >
+      <InputLabel className={classes.label}>{label}</InputLabel>
       <Select
-        labelId="filter-dropdown-label"
-        value={selectedValue || ''}
+        multiple
+        value={Array.from(selectedValues)}
         onChange={handleChange}
-        displayEmpty={isEmpty}
-        autoWidth={true}
-        style={{ textAlign: 'left' }}
+        label={label}
+        renderValue={getDisplayLabel}
+        className={classes.select}
         MenuProps={{
           disableScrollLock: true,
           anchorOrigin: {
@@ -88,17 +93,16 @@ const FilterDropdown = ({
           getContentAnchorEl: null,
         }}
       >
-        {isEmpty ? (
-          <MenuItem value="" disabled>
-            No filter options
+        {options.map((option) => (
+          <MenuItem key={option.value} value={option.value}>
+            <Checkbox
+              checked={selectedValues.has(option.value)}
+              color="primary"
+              size="small"
+            />
+            <ListItemText primary={option.label} />
           </MenuItem>
-        ) : (
-          validOptions.map((option) => (
-            <MenuItem key={option.value} value={option.value}>
-              {option.label || option.value}
-            </MenuItem>
-          ))
-        )}
+        ))}
       </Select>
     </FormControl>
   );
@@ -107,17 +111,16 @@ const FilterDropdown = ({
 FilterDropdown.propTypes = {
   options: PropTypes.arrayOf(
     PropTypes.shape({
-      value: PropTypes.oneOfType([PropTypes.string, PropTypes.number])
-        .isRequired,
+      value: PropTypes.string.isRequired,
       label: PropTypes.string.isRequired,
     }),
   ).isRequired,
-  selectedValue: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+  selectedValues: PropTypes.instanceOf(Set).isRequired,
   onChange: PropTypes.func.isRequired,
+  allLabel: PropTypes.string,
   label: PropTypes.string,
   disabled: PropTypes.bool,
   className: PropTypes.string,
-  size: PropTypes.oneOf(['small', 'medium']),
 };
 
 export default FilterDropdown;

@@ -29,7 +29,10 @@ const useStyles = makeStyles((theme) => ({
   sortDropdown: {
     display: 'flex',
     alignItems: 'center',
-    height: '40px', // Match TextField height for 'small' size
+    '& .MuiFormControl-root': {
+      minWidth: 185,
+      maxWidth: 185,
+    },
   },
   loadingContainer: {
     display: 'flex',
@@ -52,26 +55,30 @@ const sortConfig = {
     {
       key: 'popularity',
       type: 'number',
-      label: 'Sort by Popularity',
+      label: 'Popularity',
       path: 'downloads',
+      defaultDirection: 'desc',
     },
     {
       key: 'date',
       type: 'date',
-      label: 'Sort by Date',
+      label: 'Date',
       path: 'createdDate',
+      defaultDirection: 'desc',
     },
     {
       key: 'datasetCount',
       type: 'number',
-      label: 'Sort by Dataset Count',
+      label: 'Dataset Count',
       path: 'datasetCount',
+      defaultDirection: 'desc',
     },
     {
       key: 'name',
       type: 'string',
-      label: 'Sort by Name',
+      label: 'Name',
       path: 'name',
+      defaultDirection: 'asc',
     },
   ],
   defaultSort: {
@@ -85,7 +92,7 @@ const sortConfig = {
 const PublicCollectionsContent = () => {
   const classes = useStyles();
   const filteredCollections = useFilteredItems();
-  const { activeSort, comparator, setSort } = useSorting(sortConfig);
+  const { activeSort, comparator, setSort, toggleDirection } = useSorting(sortConfig);
 
   // Sort the filtered collections
   const sortedCollections = [...filteredCollections].sort(comparator);
@@ -105,14 +112,17 @@ const PublicCollectionsContent = () => {
             fields={sortConfig.fields}
             activeField={activeSort.field}
             onFieldChange={setSort}
-            label=""
+            direction={activeSort.direction}
+            onToggleDirection={toggleDirection}
+            label="Sort By"
           />
         </Box>
       </Box>
 
       <PaginationController
         data={sortedCollections}
-        itemsPerPage={6}
+        itemsPerPage={10}
+        rowsPerPageOptions={[10, 25, 50]}
         renderItem={(collection) => collection}
         renderContainer={(items, pagination) => (
           <>

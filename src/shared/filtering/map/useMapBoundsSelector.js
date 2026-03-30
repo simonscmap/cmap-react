@@ -7,21 +7,25 @@ import {
   CREATE_SYMBOL,
   STATIC_SYMBOL,
   HIGHLIGHT_OPTIONS,
+  MODE_PAN,
+  MODE_SELECT,
 } from './mapConfig';
 import initLog from '../../../Services/log-service';
+import {
+  extractBoundsFromGeometry,
+  normalizeBoundsForPolygon,
+  extentToRings,
+  constrainAndSnapshot,
+  isNearMinZoom,
+  computeZoomOutScale,
+  shouldBlockZoomOut,
+} from './mapGeometryUtils';
+import {
+  isStopEvent,
+  getConstraintOptions,
+} from './mapEventUtils';
 
 let log = initLog('shared/filtering/map/useMapBoundsSelector');
-
-const MODE_PAN = 'pan';
-const MODE_SELECT = 'select';
-
-function clampAndRound(value, min, max) {
-  return Math.round(Math.max(min, Math.min(max, value)) * 10) / 10;
-}
-
-function normalizeLon(lon) {
-  return ((lon % 360) + 540) % 360 - 180;
-}
 
 const useMapBoundsSelector = ({
   latStart,
@@ -32,6 +36,8 @@ const useMapBoundsSelector = ({
   setLatEnd,
   setLonStart,
   setLonEnd,
+  onBoundsChange,
+  onBoundsPreview,
 }) => {
   let [modules, setModules] = useState(null);
   let [loading, setLoading] = useState(true);
@@ -49,12 +55,18 @@ const useMapBoundsSelector = ({
   let minZoomThresholdRef = useRef(null);
   let modeRef = useRef(MODE_PAN);
   let settersRef = useRef({ setLatStart, setLatEnd, setLonStart, setLonEnd });
+  let onBoundsChangeRef = useRef(onBoundsChange);
+  let onBoundsPreviewRef = useRef(onBoundsPreview);
   let updateBoundsRef = useRef(null);
+  let previewBoundsRef = useRef(null);
   let updateGraphicRef = useRef(null);
   let transformDebounceRef = useRef(null);
   let wheelHandlerRef = useRef(null);
+  let prevExtentRef = useRef(null);
 
   settersRef.current = { setLatStart, setLatEnd, setLonStart, setLonEnd };
+  onBoundsChangeRef.current = onBoundsChange;
+  onBoundsPreviewRef.current = onBoundsPreview;
 
   useEffect(() => {
     let cancelled = false;
@@ -78,27 +90,21 @@ const useMapBoundsSelector = ({
     };
   }, []);
 
+  function buildPolygonFromExtent(extent) {
+    return new modules.Polygon({
+      rings: extentToRings(extent),
+      spatialReference: SPATIAL_REFERENCE,
+    });
+  }
+
   let createBoundsGraphic = useCallback(
     (lat1, lat2, lon1, lon2) => {
       if (!modules) return null;
 
-      let minLat = Math.min(lat1, lat2);
-      let maxLat = Math.max(lat1, lat2);
-      let minLon = lon1;
-      let maxLon = lon2;
+      let bounds = normalizeBoundsForPolygon(lat1, lat2, lon1, lon2);
 
-      if (minLon > maxLon) {
-        maxLon = maxLon + 360;
-      }
-
-      let polygon = new modules.Polygon({
-        rings: [
-          [
-            [minLon, minLat], [maxLon, minLat], [maxLon, maxLat],
-            [minLon, maxLat], [minLon, minLat],
-          ],
-        ],
-        spatialReference: SPATIAL_REFERENCE,
+      let polygon = buildPolygonFromExtent({
+        xmin: bounds.minLon, xmax: bounds.maxLon, ymin: bounds.minLat, ymax: bounds.maxLat,
       });
 
       return new modules.Graphic({
@@ -109,27 +115,8 @@ const useMapBoundsSelector = ({
     [modules],
   );
 
-  let updateBoundsFromGeometry = function (geometry) {
-    if (!geometry) return;
-
+  let markUpdatingFromMap = function () {
     isUpdatingFromMapRef.current = true;
-
-    let extent = geometry.extent;
-    if (!extent) {
-      isUpdatingFromMapRef.current = false;
-      return;
-    }
-
-    let westLon = clampAndRound(normalizeLon(extent.xmin), -180, 180);
-    let eastLon = clampAndRound(normalizeLon(extent.xmax), -180, 180);
-    let minLat = clampAndRound(extent.ymin, -90, 90);
-    let maxLat = clampAndRound(extent.ymax, -90, 90);
-
-    settersRef.current.setLatStart(minLat);
-    settersRef.current.setLatEnd(maxLat);
-    settersRef.current.setLonStart(westLon);
-    settersRef.current.setLonEnd(eastLon);
-
     if (isUpdatingTimeoutRef.current) {
       clearTimeout(isUpdatingTimeoutRef.current);
     }
@@ -139,12 +126,45 @@ const useMapBoundsSelector = ({
     }, 100);
   };
 
+  let updateBoundsFromGeometry = function (geometry) {
+    let bounds = extractBoundsFromGeometry(geometry);
+    if (!bounds) {
+      return;
+    }
+
+    markUpdatingFromMap();
+
+    if (onBoundsChangeRef.current) {
+      onBoundsChangeRef.current(bounds.minLat, bounds.maxLat, bounds.westLon, bounds.eastLon);
+    } else {
+      settersRef.current.setLatStart(bounds.minLat);
+      settersRef.current.setLatEnd(bounds.maxLat);
+      settersRef.current.setLonStart(bounds.westLon);
+      settersRef.current.setLonEnd(bounds.eastLon);
+    }
+  };
+
+  let previewBoundsFromGeometry = function (geometry) {
+    let bounds = extractBoundsFromGeometry(geometry);
+    if (!bounds) {
+      return;
+    }
+
+    markUpdatingFromMap();
+
+    if (onBoundsPreviewRef.current) {
+      onBoundsPreviewRef.current(bounds.minLat, bounds.maxLat, bounds.westLon, bounds.eastLon);
+    }
+  };
+
+  previewBoundsRef.current = previewBoundsFromGeometry;
   updateBoundsRef.current = updateBoundsFromGeometry;
 
   let updateGraphicFromBounds = useCallback(() => {
     if (!graphicsLayerRef.current || !modules || isUpdatingFromMapRef.current) {
       return;
     }
+    prevExtentRef.current = null;
 
     if (sketchViewModelRef.current) {
       sketchViewModelRef.current.cancel();
@@ -169,6 +189,26 @@ const useMapBoundsSelector = ({
 
   updateGraphicRef.current = updateGraphicFromBounds;
 
+  function resetAndRedraw() {
+    if (isUpdatingTimeoutRef.current) {
+      clearTimeout(isUpdatingTimeoutRef.current);
+      isUpdatingTimeoutRef.current = null;
+    }
+    isUpdatingFromMapRef.current = false;
+    if (sketchViewModelRef.current) {
+      updateGraphicRef.current();
+    }
+  }
+
+  let redrawGraphic = useCallback(function () {
+    if (boundsGraphicRef.current) {
+      return;
+    }
+    modeRef.current = MODE_PAN;
+    setModeState(MODE_PAN);
+    resetAndRedraw();
+  }, []);
+
   useEffect(() => {
     updateGraphicFromBounds();
   }, [updateGraphicFromBounds]);
@@ -185,7 +225,8 @@ const useMapBoundsSelector = ({
     if (wheelHandlerRef.current) {
       wheelHandlerRef.current.container.removeEventListener(
         'wheel',
-        wheelHandlerRef.current.handler
+        wheelHandlerRef.current.handler,
+        { capture: true }
       );
       wheelHandlerRef.current = null;
     }
@@ -219,6 +260,11 @@ const useMapBoundsSelector = ({
         layers: [graphicsLayer],
       });
 
+      // Basemap LODs (Levels of Detail) cap max zoom-out too tight for narrow 
+      // containers (1020 to 1084px viewport). ArcGIS silently clamps scale/goTo
+      // to this limit. Custom LODs via TileInfo.create() widen the range.
+      let lods = modules.TileInfo.create({ spatialReference: SPATIAL_REFERENCE }).lods;
+
       let view = new modules.MapView({
         container: container,
         map: map,
@@ -226,6 +272,7 @@ const useMapBoundsSelector = ({
         spatialReference: SPATIAL_REFERENCE,
         highlightOptions: HIGHLIGHT_OPTIONS,
         constraints: {
+          lods: lods,
           rotationEnabled: false,
           snapToZoom: false,
         },
@@ -247,13 +294,22 @@ const useMapBoundsSelector = ({
 
           view.watch('scale', function (newScale) {
             if (!viewRef.current || viewRef.current !== view) return;
-            setAtMinZoom(newScale >= minZoomThresholdRef.current * 0.95);
+            if (newScale > minZoomThresholdRef.current) {
+              view.scale = minZoomThresholdRef.current;
+              setAtMinZoom(true);
+              return;
+            }
+            let nearLimit = isNearMinZoom(newScale, minZoomThresholdRef.current);
+            setAtMinZoom(nearLimit);
           });
 
           let wheelHandler = function (e) {
-            e.preventDefault();
+            if (shouldBlockZoomOut(e.deltaY, view.scale, minZoomThresholdRef.current)) {
+              e.stopImmediatePropagation();
+              e.preventDefault();
+            }
           };
-          container.addEventListener('wheel', wheelHandler, { passive: false });
+          container.addEventListener('wheel', wheelHandler, { capture: true, passive: false });
           wheelHandlerRef.current = { container: container, handler: wheelHandler };
 
           let sketchViewModel = new modules.SketchViewModel({
@@ -273,11 +329,24 @@ const useMapBoundsSelector = ({
 
           sketchViewModelRef.current = sketchViewModel;
 
-          sketchViewModel.on('create', function (event) {
+          function handleSketchCreate(event) {
             if (event.state === 'start') {
               isUpdatingFromMapRef.current = true;
+              prevExtentRef.current = null;
             } else if (event.state === 'active') {
-              updateBoundsRef.current(event.graphic.geometry);
+              let extent = event.graphic.geometry && event.graphic.geometry.extent;
+              if (extent) {
+                let result = constrainAndSnapshot(extent, prevExtentRef.current, getConstraintOptions(true, null));
+                if (result.changed) {
+                  event.graphic.geometry = buildPolygonFromExtent(result.extent);
+                }
+                prevExtentRef.current = result.snapshot;
+              }
+              if (onBoundsPreviewRef.current) {
+                previewBoundsRef.current(event.graphic.geometry);
+              } else {
+                updateBoundsRef.current(event.graphic.geometry);
+              }
             } else if (event.state === 'complete') {
               updateBoundsRef.current(event.graphic.geometry);
               boundsGraphicRef.current = event.graphic;
@@ -289,18 +358,35 @@ const useMapBoundsSelector = ({
             } else if (event.state === 'cancel') {
               isUpdatingFromMapRef.current = false;
             }
-          });
+          }
+          sketchViewModel.on('create', handleSketchCreate);
 
-          sketchViewModel.on('update', function (event) {
+          function handleSketchUpdate(event) {
             if (event.state === 'active' && event.graphics && event.graphics.length > 0) {
+              let graphic = event.graphics[0];
+              let extent = graphic.geometry && graphic.geometry.extent;
+              if (extent) {
+                let result = constrainAndSnapshot(extent, prevExtentRef.current, getConstraintOptions(false, event.toolEventInfo));
+                if (result.changed) {
+                  graphic.geometry = buildPolygonFromExtent(result.extent);
+                }
+                prevExtentRef.current = result.snapshot;
+              }
               isUpdatingFromMapRef.current = true;
-              updateBoundsRef.current(event.graphics[0].geometry);
+              if (isStopEvent(event.toolEventInfo)) {
+                updateBoundsRef.current(graphic.geometry);
+              } else if (onBoundsPreviewRef.current) {
+                previewBoundsRef.current(graphic.geometry);
+              } else {
+                updateBoundsRef.current(graphic.geometry);
+              }
             } else if (event.state === 'complete' && event.graphics && event.graphics.length > 0) {
               if (isUpdatingFromMapRef.current) {
                 updateBoundsRef.current(event.graphics[0].geometry);
               }
             }
-          });
+          }
+          sketchViewModel.on('update', handleSketchUpdate);
 
           view.on('drag', function (event) {
             if (event.action === 'end' && modeRef.current === MODE_PAN) {
@@ -355,8 +441,8 @@ const useMapBoundsSelector = ({
       }
       boundsGraphicRef.current = null;
       sketchViewModelRef.current.create('rectangle');
-    } else if (newMode === MODE_PAN && sketchViewModelRef.current) {
-      sketchViewModelRef.current.cancel();
+    } else if (newMode === MODE_PAN) {
+      resetAndRedraw();
     }
   }, []);
 
@@ -369,10 +455,7 @@ const useMapBoundsSelector = ({
 
   let zoomOut = useCallback(() => {
     if (viewRef.current && minZoomThresholdRef.current) {
-      let targetScale = Math.min(
-        viewRef.current.scale * 2,
-        minZoomThresholdRef.current
-      );
+      let targetScale = computeZoomOutScale(viewRef.current.scale, minZoomThresholdRef.current);
       viewRef.current.goTo({ scale: targetScale });
     }
   }, []);
@@ -386,6 +469,7 @@ const useMapBoundsSelector = ({
     setMode,
     zoomIn,
     zoomOut,
+    redrawGraphic,
   };
 };
 

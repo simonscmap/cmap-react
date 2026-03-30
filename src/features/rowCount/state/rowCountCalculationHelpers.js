@@ -17,12 +17,21 @@ export function isDatasetFullyWithinConstraints(dataset, constraints) {
 
   if (constraints.spatialBounds) {
     const { latMin, latMax, lonMin, lonMax } = constraints.spatialBounds;
-    const spatiallyContained =
-      dataset.latMin >= latMin &&
-      dataset.latMax <= latMax &&
-      dataset.lonMin >= lonMin &&
-      dataset.lonMax <= lonMax;
-    if (!spatiallyContained) {
+    const latContained = dataset.latMin >= latMin && dataset.latMax <= latMax;
+    if (!latContained) {
+      return false;
+    }
+
+    const crossesDateline = lonMin > lonMax;
+    let lonContained;
+    if (crossesDateline) {
+      let minInGap = dataset.lonMin > lonMax && dataset.lonMin < lonMin;
+      let maxInGap = dataset.lonMax > lonMax && dataset.lonMax < lonMin;
+      lonContained = !minInGap && !maxInGap;
+    } else {
+      lonContained = dataset.lonMin >= lonMin && dataset.lonMax <= lonMax;
+    }
+    if (!lonContained) {
       return false;
     }
   }

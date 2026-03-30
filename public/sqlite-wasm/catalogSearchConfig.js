@@ -68,6 +68,7 @@ const SCHEMA = {
     // Temporal bounds
     timeMin: 'timeMin',
     timeMax: 'timeMax',
+    temporalResolution: 'temporalResolution',
 
     // Depth bounds
     depthMin: 'depthMin',

@@ -42,38 +42,12 @@ import { SpinnerWrapper } from '../../../Components/UI/Spinner';
 
 const log = logInit('MultiDatasetDownloadContainer');
 
-/**
- * Multi-Dataset Download Container Component
- * Provides a complete interface for downloading multiple datasets with filtering capabilities
- *
- * @param {Array<Object>} props.datasetsMetadata - Array of dataset metadata objects
- *
- * Each dataset metadata object should contain the following fields:
- *
- * REQUIRED FIELDS:
- * @param {string} dataset.Dataset_Name - Unique dataset identifier (used for selection/deselection)
- * @param {number} dataset.Lat_Min - Minimum latitude boundary
- * @param {number} dataset.Lat_Max - Maximum latitude boundary
- * @param {number} dataset.Lon_Min - Minimum longitude boundary
- * @param {number} dataset.Lon_Max - Maximum longitude boundary
- * @param {string} dataset.Time_Min - Minimum time boundary (ISO date string)
- * @param {string} dataset.Time_Max - Maximum time boundary (ISO date string)
- * @param {number} dataset.Row_Count - Initial row count for the dataset (displayed in table)
- *
- * OPTIONAL FIELDS:
- * @param {number} [dataset.Depth_Min=0] - Minimum depth boundary (defaults to 0)
- * @param {number} [dataset.Depth_Max=0] - Maximum depth boundary (defaults to 0)
- * @param {string} [dataset.Temporal_Resolution="daily"] - Temporal resolution (e.g., "monthly", "daily")
- *
- * The component automatically computes aggregate bounds across all datasets for filtering
- * and initializes internal Zustand stores for state management.
- */
 const MultiDatasetDownloadContainerInner = ({
   aggregateDatasetMetadata,
   onDownloadComplete,
   geographicPresets,
 }) => {
-  const { resetStore } = useMultiDatasetDownloadStore();
+  const { resetStore, datasetsMetadata } = useMultiDatasetDownloadStore();
   const filteredItems = useFilteredItems();
 
   const collectionExtent = aggregateDatasetMetadata ? {
@@ -81,7 +55,6 @@ const MultiDatasetDownloadContainerInner = ({
     latMax: ceilToStep(aggregateDatasetMetadata.Lat_Max),
     lonMin: floorToStep(aggregateDatasetMetadata.Lon_Min),
     lonMax: ceilToStep(aggregateDatasetMetadata.Lon_Max),
-    // can be null for monthly climatology
     timeMin: aggregateDatasetMetadata.Time_Min
       ? parseUTCDateString(aggregateDatasetMetadata.Time_Min)
       : null,
@@ -102,10 +75,6 @@ const MultiDatasetDownloadContainerInner = ({
 
   const handleResetPreset = () => {
     setSelectedPreset('Collection Extent');
-  };
-
-  const handleGeoLocalChange = () => {
-    setSelectedPreset('Custom');
   };
 
   // Handle toggle switch for subset controls
@@ -130,8 +99,8 @@ const MultiDatasetDownloadContainerInner = ({
     setSelectedPreset(presetLabel);
 
     if (preset && collectionExtent) {
-      var newLatEndpoints = calculatePresetEndpoints(preset, collectionExtent);
-      var newLonEndpoints = calculateLongitudeEndpoints(preset, collectionExtent);
+      let newLatEndpoints = calculatePresetEndpoints(preset, collectionExtent);
+      let newLonEndpoints = calculateLongitudeEndpoints(preset, collectionExtent);
 
       filterSetters.setSliderEndpoints({
         latMin: newLatEndpoints.latMin,
@@ -175,13 +144,16 @@ const MultiDatasetDownloadContainerInner = ({
     },
   };
 
-  var handleExpandEndpoint = function (fieldType, fieldName, value) {
+  let handleExpandEndpoint = function (fieldType, fieldName, value, companionValue) {
     if (!sliderEndpoints) return;
 
-    // Longitude antimeridian crossing: need to expand BOTH endpoints to -180/180
     if (fieldType === FIELD_TYPES.LON) {
-      var lonStart = fieldName === ENDPOINT_FIELDS.LON_MIN ? value : filterValues.lonStart;
-      var lonEnd = fieldName === ENDPOINT_FIELDS.LON_MAX ? value : filterValues.lonEnd;
+      let lonStart = fieldName === ENDPOINT_FIELDS.LON_MIN
+        ? value
+        : (companionValue !== undefined ? companionValue : filterValues.lonStart);
+      let lonEnd = fieldName === ENDPOINT_FIELDS.LON_MAX
+        ? value
+        : (companionValue !== undefined ? companionValue : filterValues.lonEnd);
 
       if (lonStart > lonEnd) {
         filterSetters.setSliderEndpoints({
@@ -199,9 +171,9 @@ const MultiDatasetDownloadContainerInner = ({
     }
 
     // Normal single-field expansion
-    var expanded = expandEndpointIfNeeded(sliderEndpoints, fieldName, value);
+    let expanded = expandEndpointIfNeeded(sliderEndpoints, fieldName, value);
     if (expanded !== sliderEndpoints[fieldName]) {
-      var updated = {
+      let updated = {
         [ENDPOINT_FIELDS.LAT_MIN]: sliderEndpoints.latMin,
         [ENDPOINT_FIELDS.LAT_MAX]: sliderEndpoints.latMax,
         [ENDPOINT_FIELDS.LON_MIN]: sliderEndpoints.lonMin,
@@ -224,8 +196,8 @@ const MultiDatasetDownloadContainerInner = ({
   }, [resetStore]);
 
   useEffect(() => {
-    if (filteredItems?.length > 0) {
-      const shortNames = filteredItems.map((d) => d.Dataset_Name);
+    if (datasetsMetadata && datasetsMetadata.length > 0) {
+      const shortNames = datasetsMetadata.map((d) => d.shortName);
       const constraints = transformConstraintsForRowCount(filterValues);
       log.debug('initializing row count feature', {
         datasetCount: shortNames.length,
@@ -236,10 +208,10 @@ const MultiDatasetDownloadContainerInner = ({
     return () => {
       clearRowCounts();
     };
-  }, [filteredItems]);
+  }, [datasetsMetadata]);
 
   useEffect(() => {
-    if (filteredItems?.length > 0) {
+    if (datasetsMetadata && datasetsMetadata.length > 0) {
       const constraints = transformConstraintsForRowCount(filterValues);
       reEstimateWithConstraints(constraints);
     }
@@ -312,7 +284,6 @@ const MultiDatasetDownloadContainerInner = ({
             sliderEndpoints={sliderEndpoints}
             onExpandEndpoint={handleExpandEndpoint}
             onSubsetValidationChange={setIsSubsetValid}
-            onGeoLocalChange={handleGeoLocalChange}
             resetButton={
               <ResetToCollectionExtentButton
                 controls={resetButtonControls}
@@ -458,7 +429,7 @@ const MultiDatasetDownloadContainer = React.memo(
     }
 
     return (
-      <SearchProvider items={datasetsMetadata} searchKeys={['Dataset_Name', 'Programs']}>
+      <SearchProvider items={datasetsMetadata} searchKeys={['shortName', 'programs']}>
         <MultiDatasetDownloadContainerInner
           aggregateDatasetMetadata={aggregateMetadata}
           onDownloadComplete={onDownloadComplete}

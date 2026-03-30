@@ -4,6 +4,7 @@ import fetchWithAuth from '../../../api/fetchWithAuth';
 import logInit from '../../../Services/log-service';
 import { transformFiltersForAPI } from '../../../shared/filtering/utils';
 import DownloadService from '../../../shared/services/dataDownload/downloadService';
+import { fetchMetadataFromLocalDb } from './localMetadataAdapter';
 const log = logInit('bulk-download');
 
 const bulkDownloadAPI = {};
@@ -92,25 +93,7 @@ bulkDownloadAPI.downloadData = async (
  */
 bulkDownloadAPI.initBulkDownload = async (datasetShortNames) => {
   log.debug('initializing bulk download', { datasetShortNames });
-  const endpoint = apiUrl + `/api/data/bulk-download-init`;
-
-  const requestBody = { shortNames: datasetShortNames };
-
-  const response = await fetch(endpoint, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify(requestBody),
-  });
-
-  if (!response.ok) {
-    throw new Error(
-      `Failed to initialize bulk download: ${response.status} ${response.statusText}`,
-    );
-  }
-
-  return response.json();
+  return await fetchMetadataFromLocalDb(datasetShortNames);
 };
 
 export default bulkDownloadAPI;

@@ -5,36 +5,34 @@ import {
   Table,
   TableBody,
   TableCell,
-  TableContainer,
   TableHead,
   TableRow,
   Paper,
   Typography,
-  Checkbox,
 } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
+import { TableVirtuoso } from 'react-virtuoso';
 import {
   useRowStateStyles,
   InfoTooltip,
 } from '../../../../../shared/components';
 import SelectAllDropdown from '../../../../multiDatasetDownload/components/SelectAllDropdown';
+import SpatialTemporalResultsRow from './SpatialTemporalResultsRow';
 import useSpatialTemporalSearchStore from '../store/spatialTemporalSearchStore';
 import {
-  RecalculateAllButton,
-  RowCountCell,
   reEstimateWithConstraints,
+  RecalculateAllButton,
 } from '../../../../rowCount';
 import { createColumnDefinitions } from '../utils/columnDefinitions';
 
 const useStyles = makeStyles((theme) => ({
   tableContainer: {
-    maxHeight: (props) => props.maxHeight || 400,
+    height: (props) => props.maxHeight || 400,
     backgroundColor: 'rgba(16, 43, 60, 0.6)',
     borderRadius: '6px',
     boxShadow:
       '0px 2px 1px -1px rgba(0,0,0,0.2),0px 1px 1px 0px rgba(0,0,0,0.14),0px 1px 3px 0px rgba(0,0,0,0.12)',
-    overflowY: 'scroll',
-    overflowX: 'scroll',
+    overflow: 'hidden',
     position: 'relative',
     zIndex: 1,
     '& .MuiTableCell-head': {
@@ -51,7 +49,7 @@ const useStyles = makeStyles((theme) => ({
       lineHeight: 1.2,
     },
     '& .MuiTableCell-body': {
-      verticalAlign: 'top',
+      verticalAlign: 'middle',
     },
   },
   table: {
@@ -121,7 +119,7 @@ const useStyles = makeStyles((theme) => ({
   overlapCell: {
     width: '160px',
     fontSize: '0.8rem',
-    verticalAlign: 'top',
+    verticalAlign: 'middle',
   },
   rowsCell: {
     width: '120px',
@@ -287,6 +285,11 @@ const SpatialTemporalResultsTable = ({
   // Use results directly from store (pre-sorted by SQL)
   const sortedResults = safeResults;
 
+  let sortedResultsRef = useRef(sortedResults);
+  sortedResultsRef.current = sortedResults;
+  let currentCollectionIdsRef = useRef(currentCollectionDatasetIds);
+  currentCollectionIdsRef.current = currentCollectionDatasetIds;
+
   // Define column configuration (single source of truth for headers and body cells)
   const columnConfig = useMemo(
     () =>
@@ -388,131 +391,148 @@ const SpatialTemporalResultsTable = ({
     });
   };
 
-  // Calculate total column count for empty state colspan
-  const totalColumnCount = 1 + activeColumns.length; // checkbox + data columns (includes rows)
+  const totalColumnCount = 1 + activeColumns.length;
 
-  return (
-    <TableContainer component={Paper} className={classes.tableContainer}>
-      <Table className={classes.table}>
-        <TableHead>
-          <TableRow>
-            {/* Selection checkbox */}
-            <TableCell className={classes.checkboxCell}>
-              <SelectAllDropdown
-                areAllSelected={areAllSelected}
-                areIndeterminate={areIndeterminate}
-                onSelectAll={handleSelectAll}
-                onClearAll={handleClearAll}
-                disabled={safeResults.length === 0}
-              />
-            </TableCell>
+  let MuiTableComponents = useMemo(function () {
+    return {
+      Table: function (tableProps) {
+        return <Table className={classes.table} {...tableProps} />;
+      },
+      TableHead: function (headProps) {
+        return <TableHead {...headProps} />;
+      },
+      TableRow: function (rowProps) {
+        let index = rowProps['data-index'];
+        let dataset = index !== undefined ? sortedResultsRef.current[index] : null;
+        let rowClass = dataset && currentCollectionIdsRef.current.has(dataset.shortName)
+          ? classes.alreadyPresentRow
+          : classes.tableRow;
+        return <TableRow className={rowClass} {...rowProps} />;
+      },
+      TableBody: React.forwardRef(function (bodyProps, ref) {
+        return <TableBody ref={ref} {...bodyProps} />;
+      }),
+    };
+  }, [classes.table, classes.tableRow, classes.alreadyPresentRow]);
 
-            {/* Data columns from config, with special handling for rows */}
-            {activeColumns.map((columnKey) => {
-              if (columnKey === 'rows') {
-                return (
-                  <TableCell key="rows" className={classes.rowsCell} align="right">
-                    <Box className={classes.rowsHeaderCell}>
-                      <Box display="inline-flex" alignItems="center" style={{ whiteSpace: 'nowrap' }}>
-                        <span>Rows</span>
-                        <InfoTooltip
-                          title="Row counts show the number of rows in each dataset within your search constraints. Click 'Recalculate' to get accurate counts based on your specific region and time period."
-                          fontSize="small"
-                        />
-                      </Box>
-                      <RecalculateAllButton
-                        results={results}
-                        constraints={currentConstraints}
-                      />
-                    </Box>
-                  </TableCell>
-                );
-              }
-              const column = columnConfig[columnKey];
-              return (
-                <TableCell
-                  key={columnKey}
-                  className={column.cellClass}
-                  align={column.align}
-                >
-                  {column.header}
-                </TableCell>
-              );
-            })}
-          </TableRow>
-        </TableHead>
-        <TableBody>
-          {safeResults.length === 0 ? (
-            <TableRow>
-              <TableCell colSpan={totalColumnCount} align="center">
-                <Box className={classes.emptyState}>
-                  <Typography variant="body2" color="textSecondary">
-                    {results === null
-                      ? 'Enter constraints and click "Find Overlapping Datasets" to search'
-                      : isLoading
-                        ? 'Searching...'
-                        : 'No datasets match the specified constraints'}
-                  </Typography>
+  let fixedHeaderContent = function () {
+    return (
+      <TableRow>
+        <TableCell className={classes.checkboxCell}>
+          <SelectAllDropdown
+            areAllSelected={areAllSelected}
+            areIndeterminate={areIndeterminate}
+            onSelectAll={handleSelectAll}
+            onClearAll={handleClearAll}
+            disabled={safeResults.length === 0}
+          />
+        </TableCell>
+        {activeColumns.map(function (columnKey) {
+          if (columnKey === 'rows') {
+            return (
+              <TableCell key="rows" className={classes.rowsCell} align="right">
+                <Box className={classes.rowsHeaderCell}>
+                  <Box display="inline-flex" alignItems="center" style={{ whiteSpace: 'nowrap' }}>
+                    <span>Rows</span>
+                    <InfoTooltip
+                      title="Row counts show the number of rows in each dataset within your search constraints. Click 'Recalculate' to get accurate counts based on your specific region and time period."
+                      fontSize="small"
+                    />
+                  </Box>
+                  <RecalculateAllButton
+                    results={results}
+                    constraints={currentConstraints}
+                  />
                 </Box>
               </TableCell>
-            </TableRow>
-          ) : (
-            sortedResults.map((dataset) => {
-              const isSelected = selectedDatasetIds.has(dataset.shortName);
-              const isAlreadyPresent = currentCollectionDatasetIds.has(
-                dataset.shortName,
-              );
-              const rowClass = getRowClass(dataset);
+            );
+          }
+          let column = columnConfig[columnKey];
+          return (
+            <TableCell
+              key={columnKey}
+              className={column.cellClass}
+              align={column.align}
+            >
+              {column.header}
+            </TableCell>
+          );
+        })}
+      </TableRow>
+    );
+  };
 
-              return (
-                <TableRow key={dataset.shortName} className={rowClass}>
-                  {/* Selection checkbox */}
-                  <TableCell
-                    className={`${classes.tableCell} ${classes.checkboxCell}`}
-                  >
-                    <Checkbox
-                      checked={isSelected}
-                      onChange={() => onToggleSelection(dataset.shortName)}
-                      color="primary"
-                      size="small"
-                      disabled={isAlreadyPresent}
-                    />
-                  </TableCell>
+  let renderRow = function (dataset) {
+    let isSelected = selectedDatasetIds.has(dataset.shortName);
+    let isAlreadyPresent = currentCollectionDatasetIds.has(dataset.shortName);
+    return (
+      <SpatialTemporalResultsRow
+        dataset={dataset}
+        activeColumns={activeColumns}
+        columnConfig={columnConfig}
+        currentConstraints={currentConstraints}
+        isSelected={isSelected}
+        isAlreadyPresent={isAlreadyPresent}
+        onToggleSelection={onToggleSelection}
+        tableCellClass={classes.tableCell}
+        checkboxCellClass={classes.checkboxCell}
+        rowsCellClass={classes.rowsCell}
+      />
+    );
+  };
 
-                  {/* Data columns from config, with special handling for rows */}
-                  {activeColumns.map((columnKey) => {
-                    if (columnKey === 'rows') {
-                      return (
-                        <TableCell
-                          key="rows"
-                          className={`${classes.tableCell} ${classes.rowsCell}`}
-                          align="right"
-                        >
-                          <RowCountCell
-                            shortName={dataset.shortName}
-                            currentConstraints={currentConstraints}
-                          />
-                        </TableCell>
-                      );
-                    }
-                    const column = columnConfig[columnKey];
-                    return (
-                      <TableCell
-                        key={columnKey}
-                        className={`${classes.tableCell} ${column.cellClass}`}
-                        align={column.align}
-                      >
-                        {column.render(dataset)}
-                      </TableCell>
-                    );
-                  })}
-                </TableRow>
-              );
-            })
-          )}
-        </TableBody>
-      </Table>
-    </TableContainer>
+  if (safeResults.length <= 5) {
+    return (
+      <Paper className={classes.tableContainer} style={{ height: 'auto', overflow: 'auto' }}>
+        <Table className={classes.table}>
+          <TableHead>
+            {fixedHeaderContent()}
+          </TableHead>
+          <TableBody>
+            {safeResults.length === 0 ? (
+              <TableRow>
+                <TableCell colSpan={totalColumnCount} align="center">
+                  <Box className={classes.emptyState}>
+                    <Typography variant="body2" color="textSecondary">
+                      {results === null
+                        ? 'Enter constraints and click "Find Overlapping Datasets" to search'
+                        : isLoading
+                          ? 'Searching...'
+                          : 'No datasets match the specified constraints'}
+                    </Typography>
+                  </Box>
+                </TableCell>
+              </TableRow>
+            ) : (
+              sortedResults.map(function (dataset) {
+                let rowClass = getRowClass(dataset);
+                return (
+                  <TableRow key={dataset.shortName} className={rowClass}>
+                    {renderRow(dataset)}
+                  </TableRow>
+                );
+              })
+            )}
+          </TableBody>
+        </Table>
+      </Paper>
+    );
+  }
+
+  let itemContent = function (_index, dataset) {
+    return renderRow(dataset);
+  };
+
+  return (
+    <Paper className={classes.tableContainer}>
+      <TableVirtuoso
+        style={{ height: maxHeight || 400 }}
+        data={sortedResults}
+        components={MuiTableComponents}
+        fixedHeaderContent={fixedHeaderContent}
+        itemContent={itemContent}
+      />
+    </Paper>
   );
 };
 

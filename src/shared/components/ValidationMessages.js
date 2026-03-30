@@ -42,6 +42,7 @@ const ValidationMessages = ({ messages = [], maxMessages = DEFAULT_MAX_MESSAGES 
           className={`${classes.message} ${classes[msg.type] || classes.error}`}
         >
           {msg.text}
+          {msg.suffix || null}
         </Typography>
       ))}
     </Box>
