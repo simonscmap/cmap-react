@@ -321,6 +321,7 @@ const AddDatasetsModal = ({
           isPublic: pendingCollection.isPublic || false,
         };
         selectCollection(pendingCollectionId, summary);
+        loadCollectionDatasets();
       }
     }
   };
@@ -345,8 +346,8 @@ const AddDatasetsModal = ({
       // Show confirmation dialog for switching collections
       showSwitchWarning(collectionId);
     } else {
-      // No selections, set the collection immediately
       selectCollection(collectionId, summary);
+      loadCollectionDatasets();
     }
   };
 

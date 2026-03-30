@@ -260,6 +260,11 @@ const useMapBoundsSelector = ({
         layers: [graphicsLayer],
       });
 
+      // Basemap LODs (Levels of Detail) cap max zoom-out too tight for narrow 
+      // containers (1020 to 1084px viewport). ArcGIS silently clamps scale/goTo
+      // to this limit. Custom LODs via TileInfo.create() widen the range.
+      let lods = modules.TileInfo.create({ spatialReference: SPATIAL_REFERENCE }).lods;
+
       let view = new modules.MapView({
         container: container,
         map: map,
@@ -267,6 +272,7 @@ const useMapBoundsSelector = ({
         spatialReference: SPATIAL_REFERENCE,
         highlightOptions: HIGHLIGHT_OPTIONS,
         constraints: {
+          lods: lods,
           rotationEnabled: false,
           snapToZoom: false,
         },

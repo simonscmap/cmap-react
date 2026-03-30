@@ -4,7 +4,6 @@ import { makeStyles } from '@material-ui/core/styles';
 import CollectionSearchSection from '../components/CollectionSearchSection';
 import CollectionSummaryCard from '../components/CollectionSummaryCard';
 import DatasetsTableSection from '../components/DatasetsTableSection';
-import UniversalButton from '../../../../shared/components/UniversalButton';
 import { SearchProvider } from '../../../../shared/UniversalSearch';
 
 const useStyles = makeStyles((theme) => ({
@@ -128,8 +127,6 @@ const FromCollectionsTab = ({
   isLoadingDatasets,
   loadError,
   onSelectCollection,
-  onLoadCollection,
-  onRetryLoad,
   onToggleSelection,
 }) => {
   const classes = useStyles();
@@ -212,18 +209,6 @@ const FromCollectionsTab = ({
             />
           </SearchProvider>
         </Box>
-        <UniversalButton
-          variant="primary"
-          size="large"
-          onClick={loadError ? onRetryLoad : onLoadCollection}
-          disabled={!selectedCollectionId || isLoadingDatasets}
-        >
-          {isLoadingDatasets
-            ? 'LOADING...'
-            : loadError
-              ? 'RETRY'
-              : 'LOAD COLLECTION'}
-        </UniversalButton>
       </Box>
 
       {sourceCollectionDatasets && (
@@ -240,7 +225,7 @@ const FromCollectionsTab = ({
         currentCollectionDatasetIds={currentCollectionDatasetIds}
         onToggleSelection={onToggleSelection}
         isLoading={isLoadingDatasets}
-        emptyMessage="Search and select a collection above, then click 'LOAD COLLECTION' to see its datasets."
+        emptyMessage="Search and select a collection above to see its datasets."
       />
     </>
   );

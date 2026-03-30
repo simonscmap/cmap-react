@@ -48,6 +48,14 @@ const useStyles = makeStyles((theme) => ({
       '&[data-focus="true"]': {
         backgroundColor: 'rgba(157, 209, 98, 0.15)',
       },
+      '&[aria-disabled="true"]': {
+        pointerEvents: 'auto',
+        cursor: 'not-allowed',
+        opacity: 1,
+        '&:hover': {
+          backgroundColor: 'transparent',
+        },
+      },
     },
     '&[style*="display: grid"]': {
       paddingRight: 0,
@@ -169,6 +177,8 @@ const SearchInput = ({
   getOptionDisabled = null,
   listboxGridColumns = null,
   showDropdownToggle = true,
+  closeOnSelect = false,
+  clearOnSelect = false,
   activationThreshold: propThreshold = null,
 }) => {
   const classes = useStyles();
@@ -250,13 +260,13 @@ const SearchInput = ({
       if (dropdownOpen) {
         setDropdownOpen(false);
       } else {
-        if (loadAllOnFocus && !inputValue) {
+        if (!inputValue) {
           setShowAllOnFocus(true);
         }
         setDropdownOpen(true);
       }
     },
-    [dropdownOpen, loadAllOnFocus, inputValue],
+    [dropdownOpen, inputValue],
   );
 
   const handleFocus = useCallback(() => {
@@ -332,6 +342,7 @@ const SearchInput = ({
             }
             getOptionDisabled={getOptionDisabled || undefined}
             renderOption={renderOption || undefined}
+            inputValue={inputValue}
             onInputChange={(_event, _value, reason) => {
               if (reason === 'clear') {
                 handleClear();
@@ -340,6 +351,11 @@ const SearchInput = ({
             onChange={(_event, value) => {
               if (onSelect && value) {
                 onSelect(value);
+                if (clearOnSelect) {
+                  handleClear();
+                } else if (closeOnSelect) {
+                  setDropdownOpen(false);
+                }
               }
             }}
             classes={{
