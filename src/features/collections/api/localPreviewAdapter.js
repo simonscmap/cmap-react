@@ -1,14 +1,9 @@
-import { getSearchDatabaseApi } from '../../catalogSearch/api';
-
-const parseCommaSeparatedField = (value) => {
-  if (!value || typeof value !== 'string') {
-    return [];
-  }
-  return value
-    .split(',')
-    .map((item) => item.trim())
-    .filter(Boolean);
-};
+import {
+  parseCommaSeparatedField,
+  filterValidNames,
+  buildPlaceholders,
+  executeQuery,
+} from '../../../shared/catalogDb/adapterUtils';
 
 const transformDbRowToPreview = (row) => {
   return {
@@ -21,6 +16,7 @@ const transformDbRowToPreview = (row) => {
     sensors: parseCommaSeparatedField(row.sensors),
     makes: parseCommaSeparatedField(row.make),
     regions: parseCommaSeparatedField(row.regions),
+    temporalResolution: row.temporalResolution || null,
     isInvalid: false,
   };
 };
@@ -41,27 +37,20 @@ const createInvalidDatasetEntry = (shortName) => {
 };
 
 export async function fetchPreviewFromLocalDb(datasetShortNames) {
-  if (!datasetShortNames || datasetShortNames.length === 0) {
-    return [];
-  }
-
-  const validNames = datasetShortNames.filter(
-    (name) => name !== undefined && name !== null && name !== '',
-  );
+  const validNames = filterValidNames(datasetShortNames);
 
   if (validNames.length === 0) {
     return [];
   }
 
-  const placeholders = validNames.map(() => '?').join(', ');
+  const placeholders = buildPlaceholders(validNames.length);
   const sql = `
-    SELECT shortName, longName, description, timeMin, timeMax, rowCount, sensors, make, regions
+    SELECT shortName, longName, description, timeMin, timeMax, rowCount, sensors, make, regions, temporalResolution
     FROM datasets
     WHERE shortName IN (${placeholders})
   `;
 
-  const api = getSearchDatabaseApi();
-  const rows = await api.executeSql(sql, validNames);
+  const rows = await executeQuery(sql, validNames);
 
   const rowsByShortName = new Map();
   rows.forEach((row) => {

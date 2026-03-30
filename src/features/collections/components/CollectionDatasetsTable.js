@@ -468,6 +468,12 @@ const CollectionDatasetsTable = ({
         if (dataset.isInvalid) {
           return <>N/A</>;
         }
+        if (
+          dataset.temporalResolution &&
+          dataset.temporalResolution.toLowerCase().indexOf('climatology') !== -1
+        ) {
+          return <>Monthly<br />Climatology</>;
+        }
         const dateRange = formatDateRange(dataset.timeStart, dataset.timeEnd);
         return (
           <>

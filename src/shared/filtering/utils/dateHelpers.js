@@ -45,7 +45,7 @@ export const dateToUTCEndOfDayString = (date) => {
     return '';
   }
 
-  return d.format('YYYY-MM-DD') + 'T23:59:59';
+  return `${d.format('YYYY-MM-DD')}T23:59:59`;
 };
 
 export const getUTCDateComponents = (date) => {
@@ -119,14 +119,14 @@ const SHORT_MONTH_NAMES = [
 
 export const getClimatologyMessage = (startDate, endDate) => {
   if (!startDate || !endDate) {
-    return 'Climatology datasets: all 12 months included';
+    return 'Climatology datasets: all 12 months';
   }
 
   let durationMs = endDate.getTime() - startDate.getTime();
   let oneYearMs = 365.25 * 24 * 60 * 60 * 1000;
 
   if (durationMs >= oneYearMs) {
-    return 'Climatology datasets: all 12 months included (range covers at least a full year)';
+    return 'Climatology datasets: all 12 months (date span ≥ 12 months)';
   }
 
   let startMonth = startDate.getUTCMonth() + 1;
@@ -151,10 +151,10 @@ export const getClimatologyMessage = (startDate, endDate) => {
   let endName = SHORT_MONTH_NAMES[endMonth - 1];
 
   if (count === 1) {
-    return 'Climatology datasets: ' + startName + ' only';
+    return `Climatology datasets: ${startName} only`;
   }
 
-  return `Climatology datasets: ${count} months included, ${startName} – ${endName}`;
+  return `Climatology datasets: ${startName} – ${endName} (${count} months)`;
 };
 
 export const getMonthRangeMessage = (startMonth, endMonth) => {
@@ -177,14 +177,14 @@ export const getMonthRangeMessage = (startMonth, endMonth) => {
   let endName = SHORT_MONTH_NAMES[endMonth - 1];
 
   if (count === 12) {
-    return 'Climatology-only collection: all 12 months included';
+    return 'Climatology-only collection: all 12 months';
   }
 
   if (count === 1) {
-    return 'Climatology-only collection: ' + startName + ' only';
+    return `Climatology-only collection: ${startName} only`;
   }
 
-  return `Climatology-only collection: ${count} months included, ${startName} – ${endName}`;
+  return `Climatology-only collection: ${startName} – ${endName} (${count} months)`;
 };
 
 export const CLIMATOLOGY_TOOLTIP_TEXT =

@@ -1,14 +1,9 @@
-import { getSearchDatabaseApi } from '../../catalogSearch/api';
-
-let parseCommaSeparatedField = function (value) {
-  if (!value || typeof value !== 'string') {
-    return [];
-  }
-  return value
-    .split(',')
-    .map(function (item) { return item.trim(); })
-    .filter(Boolean);
-};
+import {
+  parseCommaSeparatedField,
+  filterValidNames,
+  buildPlaceholders,
+  executeQuery,
+} from '../../../shared/catalogDb/adapterUtils';
 
 let transformCatalogRow = function (row) {
   return {
@@ -30,19 +25,13 @@ let transformCatalogRow = function (row) {
 };
 
 async function fetchMetadataFromLocalDb(datasetShortNames) {
-  if (!datasetShortNames || datasetShortNames.length === 0) {
-    return { datasetsMetadata: [] };
-  }
-
-  let validNames = datasetShortNames.filter(
-    function (name) { return name !== undefined && name !== null && name !== ''; },
-  );
+  let validNames = filterValidNames(datasetShortNames);
 
   if (validNames.length === 0) {
     return { datasetsMetadata: [] };
   }
 
-  let placeholders = validNames.map(function () { return '?'; }).join(', ');
+  let placeholders = buildPlaceholders(validNames.length);
   let sql = `
     SELECT shortName, longName, latMin, latMax, lonMin, lonMax,
            depthMin, depthMax, timeMin, timeMax,
@@ -51,8 +40,7 @@ async function fetchMetadataFromLocalDb(datasetShortNames) {
     WHERE shortName IN (${placeholders})
   `;
 
-  let api = getSearchDatabaseApi();
-  let rows = await api.executeSql(sql, validNames);
+  let rows = await executeQuery(sql, validNames);
 
   let rowsByShortName = new Map();
   rows.forEach(function (row) {
