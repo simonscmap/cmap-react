@@ -17,13 +17,13 @@ const useStyles = makeStyles((theme) => ({
   container: {
     padding: theme.spacing(2),
     backgroundColor: 'rgba(255, 193, 7, 0.1)',
-    border: '2px solid #ffc107',
-    borderRadius: '4px',
+    border: '2px solid var(--cmap-warning)',
+    borderRadius: '6px',
     marginBottom: theme.spacing(2),
   },
   title: {
     fontWeight: 'bold',
-    color: '#ffc107',
+    color: 'var(--cmap-warning)',
     marginBottom: theme.spacing(1),
   },
   button: {
@@ -33,7 +33,7 @@ const useStyles = makeStyles((theme) => ({
     marginTop: theme.spacing(2),
     padding: theme.spacing(2),
     backgroundColor: 'rgba(0, 0, 0, 0.3)',
-    borderRadius: '4px',
+    borderRadius: '6px',
     fontFamily: 'monospace',
     fontSize: '12px',
     whiteSpace: 'pre-wrap',
@@ -314,7 +314,7 @@ const DiagnosticQuery = () => {
                 </Box>
               ))}
 
-              <Typography style={{ marginTop: 16, color: '#ffc107' }}>
+              <Typography style={{ marginTop: 16, color: 'var(--cmap-warning)' }}>
                 ✓ Full results also logged to console (F12)
               </Typography>
             </>

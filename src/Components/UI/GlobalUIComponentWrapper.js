@@ -10,6 +10,7 @@ import SnackbarWrapper from './SnackbarWrapper';
 import LoadingOverlay from './LoadingOverlay';
 import SubscribeDatasetDialog from '../User/Subscriptions/SubscribeDialog';
 import GlobalDownloadDialog from '../../features/datasetDownload/components/DownloadDialog/GlobalDialogWrapper';
+import { AgentChatWidget } from '../../features/agentChat';
 import { ErrorDisplayOverlay } from '../../shared/errorCapture';
 
 import { loginDialogWasCleared } from '../../Redux/actions/user';
@@ -51,6 +52,7 @@ class GlobalUIComponentWrapper extends Component {
         <GlobalDownloadDialog />
         <LoadingOverlay loadingMessage={this.props.loadingMessage} />
         <ErrorDisplayOverlay />
+        <AgentChatWidget />
       </React.Fragment>
     );
   }

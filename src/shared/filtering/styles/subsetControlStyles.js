@@ -6,7 +6,7 @@ const styles = {
     top: -22,
     '& *': {
       background: 'transparent',
-      color: '#9dd162',
+      color: 'var(--cmap-green)',
     },
     left: -14,
   },
@@ -40,7 +40,7 @@ const styles = {
     position: 'absolute',
     bottom: '45px',
     padding: '5px 10px',
-    borderRadius: '5px',
+    borderRadius: '6px',
     background: 'rgba(0,0,0,0.2)',
     display: 'flex',
     flexDirection: 'row',
@@ -58,7 +58,7 @@ const styles = {
     borderTop: '10px solid rgba(0,0,0,0.2)',
   },
   prohibitedIcon: {
-    color: '#d16265',
+    color: 'var(--cmap-error)',
   },
   // Custom styles for react-date-picker to match Material-UI TextField appearance
   datePickerContainer: {
@@ -68,7 +68,7 @@ const styles = {
   },
   datePickerLabel: {
     fontSize: '.72rem',
-    color: '#9dd162', // Green color to match other labels
+    color: 'var(--cmap-green)', // Green color to match other labels
     marginBottom: '4px',
     display: 'block',
   },
@@ -96,7 +96,7 @@ const styles = {
   // Custom value label tooltip styles
   customValueLabelTooltip: {
     backgroundColor: 'transparent !important',
-    color: '#9dd162 !important',
+    color: 'var(--cmap-green) !important',
     fontSize: '0.75rem !important',
     padding: '2px 6px !important',
     borderRadius: '2px !important',

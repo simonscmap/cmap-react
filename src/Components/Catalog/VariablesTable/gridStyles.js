@@ -141,7 +141,7 @@ export const toolPanelStyles = () => ({
     overflow: 'scroll',
     padding: '1em',
     background: 'rgba(0, 0, 0, 0.1)',
-    borderRadius: '5px',
+    borderRadius: '6px',
     border: '1px solid rgba(0, 0, 0, 0.05)',
     marginBottom: '1em',
     '&:hover': {
@@ -204,7 +204,7 @@ export const toolPanelStyles = () => ({
   },
   longNameChip: {
     display: 'inline-block',
-    border: `1px solid rgba(157, 209, 98, 0.3)`,
+    border: `1px solid rgba(var(--cmap-green-rgb), 0.3)`,
     borderRadius: '10px',
     padding: '0.25em 1em',
     color: colors.primary,
@@ -212,12 +212,12 @@ export const toolPanelStyles = () => ({
   blobContainer: {
     //  marginLeft: '2em',
     marginTop: '2em',
-    borderTop: `1px solid rgba(157, 209, 98, 0.3)`,
-    borderRight: `1px solid rgba(157, 209, 98, 0.3)`,
+    borderTop: `1px solid rgba(var(--cmap-green-rgb), 0.3)`,
+    borderRight: `1px solid rgba(var(--cmap-green-rgb), 0.3)`,
   },
   blobKeyContainer: {
     marginTop: '0.25em',
-    borderTop: `1px solid rgba(157, 209, 98, 0.3)`,
+    borderTop: `1px solid rgba(var(--cmap-green-rgb), 0.3)`,
   },
   valuePair: {
     display: 'flex',

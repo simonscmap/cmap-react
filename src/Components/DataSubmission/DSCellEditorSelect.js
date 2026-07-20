@@ -62,7 +62,7 @@ class DSCellEditorSelect extends React.Component {
         value={typeof e === 'string' ? e.toLowerCase() : e}
         className="ds-cell-editor-select-option"
         style={{
-          backgroundColor: '#184562',
+          backgroundColor: colors.surface,
         }}
       >
         {e}

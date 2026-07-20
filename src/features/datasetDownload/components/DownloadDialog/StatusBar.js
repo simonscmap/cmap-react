@@ -57,11 +57,13 @@ const useStyles = makeStyles((theme) => ({
 
 const WarningTheme = createTheme({
   palette: {
+    // Semantic mapping from the design tokens: `primary` is used by the
+    // prohibited (blocking) icon, `secondary` by the warning icon.
     primary: {
-      main: colors.blockingError,
+      main: colors.error,
     },
     secondary: {
-      main: colors.blockingError,
+      main: colors.warning,
     },
   },
 });

@@ -146,7 +146,7 @@ const useRowStyles = makeStyles((theme) => ({
     padding: '2em',
   },
   subHeader: {
-    color: '#69FFF2',
+    color: 'var(--cmap-primary)',
     fontSize: '16px',
     textTransform: 'uppercase',
     marginBottom: '1em',
@@ -158,7 +158,7 @@ const useRowStyles = makeStyles((theme) => ({
   refreshButton: {
     color: theme.palette.primary.main,
     '&:hover': {
-      color: '#69FFF2',
+      color: 'var(--cmap-primary)',
     },
     border: `1px solid ${theme.palette.primary.main}`,
   },
@@ -307,7 +307,7 @@ const useStyles = makeStyles((theme) => ({
   subSection: {
     flex: 1,
     background: 'rgba(0,0,0,0.2)',
-    borderRadius: '5px',
+    borderRadius: '6px',
     padding: '1em',
     marginTop: '1em',
     boxSizing: 'border-box',
@@ -329,11 +329,11 @@ const useStyles = makeStyles((theme) => ({
   refreshButton: {
     color: theme.palette.primary.main,
     '&:hover': {
-      color: '#69FFF2',
+      color: 'var(--cmap-primary)',
     },
   },
   subTitle: {
-    color: '#69FFF2',
+    color: 'var(--cmap-primary)',
     fontSize: '16px',
     textTransform: 'uppercase',
   },

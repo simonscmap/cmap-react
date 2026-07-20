@@ -84,7 +84,7 @@ const CollectionSummaryBanner = ({ summary, isLoading, loadError }) => {
               </Box>
               {alreadyInCollection > 0 && (
                 <Box className={classes.statItem}>
-                  <Typography variant="body2" style={{ color: '#808080' }}>
+                  <Typography variant="body2" style={{ color: 'var(--cmap-neutral-steel)' }}>
                     ⊙ <strong>{alreadyInCollection}</strong> already in
                     collection
                   </Typography>
@@ -92,7 +92,7 @@ const CollectionSummaryBanner = ({ summary, isLoading, loadError }) => {
               )}
               {invalidDatasets > 0 && (
                 <Box className={classes.statItem}>
-                  <Typography variant="body2" style={{ color: '#ffeb3b' }}>
+                  <Typography variant="body2" style={{ color: 'var(--cmap-warning)' }}>
                     ⚠ <strong>{invalidDatasets}</strong> unavailable
                   </Typography>
                 </Box>

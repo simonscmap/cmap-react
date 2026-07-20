@@ -71,7 +71,7 @@ const navigationStyles = (theme) => ({
     transition: 'margin 0.2s ease-out, width 0.2s ease-out',
     // width: '100%',
     // margin: '0 auto 0 -30px',
-    background: '#274870',
+    background: 'var(--cmap-elevated)',
     boxShadow: '0px 4px 4px rgba(0, 0, 0, 0.25)',
     flexDirection: 'column',
     justifyContent: 'flex-start',
@@ -108,7 +108,7 @@ const navigationStyles = (theme) => ({
       fontWeight: 700,
       lineHeight: '27px',
       textAlign: 'left',
-      borderRadius: '4px',
+      borderRadius: '6px',
     },
     '& a': {
       // marginTop: '3px', // this top margin corrects for the flex center
@@ -159,7 +159,7 @@ const navigationStyles = (theme) => ({
       lineHeight: '27px',
       padding: '8px 14px',
       textDecoration: 'none',
-      borderRadius: '4px',
+      borderRadius: '6px',
     },
     '& a:hover': {
       background: 'rgba(255, 255, 255, 0.2)',
@@ -234,7 +234,7 @@ const navigationStyles = (theme) => ({
   scrimShow: {
     height: '65px',
     background:
-      'linear-gradient(0deg, rgba(23,57,147,0) 0%, rgba(7,39,77,0.1806615776081425) 33%, rgba(7,39,77,0.7247706422018348) 100%)',
+      'linear-gradient(0deg, rgba(var(--cmap-royal-rgb),0) 0%, rgba(var(--cmap-surface-dark-rgb),0.1806615776081425) 33%, rgba(var(--cmap-surface-dark-rgb),0.7247706422018348) 100%)',
   },
 
   // MENU CONTROL
@@ -354,7 +354,7 @@ const navigationStyles = (theme) => ({
   },
   expandableItemChildren: {
     whiteSpace: 'noWrap',
-    background: '#274870',
+    background: 'var(--cmap-elevated)',
     boxShadow: '0px 4px 4px rgba(0, 0, 0, 0.25)',
     // padding: '29px',
     overflow: 'hidden',

@@ -29,23 +29,23 @@ const useStyles = makeStyles(() => ({
   },
   error: {
     fontSize: 11,
-    color: '#ff8a80',
+    color: 'var(--cmap-error)',
     marginTop: 4,
   },
   button: {
-    backgroundColor: '#bbdefb',
-    color: '#1565c0',
+    backgroundColor: 'var(--cmap-primary-tint)',
+    color: 'var(--cmap-primary)',
     fontWeight: 700,
     fontSize: '0.75rem',
     textTransform: 'none',
     marginTop: 4,
     marginBottom: 4,
     '&:hover': {
-      backgroundColor: '#90caf9',
+      backgroundColor: 'var(--cmap-primary)',
     },
     '&:disabled': {
-      backgroundColor: '#e3f2fd',
-      color: '#64b5f6',
+      backgroundColor: 'var(--cmap-primary-tint)',
+      color: 'var(--cmap-primary)',
     },
   },
   spinner: {

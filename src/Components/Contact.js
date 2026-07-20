@@ -173,6 +173,7 @@ const Hero = ({ children }) => {
 const ContactPage = () => (
   <Page
     pageTitle="Contact Us"
+    bgVariant={'slate2'}
     heroContent={
       <Hero>
         <ContactPageContent />

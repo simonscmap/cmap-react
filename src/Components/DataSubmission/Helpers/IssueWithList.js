@@ -38,7 +38,7 @@ const IssueWithList = (props) => {
           list.map((item, index) => (
             <ListItem key={`likey${index}`}>
               <ListItemIcon>
-                <GoDotFill color="#69FFF2" />
+                <GoDotFill color="var(--cmap-primary)" />
               </ListItemIcon>
               <ListItemText>
                 {renderTextNoUnderlineConversion(item)}

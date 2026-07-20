@@ -15,7 +15,7 @@ const useStyles = makeStyles(() => ({
   dropdownButton: {
     padding: '2px',
     minWidth: 'auto',
-    color: '#8bc34a',
+    color: 'var(--cmap-green)',
     '& .MuiSvgIcon-root': {
       fontSize: '16px',
     },

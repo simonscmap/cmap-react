@@ -29,13 +29,13 @@ const useIntroStyles = makeStyles(() => ({
     left: -11,
     right: -9,
     bottom: -13,
-    background: 'rgba(105, 255, 242, 0.01)',
+    background: 'rgba(var(--cmap-primary-rgb), 0.01)',
     color: 'black',
     zIndex: 0, // placing this behind allows the subscribe button to be interactive
-    border: '1px solid rgb(105, 255, 242)',
-    borderRadius: '5px',
+    border: '1px solid rgb(var(--cmap-primary-rgb))',
+    borderRadius: '6px',
     boxShadow:
-      '0 0 20px rgba(105, 255, 242, 0.6), inset 0 0 10px rgba(105, 255, 242, 0.4), 0 2px 0 #000',
+      '0 0 20px rgba(var(--cmap-primary-rgb), 0.6), inset 0 0 10px rgba(var(--cmap-primary-rgb), 0.4), 0 2px 0 #000',
     //boxShadow: '0px 4px 4px rgba(0, 0, 0, 0.4)',
   },
   off: {
@@ -49,9 +49,9 @@ const useIntroStyles = makeStyles(() => ({
     fontSize: '15px',
     fontFamily: 'Lato',
     width: '350px',
-    background: '#031832',
-    border: '1px solid rgb(105, 255, 242)',
-    borderRadius: '5px',
+    background: 'var(--cmap-background)',
+    border: '1px solid rgb(var(--cmap-primary-rgb))',
+    borderRadius: '6px',
     color: 'white',
     textAlign: 'left',
     boxShadow: '9px 4px 26px rgba(0, 0, 0, 0.4)',
@@ -70,8 +70,8 @@ const useIntroStyles = makeStyles(() => ({
     color: 'white',
     cursor: 'pointer',
     '&:hover': {
-      border: '1px solid rgb(105, 255, 242)',
-      color: 'rgb(105, 255, 242)',
+      border: '1px solid rgb(var(--cmap-primary-rgb))',
+      color: 'rgb(var(--cmap-primary-rgb))',
     },
   },
   arrow: {
@@ -82,7 +82,7 @@ const useIntroStyles = makeStyles(() => ({
     height: 0,
     borderTop: '5px solid transparent',
     borderBottom: '5px solid transparent',
-    borderLeft: '8px solid rgb(105, 255, 242)',
+    borderLeft: '8px solid rgb(var(--cmap-primary-rgb))',
   },
 }));
 
@@ -129,7 +129,7 @@ const useStyles = makeStyles((theme) => ({
     color: 'grey',
     border: `2px solid #ccc`,
     '&:hover': {
-      color: '#69FFF2',
+      color: 'var(--cmap-primary)',
       background: 'transparent',
       border: `2px solid ${theme.palette.secondary.main}`,
     },
@@ -138,7 +138,7 @@ const useStyles = makeStyles((theme) => ({
     fontSize: '20px',
     color: 'rgb(179, 247, 102)',
     '&:hover': {
-      color: '#69FFF2',
+      color: 'var(--cmap-primary)',
       background: 'transparent',
     },
   },

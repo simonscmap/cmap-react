@@ -14,7 +14,7 @@ const styles = (theme) => ({
     backgroundColor: 'transparent',
     color: 'white',
     height: '28px',
-    border: '1px solid rgb(157, 209, 98)',
+    border: '1px solid rgb(var(--cmap-green-rgb))',
     borderRadius: '2px',
     padding: '2px 6px',
     width: '100%',

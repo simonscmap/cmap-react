@@ -46,23 +46,23 @@ const useStyles = makeStyles((theme) => ({
       backgroundColor: colors.greenHover,
     },
     '&.Mui-disabled': {
-      color: 'rgba(105, 255, 242, 0.2)',
-      border: '1px solid rgba(105, 255, 242, 0.2)',
+      color: 'rgba(var(--cmap-primary-rgb), 0.2)',
+      border: '1px solid rgba(var(--cmap-primary-rgb), 0.2)',
     },
   },
   secondary: {
-    color: '#9e9e9e',
-    border: '1px solid #9e9e9e',
+    color: 'var(--cmap-text-muted)',
+    border: '1px solid var(--cmap-text-muted)',
     '&:hover': {
-      border: '1px solid #9e9e9e',
+      border: '1px solid var(--cmap-text-muted)',
       backgroundColor: 'rgba(158, 158, 158, 0.1)',
     },
   },
   danger: {
     color: '#fff',
-    backgroundColor: '#d32f2f',
+    backgroundColor: colors.error,
     '&:hover': {
-      backgroundColor: '#b71c1c',
+      backgroundColor: 'var(--cmap-error)',
     },
   },
   containedPrimary: {
@@ -73,7 +73,7 @@ const useStyles = makeStyles((theme) => ({
     },
     '&.Mui-disabled': {
       color: '#ccc',
-      backgroundColor: 'rgba(157, 209, 98, 0.3)',
+      backgroundColor: 'rgba(var(--cmap-green-rgb), 0.3)',
     },
   },
   // default variant uses Material-UI defaults

@@ -32,15 +32,15 @@ const severityConfig = {
     icon: InfoIcon,
   },
   success: {
-    backgroundColor: '#4caf50',
+    backgroundColor: 'var(--cmap-green)',
     icon: CheckCircleIcon,
   },
   warning: {
-    backgroundColor: '#ff9800',
+    backgroundColor: 'var(--cmap-warning)',
     icon: WarningIcon,
   },
   error: {
-    backgroundColor: '#f44336',
+    backgroundColor: 'var(--cmap-error)',
     icon: ErrorIcon,
   },
 };

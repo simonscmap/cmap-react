@@ -103,7 +103,7 @@ const useStyles = makeStyles((theme) => {
       display: 'flex',
       alignItems: 'center',
       gap: theme.spacing(1),
-      backgroundColor: '#1976d2',
+      backgroundColor: 'var(--cmap-primary)',
       color: '#fff',
       padding: theme.spacing(1, 2),
       borderRadius: 4,
@@ -111,13 +111,13 @@ const useStyles = makeStyles((theme) => {
       cursor: 'pointer',
       fontSize: '0.875rem',
       '&:hover': {
-        backgroundColor: '#1565c0',
+        backgroundColor: 'var(--cmap-primary)',
       },
     },
     copySuccessButton: {
-      backgroundColor: '#4caf50',
+      backgroundColor: 'var(--cmap-green)',
       '&:hover': {
-        backgroundColor: '#43a047',
+        backgroundColor: 'var(--cmap-green)',
       },
     },
     copyIcon: {

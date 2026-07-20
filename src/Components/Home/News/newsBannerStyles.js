@@ -31,10 +31,10 @@ const newsBannerStyles = (theme) => ({
     scrollPaddingTop: '3em',
     overflowY: 'auto',
     overflowX: 'hidden',
-    scrollbarColor: `rgba(161,246,64,1) transparent`,
+    scrollbarColor: `rgba(var(--cmap-green-rgb),1) transparent`,
     '&::-webkit-scrollbar-thumb': {
-      backgroundColor: 'rgba(161,246,64,1)',
-      borderRadius: '4px',
+      backgroundColor: 'rgba(var(--cmap-green-rgb),1)',
+      borderRadius: '6px',
     },
     '& > div': {
       padding: '500px 0 0 0',
@@ -87,7 +87,7 @@ const newsBannerStyles = (theme) => ({
     alignItems: 'center',
     gap: '.5em',
     '& p': {
-      color: '#93a9c3',
+      color: 'var(--cmap-text-muted)',
       textTransform: 'uppercase',
       fontWeight: 'bold',
       fontSize: '.8em',
@@ -146,7 +146,7 @@ const newsBannerStyles = (theme) => ({
     },
     '& h2': {
       margin: '.75em 0',
-      color: theme.palette.secondary.main, // #A1F640;
+      color: theme.palette.secondary.main, // var(--cmap-green);
       fontSize: '1.125rem',
       fontFamily: 'Montserrat,sans-serif',
       fontWeight: 500,
@@ -184,7 +184,7 @@ const newsBannerStyles = (theme) => ({
     },
   },
   cardShadow: {
-    // background: 'linear-gradient(293.11deg, #999999 10.23%, #555555 92.6%)',
+    // background: 'linear-gradient(293.11deg, var(--cmap-text-muted) 10.23%, var(--cmap-neutral-steel) 92.6%)',
     opacity: 0.2,
     '& p': {
       opacity: 0.1,

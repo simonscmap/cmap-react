@@ -51,7 +51,7 @@ export const sparseMapStyles = (theme) => ({
   },
 
   tab: {
-    boxShadow: '1px 1px 1px 1px #242424',
+    boxShadow: '1px 1px 1px 1px var(--cmap-background)',
     fontSize: '15px',
     textTransform: 'none',
     color: theme.palette.primary.main,
@@ -89,13 +89,13 @@ export const sectionMapChartStyles = (theme) => ({
 
 export const chartControlIconButton = (theme) => ({
   iconButton: {
-    boxShadow: '0px 1px 1px 1px #242424',
+    boxShadow: '0px 1px 1px 1px var(--cmap-background)',
   },
 });
 
 export const chartControlTabButton = (theme) => ({
   tabButton: {
-    boxShadow: '0px 1px 1px 1px #242424',
+    boxShadow: '0px 1px 1px 1px var(--cmap-background)',
     padding: '11px',
   },
 });
@@ -142,7 +142,7 @@ export const chartControlPanelStyles = (theme) => ({
 
   iconButton: {
     // TODO remove when switched over to ControlPanel2
-    boxShadow: '0px 1px 1px 1px #242424',
+    boxShadow: '0px 1px 1px 1px var(--cmap-background)',
   },
 
   colorForm: {
@@ -165,7 +165,7 @@ export const chartControlPanelStyles = (theme) => ({
   },
 
   depressed: {
-    boxShadow: 'inset 1px 1px 5px #262626',
+    boxShadow: 'inset 1px 1px 5px var(--cmap-background)',
   },
 
   colorscaleMenu: {
@@ -199,7 +199,7 @@ export const chartsStyles = (theme) => ({
     marginBottom: '5h',
     paddingTop: '8px',
     paddingRight: '10px',
-    boxShadow: '2px 2px 2px 2px #242424',
+    boxShadow: '2px 2px 2px 2px var(--cmap-background)',
     margin: '0 0 0 360px',
     // minWidth: '715px' // buggy // coordinates with chartBase min width
   },

@@ -48,7 +48,7 @@ const useSponsorsStyles = makeStyles((theme) => ({
       textTransform: 'uppercase',
       fontSize: '.9em',
       marginBottom: '10px',
-      color: '#69FFF2',
+      color: 'var(--cmap-primary)',
     },
     '& img': {
       maxWidth: '150px',
@@ -134,7 +134,7 @@ const useRowStyles = makeStyles((theme) => ({
     },
   },
   fullName: {
-    color: '#69FFF2', //theme.palette.secondary.light,
+    color: 'var(--cmap-primary)', //theme.palette.secondary.light,
     gridArea: 'fullName',
     textTransform: 'capitalize',
     fontSize: '1.2em',
@@ -164,7 +164,7 @@ const useRowStyles = makeStyles((theme) => ({
       textTransform: 'uppercase',
       fontSize: '.9em',
       marginBottom: '5px',
-      color: '#69FFF2',
+      color: 'var(--cmap-primary)',
     },
   },
 }));
@@ -230,8 +230,8 @@ const useStyles = makeStyles(() => ({
     '& hr': {
       height: '2px',
       width: '50%',
-      color: 'rgba(161, 246, 64,0.2)',
-      background: 'rgba(161, 246, 64,0.2)',
+      color: 'rgba(var(--cmap-green-rgb),0.2)',
+      background: 'rgba(var(--cmap-green-rgb),0.2)',
       border: 0,
     },
   },

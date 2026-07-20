@@ -35,7 +35,7 @@ const useStyles = makeStyles((theme) => ({
     zIndex: 1,
     '& .MuiTableCell-head': {
       backgroundColor: 'rgba(30, 67, 113, 1)',
-      color: '#8bc34a',
+      color: 'var(--cmap-green)',
       fontWeight: 500,
       fontSize: '0.875rem',
       position: 'sticky',
@@ -260,7 +260,7 @@ const PublicCollectionsTable = ({ collections = [] }) => {
                 style={{
                   padding: '8px 5px 8px 16px',
                   border: 0,
-                  color: '#8bc34a',
+                  color: 'var(--cmap-green)',
                   fontSize: '0.875rem',
                   fontWeight: 500,
                   backgroundColor: 'rgba(30, 67, 113, 1)',
@@ -272,7 +272,7 @@ const PublicCollectionsTable = ({ collections = [] }) => {
                 style={{
                   padding: '8px 5px',
                   border: 0,
-                  color: '#8bc34a',
+                  color: 'var(--cmap-green)',
                   fontSize: '0.875rem',
                   fontWeight: 500,
                   backgroundColor: 'rgba(30, 67, 113, 1)',
@@ -285,7 +285,7 @@ const PublicCollectionsTable = ({ collections = [] }) => {
                 style={{
                   padding: '8px 5px',
                   border: 0,
-                  color: '#8bc34a',
+                  color: 'var(--cmap-green)',
                   fontSize: '0.875rem',
                   fontWeight: 500,
                   backgroundColor: 'rgba(30, 67, 113, 1)',
@@ -297,7 +297,7 @@ const PublicCollectionsTable = ({ collections = [] }) => {
                 style={{
                   padding: '8px 5px',
                   border: 0,
-                  color: '#8bc34a',
+                  color: 'var(--cmap-green)',
                   fontSize: '0.875rem',
                   fontWeight: 500,
                   backgroundColor: 'rgba(30, 67, 113, 1)',
@@ -310,7 +310,7 @@ const PublicCollectionsTable = ({ collections = [] }) => {
                 style={{
                   padding: '8px 5px',
                   border: 0,
-                  color: '#8bc34a',
+                  color: 'var(--cmap-green)',
                   fontSize: '0.875rem',
                   fontWeight: 500,
                   backgroundColor: 'rgba(30, 67, 113, 1)',
@@ -323,7 +323,7 @@ const PublicCollectionsTable = ({ collections = [] }) => {
                 style={{
                   padding: '8px 5px',
                   border: 0,
-                  color: '#8bc34a',
+                  color: 'var(--cmap-green)',
                   fontSize: '0.875rem',
                   fontWeight: 500,
                   backgroundColor: 'rgba(30, 67, 113, 1)',
@@ -336,7 +336,7 @@ const PublicCollectionsTable = ({ collections = [] }) => {
                 style={{
                   padding: '8px 5px',
                   border: 0,
-                  color: '#8bc34a',
+                  color: 'var(--cmap-green)',
                   fontSize: '0.875rem',
                   fontWeight: 500,
                   backgroundColor: 'rgba(30, 67, 113, 1)',
@@ -349,7 +349,7 @@ const PublicCollectionsTable = ({ collections = [] }) => {
                 style={{
                   padding: '8px 5px',
                   border: 0,
-                  color: '#8bc34a',
+                  color: 'var(--cmap-green)',
                   fontSize: '0.875rem',
                   fontWeight: 500,
                   backgroundColor: 'rgba(30, 67, 113, 1)',
@@ -361,7 +361,7 @@ const PublicCollectionsTable = ({ collections = [] }) => {
                 style={{
                   padding: '8px 5px',
                   border: 0,
-                  color: '#8bc34a',
+                  color: 'var(--cmap-green)',
                   fontSize: '0.875rem',
                   fontWeight: 500,
                   backgroundColor: 'rgba(30, 67, 113, 1)',
@@ -490,7 +490,7 @@ const PublicCollectionsTable = ({ collections = [] }) => {
                         {copyingId === collection.id ? (
                           <CircularProgress
                             size={14}
-                            style={{ color: 'rgba(105, 255, 242, 0.2)' }}
+                            style={{ color: 'rgba(var(--cmap-primary-rgb), 0.2)' }}
                           />
                         ) : (
                           'Copy'
@@ -506,7 +506,7 @@ const PublicCollectionsTable = ({ collections = [] }) => {
                           {followPendingIds.has(collection.id) ? (
                             <CircularProgress
                               size={14}
-                              style={{ color: 'rgba(105, 255, 242, 0.2)' }}
+                              style={{ color: 'rgba(var(--cmap-primary-rgb), 0.2)' }}
                             />
                           ) : collection.isFollowing ? (
                             'Following'

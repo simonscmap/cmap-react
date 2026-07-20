@@ -36,8 +36,8 @@ const RecalculateAllButton = ({ constraints, className, style }) => {
 
   const mergedStyle = {
     ...baseStyle,
-    backgroundColor: rowCountsLoading ? 'rgba(255, 255, 255, 0.2)' : '#bbdefb',
-    color: rowCountsLoading ? 'rgba(255, 255, 255, 0.5)' : '#1565c0',
+    backgroundColor: rowCountsLoading ? 'rgba(255, 255, 255, 0.2)' : 'var(--cmap-primary-tint)',
+    color: rowCountsLoading ? 'rgba(255, 255, 255, 0.5)' : 'var(--cmap-primary)',
     ...style,
   };
 

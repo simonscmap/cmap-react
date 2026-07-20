@@ -40,7 +40,7 @@ const Histogram = (props) => {
         }`,
         type: 'histogram',
         marker: {
-          color: '#00FFFF',
+          color: 'var(--cmap-primary)',
         },
       },
     ],

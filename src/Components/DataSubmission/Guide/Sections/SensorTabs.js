@@ -59,7 +59,7 @@ const Examples = (props) => {
 
 const useGroupStyles = makeStyles((theme) => ({
   groupLabel: {
-    color: '#69FFF2',
+    color: 'var(--cmap-primary)',
     background: 'rgba(0,0,0,0.1)',
     paddingTop: '10px',
     paddingBottom: '10px',

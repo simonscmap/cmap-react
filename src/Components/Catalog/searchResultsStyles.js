@@ -53,7 +53,7 @@ const styles = (theme) => ({
     overflow: 'visible',
     // transparent scrollbar bg prevents box shadow of results from
     // being occluded
-    scrollbarColor: '#9dd162 transparent',
+    scrollbarColor: 'var(--cmap-green) transparent',
   },
   fixedSizeListScrolled: {
     // make it look like the results are scrolling under a shadow

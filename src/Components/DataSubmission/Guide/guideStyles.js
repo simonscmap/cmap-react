@@ -129,12 +129,12 @@ export const sectionStyles = makeStyles((theme) => ({
     margin: '0 0 0 0',
   },
   subHeader: {
-    color: '#69FFF2',
+    color: 'var(--cmap-primary)',
     fontSize: '1.5em',
     margin: '1em 0 .5em 0',
   },
   accordionSubHeader: {
-    color: '#69FFF2',
+    color: 'var(--cmap-primary)',
     fontSize: '1.2em',
     margin: '1em 0 .5em 0',
   },
@@ -151,7 +151,7 @@ export const sectionStyles = makeStyles((theme) => ({
     },
     '& code': {
       fontStyle: 'bold',
-      color: 'rgb(105, 255, 242)',
+      color: 'rgb(var(--cmap-primary-rgb))',
     },
     // make lists more compact
     '& .MuiListItem-gutters': {
@@ -251,14 +251,14 @@ export const sectionStyles = makeStyles((theme) => ({
     color: 'white',
     fontSize: '14px',
     fontWeight: 'bold',
-    border: '1px solid rgb(157, 209, 98)',
+    border: '1px solid rgb(var(--cmap-green-rgb))',
   },
   standoutBadgeNoOverlap: {
     display: 'inline-block',
     color: 'white',
     fontSize: '14px',
     fontWeight: 'bold',
-    borderBottom: '1px solid rgb(157, 209, 98)',
+    borderBottom: '1px solid rgb(var(--cmap-green-rgb))',
     margin: '1em 0',
   },
   badge: {
@@ -333,17 +333,17 @@ export const sectionStyles = makeStyles((theme) => ({
     fontSize: '1em',
     // padding: '0 1em',
     // margin: '1em 0 2em 0',
-    // borderLeft: '2px solid rgb(105, 255, 242)',
+    // borderLeft: '2px solid rgb(var(--cmap-primary-rgb))',
     // background: 'rgba(0,0,0,0.2)',
     // boxShadow: `0px 2px 1px -1px rgba(0,0,0,0.2),0px 1px 1px 0px rgba(0,0,0,0.14),0px 1px 3px 0px rgba(0,0,0,0.12)`,
   },
 
   glow: {
     animation: '$glow 1000ms ease-out infinite alternate',
-    border: `1px solid rgba(157, 209, 98, 0.1)`,
-    borderRadius: '5px',
+    border: `1px solid rgba(var(--cmap-green-rgb), 0.1)`,
+    borderRadius: '6px',
     '& svg': {
-      color: 'rgb(105, 255, 242)',
+      color: 'rgb(var(--cmap-primary-rgb))',
       padding: 0,
     },
   },
@@ -352,12 +352,12 @@ export const sectionStyles = makeStyles((theme) => ({
     '0%': {
       borderColor: '#393',
       boxShadow:
-        '0 0 5px rgba(105, 255, 242, 0.2), inset 0 0 5px rgba(105, 255, 242, 0.1), 0 2px 0 #000',
+        '0 0 5px rgba(var(--cmap-primary-rgb), 0.2), inset 0 0 5px rgba(var(--cmap-primary-rgb), 0.1), 0 2px 0 #000',
     },
     '100%': {
       borderColor: '#6f6',
       boxShadow:
-        '0 0 20px rgba(105, 255, 242, 0.6), inset 0 0 10px rgba(105, 255, 242, 0.4), 0 2px 0 #000',
+        '0 0 20px rgba(var(--cmap-primary-rgb), 0.6), inset 0 0 10px rgba(var(--cmap-primary-rgb), 0.4), 0 2px 0 #000',
     },
   },
 
@@ -368,14 +368,14 @@ export const sectionStyles = makeStyles((theme) => ({
     height: '100px',
   },
   pointerArrow: {
-    stroke: '#8fbcbb',
+    stroke: 'var(--cmap-primary)',
     strokeWidth: '1.5px',
     fill: 'none',
   },
   arrowHead: {
-    fill: '#8fbcbb',
+    fill: 'var(--cmap-primary)',
   },
 }));
 
-// const blue = 'rgb(105, 255, 242)'
-// const green = 'rgba(157, 209, 98)';
+// const blue = 'rgb(var(--cmap-primary-rgb))'
+// const green = 'rgba(var(--cmap-green-rgb))';

@@ -199,7 +199,7 @@ const SidebarCommentToolPanel = () => {
                   cursor: 'pointer',
                   fontSize: '12px',
                   textDecoration: 'underline',
-                  color: 'rgb(105, 255, 242)',
+                  color: 'rgb(var(--cmap-primary-rgb))',
                 }}
               >
                 Show All Comments

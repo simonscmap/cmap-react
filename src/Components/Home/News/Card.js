@@ -12,17 +12,20 @@ import { colors } from '../theme';
 import newsBannerStyles from './newsBannerStyles';
 import renderBody from './renderBody';
 import renderHeadline from './renderHeadline';
+import { color as cmapColor } from '../../../theme/tokens';
 
 // Card Componentry
 
 const ChipTheme = createTheme({
+  // Material-UI parses palette colors mathematically to derive light/dark
+  // variants, so these must be real values from the token module, never
+  // CSS custom properties.
   palette: {
     primary: {
-      main: colors.green.lime,
-      // main: "#d16265;",
+      main: cmapColor.green,
     },
     secondary: {
-      main: '#ffd54f',
+      main: cmapColor.warning,
     },
   },
 });

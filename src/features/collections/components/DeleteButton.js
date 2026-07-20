@@ -10,7 +10,7 @@ const useStyles = makeStyles((theme) => ({
     padding: theme.spacing(0.5),
     marginLeft: -theme.spacing(0.8),
     '&:hover': {
-      color: '#d32f2f',
+      color: 'var(--cmap-error)',
       backgroundColor: 'rgba(211, 47, 47, 0.1)',
     },
   },

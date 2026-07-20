@@ -43,7 +43,7 @@ const useStyles = makeStyles((theme) => ({
     margin: 0,
     fontWeight: 500,
     fontSize: '1.5rem',
-    color: '#8bc34a',
+    color: 'var(--cmap-green)',
     flex: 1,
     minWidth: 0,
     overflowWrap: 'break-word',

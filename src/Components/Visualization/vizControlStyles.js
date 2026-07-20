@@ -14,10 +14,10 @@ const styles = (theme) => ({
     left: '10px',
     padding: '7px',
     // borderRadius: '0 4px 4px 0',
-    // boxShadow: '2px 2px  2px 2px #242424',
+    // boxShadow: '2px 2px  2px 2px var(--cmap-background)',
     // border: 'none',
     border: `1px solid ${theme.palette.primary.main}`,
-    borderRadius: '5px',
+    borderRadius: '6px',
     overflow: 'visible',
     // backgroundColor: colors.backgroundGray,
     background: 'rgba(20,20,20,0.75)',
@@ -76,7 +76,7 @@ const styles = (theme) => ({
   },
   formGridItem: {
     textAlign: 'left',
-    // border: '1px solid #313131',
+    // border: '1px solid var(--cmap-surface)',
     // borderBottom: 'none',
     // borderTop: 'none',
     // backgroundColor: colors.backgroundGray,
@@ -181,7 +181,7 @@ const styles = (theme) => ({
     backgroundColor: 'rgba(0, 0, 0, .6)',
     padding: '8px',
     backdropFilter: 'blur(5px)',
-    borderRadius: '4px',
+    borderRadius: '6px',
   },
 
   popoutButtonPaper: {
@@ -190,12 +190,12 @@ const styles = (theme) => ({
     left: '320px',
     display: 'flex',
     flexDirection: 'column',
-    borderRadius: '5px',
+    borderRadius: '6px',
     background: 'rgba(20,20,20,0.75)',
     backdropFilter: 'blur(2px)',
 
     // borderRadius: '2px',
-    // boxShadow: '2px 2px  2px 2px #242424',
+    // boxShadow: '2px 2px  2px 2px var(--cmap-background)',
     // backgroundColor: colors.backgroundGray,
   },
 

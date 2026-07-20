@@ -1,0 +1,49 @@
+// GENERATED FILE — do not edit by hand.
+//
+// Source of truth: src/theme/tokens.json
+// Regenerate with:  node scripts/generate-scss-tokens.js
+//
+// This partial exposes the design tokens as SCSS variables for build-time
+// consumers that cannot read CSS custom properties, principally the ag-grid
+// material theme, whose Sass functions (darken, lighten) require literal
+// color values. Runtime stylesheets should prefer the CSS custom properties
+// injected by src/theme/cssVariables.js (var(--cmap-...)).
+
+$cmap-background: #03172F;
+$cmap-background-deep: #041D3D;
+$cmap-surface: #0B2E4F;
+$cmap-surface-dark: #07274D;
+$cmap-elevated: #1C4772;
+$cmap-primary: #5BE6DA;
+$cmap-primary-dark: #38BFB2;
+$cmap-primary-contrast: #03172F;
+$cmap-primary-tint: #CFF8F4;
+$cmap-green: #A8DC5A;
+$cmap-green-basil: #6FA23A;
+$cmap-green-deep: #41631C;
+$cmap-green-tint: #E6F5C8;
+$cmap-royal: #173993;
+$cmap-purple: #9253A8;
+$cmap-purple-dark: #76248E;
+$cmap-purple-bright: #E089FF;
+$cmap-error: #EF6A6A;
+$cmap-error-tint: #F7C6C6;
+$cmap-warning: #FFB74D;
+$cmap-warning-tint: #FFDCA8;
+$cmap-info: #5BE6DA;
+$cmap-success: #A8DC5A;
+$cmap-text-primary: #FFFFFF;
+$cmap-text-secondary: rgba(255, 255, 255, 0.72);
+$cmap-text-disabled: rgba(255, 255, 255, 0.4);
+$cmap-text-muted: #9FB3C8;
+$cmap-neutral-steel: #7C8FA6;
+$cmap-neutral-light: #E4EBF2;
+$cmap-divider: rgba(255, 255, 255, 0.15);
+$cmap-divider-faint: rgba(255, 255, 255, 0.08);
+$cmap-hover: rgba(91, 230, 218, 0.14);
+$cmap-hover-strong: rgba(91, 230, 218, 0.28);
+$cmap-scrim: rgba(3, 23, 47, 0.7);
+$cmap-neon-teal: #69FFF2;
+$cmap-neon-lime: #A1F640;
+$cmap-black: #000000;
+$cmap-white: #FFFFFF;

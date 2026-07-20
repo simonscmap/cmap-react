@@ -82,7 +82,7 @@ const useStyles = makeStyles((theme) => ({
     flexGrow: 1,
     minWidth: 0,
     fontSize: '1.4em',
-    color: 'rgb(105, 255, 242)',
+    color: 'rgb(var(--cmap-primary-rgb))',
     overflowWrap: 'break-word',
   },
   statusChips: {

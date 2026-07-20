@@ -29,7 +29,7 @@ const LinkEditor = withStyles({
   },
   textField: {
     border: `1px solid ${colors.blue.slate}`,
-    borderRadius: '4px',
+    borderRadius: '6px',
     background: 'rgba(0,0,0,0.2)',
     '& input': {
       fontSize: `${pxToRem[18]}`,

@@ -157,7 +157,7 @@ const SinglePlot = () => {
     <Page pageTitle="Single Plot">
       <FullWidthContainer>
         <Section title="Args">
-          <div style={{ border: '10px solid #2B303B' }}>
+          <div style={{ border: '10px solid var(--cmap-surface)' }}>
             <ReactJson theme="ocean" src={Object.assign({}, params)} />
           </div>
         </Section>
@@ -172,7 +172,7 @@ const SinglePlot = () => {
         </Section>
         <Section title="Variable Info">
           {variable ? (
-            <div style={{ border: '10px solid #2B303B' }}>
+            <div style={{ border: '10px solid var(--cmap-surface)' }}>
               <ReactJson theme="ocean" src={variable} />
             </div>
           ) : (
@@ -181,7 +181,7 @@ const SinglePlot = () => {
         </Section>
         <Section title="Plot Info">
           {chart && (
-            <div style={{ border: '10px solid #2B303B' }}>
+            <div style={{ border: '10px solid var(--cmap-surface)' }}>
               <ReactJson
                 theme="ocean"
                 src={{

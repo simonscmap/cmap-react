@@ -55,10 +55,10 @@ const useCompactRangeInputStyles = makeStyles((theme) => ({
   },
   trackInverted: {
     '& .MuiSlider-track': {
-      backgroundColor: '#4d6d4d',
+      backgroundColor: 'var(--cmap-neutral-steel)',
     },
     '& .MuiSlider-rail': {
-      backgroundColor: '#9dd162',
+      backgroundColor: colors.green,
       opacity: 1,
     },
   },

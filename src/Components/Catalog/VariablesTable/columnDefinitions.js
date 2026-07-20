@@ -48,7 +48,7 @@ export const columnDefs = [
           if (!params.data.Comment) {
             return '';
           }
-          return `<div style="cursor: pointer; font-size: 10px; text-decoration: underline; color: rgb(105, 255, 242);">View Comment</div>`;
+          return `<div style="cursor: pointer; font-size: 10px; text-decoration: underline; color: rgb(var(--cmap-primary-rgb));">View Comment</div>`;
         },
       },
       {
@@ -57,7 +57,7 @@ export const columnDefs = [
         cellRenderer: function (params) {
           let { data } = params; // this is the row data
           if (data.Unstructured_Variable_Metadata) {
-            return `<div style="cursor: pointer; font-size: 10px; text-decoration: underline; color: rgb(105, 255, 242);">View Metadata</div>`;
+            return `<div style="cursor: pointer; font-size: 10px; text-decoration: underline; color: rgb(var(--cmap-primary-rgb));">View Metadata</div>`;
           } else {
             return '';
           }

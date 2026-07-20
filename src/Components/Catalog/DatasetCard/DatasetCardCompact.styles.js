@@ -53,7 +53,7 @@ const styles = (theme) => ({
   },
 
   warningIcon: {
-    color: '#e3e61a',
+    color: 'var(--cmap-warning)',
     marginLeft: '14px',
     marginBottom: '-7px',
     fontSize: '1.45rem',

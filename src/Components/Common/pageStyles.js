@@ -9,7 +9,7 @@ const styles = () => ({
       color: colors.green.lime,
       textDecoration: 'none',
       '&:hover': {
-        color: '#96CE57',
+        color: 'var(--cmap-green)',
         // color: colors.green.lime,
         textDecoration: 'none',
       },

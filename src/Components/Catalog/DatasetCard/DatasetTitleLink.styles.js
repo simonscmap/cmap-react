@@ -12,9 +12,9 @@ const styles = () => ({
     textOverflow: 'ellipsis',
     whiteSpace: 'nowrap',
     display: 'block',
-    color: '#69FFF2',
+    color: 'var(--cmap-primary)',
     '&:visited': {
-      color: '#69FFF2',
+      color: 'var(--cmap-primary)',
     },
     fontSize: '.85em',
   },

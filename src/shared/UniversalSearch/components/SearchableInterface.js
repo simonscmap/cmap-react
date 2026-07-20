@@ -14,8 +14,8 @@ const useStyles = makeStyles((theme) => ({
     marginBottom: theme.spacing(2),
     padding: theme.spacing(2),
     // Removed visible background and border for cleaner look
-    // backgroundColor: '#184562',
-    // border: `1px solid #2c6b8f`,
+    // backgroundColor: 'var(--cmap-surface)',
+    // border: `1px solid var(--cmap-elevated)`,
     // borderRadius: theme.shape.borderRadius,
   },
   searchHeader: {

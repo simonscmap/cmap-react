@@ -13,7 +13,7 @@ const useStyles = makeStyles((theme) => ({
   },
   headerPatternALabel: {
     fontWeight: (props) => (props.isActive ? 600 : 400),
-    color: (props) => (props.isActive ? '#69fff2' : 'inherit'),
+    color: (props) => (props.isActive ? 'var(--cmap-primary)' : 'inherit'),
   },
   arrowButton: {
     padding: theme.spacing(0.5),
@@ -38,7 +38,7 @@ const useStyles = makeStyles((theme) => ({
   },
   headerPatternBLabel: {
     fontWeight: (props) => (props.isActive ? 600 : 400),
-    color: (props) => (props.isActive ? '#69fff2' : 'inherit'),
+    color: (props) => (props.isActive ? 'var(--cmap-primary)' : 'inherit'),
     fontSize: '14px',
     overflow: 'visible',
     lineHeight: 1.4,
@@ -58,11 +58,11 @@ const useStyles = makeStyles((theme) => ({
   },
   arrowActive: {
     opacity: 1,
-    color: '#69fff2', // Match active header color
+    color: 'var(--cmap-primary)', // Match active header color
   },
   arrowInactive: {
     opacity: 0.3,
-    color: '#69fff2',
+    color: 'var(--cmap-primary)',
   },
 }));
 

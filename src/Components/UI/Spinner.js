@@ -88,7 +88,7 @@ const styles = (theme) => ({
   },
 
   demoDark: {
-    color: '#07274D',
+    color: 'var(--cmap-surface-dark)',
   },
 });
 

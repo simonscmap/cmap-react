@@ -273,8 +273,8 @@ export default ConnectedMarkerOptions;
 
 // hook returns [controlTuple, toggleState]
 export const useMarkerOptions = (initialState) => {
-  // const blue = 'rgb(105, 255, 242)';
-  const green = 'rgb(161, 246, 64)';
+  // const blue = 'rgb(var(--cmap-primary-rgb))';
+  const green = 'rgb(var(--cmap-green-rgb))';
   const defaultMarkerState = {
     opacity: 0.7,
     color: green,

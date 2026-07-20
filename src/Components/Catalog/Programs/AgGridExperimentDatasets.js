@@ -47,13 +47,13 @@ const useStyles = makeStyles((theme) => ({
       backgroundColor: 'rgba(16, 43, 60, 1)',
     },
     '& .ag-theme-material .ag-icon-checkbox-checked': {
-      backgroundColor: '#9dd162',
+      backgroundColor: 'var(--cmap-green)',
     },
     '& .radio-select': {
       position: 'relative',
       display: 'flex',
       alignItems: 'center',
-      color: '#9dd162',
+      color: 'var(--cmap-green)',
       height: `${ROW_HEIGHT}px`,
       width: `${ROW_HEIGHT}px`,
       fontSize: '.9em',
@@ -66,7 +66,7 @@ const useStyles = makeStyles((theme) => ({
       },
     },
     '& .radio-select.selected': {
-      color: '#22A3B9',
+      color: 'var(--cmap-primary)',
     },
     '& .link-container': {
       gap: '10px',
@@ -82,7 +82,7 @@ const useStyles = makeStyles((theme) => ({
       },
     },
     '& .dataset-link': {
-      color: '#9dd162',
+      color: 'var(--cmap-green)',
       '& .MuiSvgIcon-root': {
         fontSize: '1em',
       },
@@ -109,7 +109,7 @@ const useStyles = makeStyles((theme) => ({
     gap: '20px',
     paddingLeft: '10px',
     transition: 'all 0.5s ease',
-    borderRadius: '5px',
+    borderRadius: '6px',
     '& svg': {
       paddingRight: '10px',
     },
@@ -122,15 +122,15 @@ const useStyles = makeStyles((theme) => ({
   },
   searchActive: {
     width: 'calc(100% - 10px)',
-    borderRadius: '5px',
+    borderRadius: '6px',
     background: 'rgba(0,0,0,0.3)',
     '& .MuiOutlinedInput-input': {
       background: 'rgba(0,0,0,1)',
-      borderRadius: '5px',
-      border: '2px solid #22A3B9', // #3f51b5 // #22A3B9
+      borderRadius: '6px',
+      border: '2px solid var(--cmap-primary)', // var(--cmap-primary) // var(--cmap-primary)
     },
     '& fieldset': {
-      borderRadius: '5px',
+      borderRadius: '6px',
     },
     '& .MuiFormControl-root': {
       flexGrow: 3,

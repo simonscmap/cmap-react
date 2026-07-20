@@ -25,7 +25,7 @@ const useStyles = makeStyles((theme) => ({
     },
     cursor: 'pointer',
     height: '38px',
-    // boxShadow: '0px 0px 0px 1px #242424',
+    // boxShadow: '0px 0px 0px 1px var(--cmap-background)',
   },
   labelExtras: {
     marginLeft: '1em',
@@ -62,7 +62,7 @@ export const DropDownContainer = (props) => {
       <div
         className={cl.handle}
         onClick={() => setOpen(!isOpen)}
-        style={{ boxShadow: borderStyle || '0px 0px 0px 1px #242424' }}
+        style={{ boxShadow: borderStyle || '0px 0px 0px 1px var(--cmap-background)' }}
       >
         <ExpandCloseIcon open={isOpen} />
         <span>{label}</span>
@@ -103,7 +103,7 @@ const useCheckboxStyles = makeStyles((theme) => ({
     },
     '&::-webkit-scrollbar-thumb': {
       backgroundColor: theme.palette.primary.main,
-      borderRadius: '5px',
+      borderRadius: '6px',
       border: 'none',
     },
   },

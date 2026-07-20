@@ -52,7 +52,7 @@ const useStyles = makeStyles((theme) => ({
   },
   guideStepper: {
     '& .MuiStep-root .MuiSvgIcon-root': {
-      color: '#9dd162',
+      color: 'var(--cmap-green)',
     },
   },
 }));
@@ -120,7 +120,7 @@ export const UserDashboardStepper = (props) => {
   const { activeStep, submission } = props;
   return (
     <Stepper
-      style={{ borderRadius: '5px' }}
+      style={{ borderRadius: '6px' }}
       alternativeLabel
       activeStep={activeStep}
     >
@@ -159,7 +159,7 @@ export const GuideStepper = (props) => {
   return (
     <Stepper
       className={cl.guideStepper}
-      style={{ borderRadius: '5px' }}
+      style={{ borderRadius: '6px' }}
       alternativeLabel
       nonLinear
       activeStep={activeStep}

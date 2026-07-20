@@ -49,7 +49,7 @@ const useEditorStyles = makeStyles((theme) => ({
   },
   readyToSave: {
     boxShadow:
-      '0 0 20px rgba(105, 255, 242, 0.6), inset 0 0 10px rgba(105, 255, 242, 0.4), 0 2px 0 #000',
+      '0 0 20px rgba(var(--cmap-primary-rgb), 0.6), inset 0 0 10px rgba(var(--cmap-primary-rgb), 0.4), 0 2px 0 #000',
   },
   // --------------- 3
   // tagManagerContainer: {
@@ -73,7 +73,7 @@ const useEditorStyles = makeStyles((theme) => ({
   },
   textField: {
     border: `1px solid ${colors.blue.slate}`,
-    borderRadius: '4px',
+    borderRadius: '6px',
     background: 'rgba(0,0,0,0.2)',
     '& input': {
       fontSize: `${pxToRem[18]}`,

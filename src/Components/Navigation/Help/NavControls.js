@@ -80,7 +80,7 @@ const HelpNavbarControls = (props) => {
   // get router location
   const location = useLocation();
   const pageName = pathNameToPageName(location.pathname);
-  // const styleVariant = pageName === VISUALIZATION_PAGE ? 'black' : '#2f769c';
+  // const styleVariant = pageName === VISUALIZATION_PAGE ? 'black' : 'var(--cmap-elevated)';
 
   // TODO replace CATALOG_PAGE with router path
   const introIsEnabled = useSelector(({ intros }) => intros[pageName]);

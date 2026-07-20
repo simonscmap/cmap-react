@@ -49,7 +49,7 @@ const styles = (theme) => ({
     textTransform: 'none',
     height: '56px',
     width: '100%',
-    borderRadius: '5px',
+    borderRadius: '6px',
     border: `1px solid ${theme.palette.primary.main}`,
     // backgroundColor: colors.backgroundGray,
     background: theme.palette.primary.main,

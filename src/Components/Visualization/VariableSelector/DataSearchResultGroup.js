@@ -16,7 +16,7 @@ const makeGroupStyles = (theme) => ({
     },
     cursor: 'pointer',
     height: '38px',
-    // boxShadow: '0px 1px 1px 1px #242424',
+    // boxShadow: '0px 1px 1px 1px var(--cmap-background)',
     // backgroundColor: 'rgba(0,0,0,.4)',
   },
 

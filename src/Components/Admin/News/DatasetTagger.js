@@ -21,7 +21,7 @@ const MissingChip = withStyles({
 
 const UnmentionedChip = withStyles({
   root: {
-    background: '#d3d3d3',
+    background: 'var(--cmap-neutral-light)',
   },
 })(Chip);
 
@@ -183,7 +183,7 @@ const useStyles = makeStyles((theme) => ({
     flex: 1, // expand to full height
   },
   selectTitle: {
-    color: '#69FFF2',
+    color: 'var(--cmap-primary)',
     textTransform: 'uppercase',
     fontSize: '16px',
     margin: '1em 0 0 0',

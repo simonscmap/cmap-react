@@ -30,7 +30,7 @@ const useStyles = makeStyles((theme) => ({
   },
   selectLabel: {
     fontSize: '15px',
-    color: '#96CE57', // olive
+    color: 'var(--cmap-green)', // olive
   },
 
   select: {
@@ -64,7 +64,7 @@ export const SpatialCoverageOptions = (props) => {
           InputLabelProps={{
             shrink: true,
             style: {
-              color: '#96CE57',
+              color: 'var(--cmap-green)',
             },
           }}
           value={latStart}
@@ -86,7 +86,7 @@ export const SpatialCoverageOptions = (props) => {
           InputLabelProps={{
             shrink: true,
             style: {
-              color: '#96CE57',
+              color: 'var(--cmap-green)',
             },
           }}
           value={latEnd}
@@ -108,7 +108,7 @@ export const SpatialCoverageOptions = (props) => {
           InputLabelProps={{
             shrink: true,
             style: {
-              color: '#96CE57',
+              color: 'var(--cmap-green)',
             },
           }}
           value={lonStart}
@@ -130,7 +130,7 @@ export const SpatialCoverageOptions = (props) => {
           InputLabelProps={{
             shrink: true,
             style: {
-              color: '#96CE57',
+              color: 'var(--cmap-green)',
             },
           }}
           value={lonEnd}

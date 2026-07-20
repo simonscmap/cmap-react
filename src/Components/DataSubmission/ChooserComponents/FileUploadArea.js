@@ -33,7 +33,7 @@ const useStyles = makeStyles((theme) => ({
     transition: 'border-color 0.15s, background-color 0.15s',
   },
   paperAreaDragOver: {
-    backgroundColor: 'rgba(157, 209, 98, 0.08)',
+    backgroundColor: 'rgba(var(--cmap-green-rgb), 0.08)',
   },
   rowOne: {
     display: 'flex',
