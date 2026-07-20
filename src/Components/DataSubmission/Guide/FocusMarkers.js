@@ -31,7 +31,7 @@ const useStyles = makeStyles(() => ({
     animation: '$glow 1000ms ease-out infinite alternate',
     borderRadius: '12px',
     '& svg': {
-      color: 'rgb(105, 255, 242)',
+      color: 'rgb(var(--cmap-primary-rgb))',
       padding: 0,
     },
   },
@@ -40,12 +40,12 @@ const useStyles = makeStyles(() => ({
     '0%': {
       borderColor: '#393',
       boxShadow:
-        '0 0 5px rgba(105, 255, 242, 0.2), inset 0 0 5px rgba(105, 255, 242, 0.1), 0 2px 0 #000',
+        '0 0 5px rgba(var(--cmap-primary-rgb), 0.2), inset 0 0 5px rgba(var(--cmap-primary-rgb), 0.1), 0 2px 0 #000',
     },
     '100%': {
       borderColor: '#6f6',
       boxShadow:
-        '0 0 20px rgba(105, 255, 242, 0.6), inset 0 0 10px rgba(105, 255, 242, 0.4), 0 2px 0 #000',
+        '0 0 20px rgba(var(--cmap-primary-rgb), 0.6), inset 0 0 10px rgba(var(--cmap-primary-rgb), 0.4), 0 2px 0 #000',
     },
   },
 }));

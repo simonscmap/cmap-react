@@ -8,9 +8,9 @@
    override max-width to accomodate lager (video) content */
 .introjs-tooltipReferenceLayer .introjs-tooltip {
   max-width: none !important;
-  /* background: #1f4a63; */
-  background: #031934;
-  border: 1px solid #69fff2;
+  /* background: var(--cmap-elevated); */
+  background: var(--cmap-background);
+  border: 1px solid var(--cmap-primary);
   color: white;
 }
 
@@ -25,8 +25,8 @@
 
 /* the 'Next' button */
 .introjs-tooltipReferenceLayer .introjs-button {
-  /* background-color: #21526c; */
-  background: #031934;
+  /* background-color: var(--cmap-elevated); */
+  background: var(--cmap-background);
   color: white !important;
   border: 1px solid white !important;
   text-shadow: none;
@@ -37,21 +37,21 @@
 }
 
 .introjs-tooltipReferenceLayer .introjs-button:hover {
-  /* border: 1px solid #69fff2; */
-  border: 1px solid #69fff2;
-  color: #69fff2;
-  background-color: #031934;
+  /* border: 1px solid var(--cmap-primary); */
+  border: 1px solid var(--cmap-primary);
+  color: var(--cmap-primary);
+  background-color: var(--cmap-background);
   text-shadow: none;
 }
 .introjs-tooltipReferenceLayer .intro-dark .introjs-button:hover {
-  /* background-color: #222222;*/
-  background: #031934;
+  /* background-color: var(--cmap-background);*/
+  background: var(--cmap-background);
 }
 
 .introjs-tooltipReferenceLayer .introjs-button:focus {
   box-shadow: none;
-  background-color: #031934;
-  color: #69fff2;
+  background-color: var(--cmap-background);
+  color: var(--cmap-primary);
 }
 /* this 'X' button lets you exit the intro sequence */
 .introjs-tooltipReferenceLayer .introjs-skipbutton {
@@ -60,23 +60,23 @@
 
 /* make the arrow green, like the rest of the border */
 .introjs-tooltipReferenceLayer .introjs-arrow.top {
-  border-bottom-color: #69fff2;
+  border-bottom-color: var(--cmap-primary);
 }
 
 /* make the intro progress bullets green when active */
 .introjs-tooltipReferenceLayer .introjs-bullets ul li a.active {
-  background: #69fff2;
+  background: var(--cmap-primary);
 }
 
 .introjs-tooltipReferenceLayer .introjs-tooltiptext p a {
-  color: #69fff2;
+  color: var(--cmap-primary);
 }
 .introjs-tooltipReferenceLayer .introjs-tooltiptext p {
   margin-top: 0;
 }
 
 .introjs-tooltipReferenceLayer .introjs-tooltiptext hr {
-  color: #69fff2;
+  color: var(--cmap-primary);
 }
 
 /* align the bullets with the paragraph text */
@@ -133,7 +133,7 @@
   border: none;
   border-radius: 1em;
   font-size: 1em;
-  background-color: #69fff2;
+  background-color: var(--cmap-primary);
   /* z-index: 10; */
   /* transition: all 0.2s ease-out; */
   transition: none;

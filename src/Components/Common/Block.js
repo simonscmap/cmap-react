@@ -43,7 +43,7 @@ const styles = {
     left: 0,
     bottom: 0,
     width: '5px',
-    background: 'linear-gradient(to top, #A1F640, #69FFF2 100%)',
+    background: 'linear-gradient(to top, var(--cmap-green), var(--cmap-primary) 100%)',
   },
 };
 

@@ -56,7 +56,7 @@ const CollectionContentActions = ({
           {isSaving ? (
             <CircularProgress
               size={14}
-              style={{ color: 'rgba(105, 255, 242, 0.2)' }}
+              style={{ color: 'rgba(var(--cmap-primary-rgb), 0.2)' }}
             />
           ) : (
             'SAVE CHANGES'

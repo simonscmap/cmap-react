@@ -32,7 +32,7 @@ const useStyles = makeStyles(() => ({
   blurbContainer: {
     height: '500px',
     background: 'rgba(0,0,0, 0.2)',
-    borderRadius: '5px',
+    borderRadius: '6px',
     padding: '19px 10px 5px 22px',
     textAlign: 'justify',
     boxShadow: `0px 2px 1px -1px rgba(0,0,0,0.2),0px 1px 1px 0px rgba(0,0,0,0.14),0px 1px 3px 0px rgba(0,0,0,0.12)`,
@@ -60,7 +60,7 @@ const useStyles = makeStyles(() => ({
       margin: '-58px 0 0 0',
     },
     '& .js-plotly-plot': {
-      borderRadius: '5px',
+      borderRadius: '6px',
       overflow: 'hidden',
       boxShadow:
         '0px 2px 1px -1px rgba(0,0,0,0.2),0px 1px 1px 0px rgba(0,0,0,0.14),0px 1px 3px 0px rgba(0,0,0,0.12)',
@@ -78,7 +78,7 @@ const useStyles = makeStyles(() => ({
   tabs: {
     marginTop: '32px',
     '& .MuiTabs-indicator': {
-      backgroundColor: '#7CB342',
+      backgroundColor: 'var(--cmap-green)',
     },
     '& .MuiTab-root': {
       fontSize: '1.2rem',

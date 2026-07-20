@@ -24,7 +24,7 @@ const styles = {
   },
   dateFieldWrapper: {
     position: 'relative',
-    borderRadius: '4px',
+    borderRadius: '6px',
     border: '1px solid rgb(29, 54, 76)', // Exact MUI border color
     padding: '6.5px 14px', // Match Material-UI TextField size="small" padding
     transition: 'border-color 0.2s',

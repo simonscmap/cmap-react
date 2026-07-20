@@ -79,7 +79,7 @@ const TimeSeriesChart = (props) => {
           type: 'data',
           array: stds,
           opacity: 0.3,
-          color: showErrorBars ? '#f2f2f2' : 'transparent',
+          color: showErrorBars ? 'var(--cmap-neutral-light)' : 'transparent',
           visible: true,
         },
         name: truncate60(metadata.Long_Name),

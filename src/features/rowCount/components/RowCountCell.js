@@ -24,22 +24,22 @@ const useStyles = makeStyles(() => ({
     alignItems: 'center',
   },
   failedRowCount: {
-    color: '#c62828', // Prominent red (matching private chip pattern)
+    color: 'var(--cmap-error)', // Prominent red (matching private chip pattern)
     fontSize: '0.75rem',
     fontStyle: 'italic',
   },
   clusterOnlyRowCount: {
-    color: '#90a4ae', // Gray/blue for cluster-only
+    color: 'var(--cmap-text-muted)', // Gray/blue for cluster-only
     fontSize: '0.75rem',
     fontStyle: 'italic',
   },
   recalculatedRowCount: {
-    color: '#8bc34a', // Vibrant green
+    color: 'var(--cmap-green)', // Vibrant green
     fontSize: '0.75rem',
     fontStyle: 'italic',
   },
   estimatedRowCount: {
-    color: '#9c27b0', // Purple (Material-UI primary purple)
+    color: 'var(--cmap-purple)', // Purple (Material-UI primary purple)
     fontSize: '0.75rem',
     fontStyle: 'italic',
   },
@@ -108,7 +108,7 @@ const RowCountCell = ({ shortName, currentConstraints }) => {
         <ClusterOnlyTooltip shortName={shortName}>
           <InfoIcon
             style={{
-              color: '#90a4ae',
+              color: 'var(--cmap-text-muted)',
               fontSize: 16,
               verticalAlign: 'middle',
               marginLeft: 4,
@@ -131,7 +131,7 @@ const RowCountCell = ({ shortName, currentConstraints }) => {
         >
           <WarningIcon
             style={{
-              color: '#fdd835',
+              color: 'var(--cmap-warning)',
               fontSize: 16,
               verticalAlign: 'middle',
               marginLeft: 4,

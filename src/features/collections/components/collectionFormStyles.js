@@ -32,16 +32,16 @@ export const useCollectionFormStyles = makeStyles((theme) => ({
     width: '100%',
   },
   helperTextChecking: {
-    color: '#FFD700',
+    color: 'var(--cmap-warning)',
   },
   helperTextAvailable: {
-    color: 'rgb(157, 209, 98)',
+    color: 'rgb(var(--cmap-green-rgb))',
   },
   helperTextUnchanged: {
     color: 'rgba(255, 255, 255, 0.5)',
   },
   helperTextWarning: {
-    color: '#FFD700',
+    color: 'var(--cmap-warning)',
   },
   helperTextUnavailable: {
     color: colors.blockingError,

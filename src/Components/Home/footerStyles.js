@@ -4,7 +4,7 @@ const footerStyles = () => ({
   footerOuterContainer: {
     background: colors.gradient.deeps,
     paddingTop: '80px',
-    borderTop: '1px solid #859db2',
+    borderTop: '1px solid var(--cmap-text-muted)',
   },
   footerInnerContainer: {
     display: 'flex',

@@ -39,7 +39,7 @@ const useStyles = makeStyles((theme) => ({
     zIndex: 1,
     '& .MuiTableCell-head': {
       backgroundColor: 'rgba(30, 67, 113, 1)',
-      color: '#8bc34a',
+      color: 'var(--cmap-green)',
       fontWeight: 500,
       fontSize: '0.875rem',
       position: 'sticky',

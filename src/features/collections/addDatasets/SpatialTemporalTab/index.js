@@ -136,7 +136,7 @@ const useStyles = makeStyles((theme) => ({
   errorMessage: {
     padding: theme.spacing(2),
     backgroundColor: 'rgba(255, 82, 82, 0.1)',
-    borderRadius: '4px',
+    borderRadius: '6px',
     color: theme.palette.error.main,
     textAlign: 'center',
   },

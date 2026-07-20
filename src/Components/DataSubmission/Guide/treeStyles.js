@@ -45,7 +45,7 @@ const useStyles = makeStyles((theme) => ({
   },
   highlight: {
     '&.MuiTreeItem-root > .MuiTreeItem-content .MuiTreeItem-label': {
-      color: '#07274d',
+      color: 'var(--cmap-surface-dark)',
       background: 'white',
       backgroundColor: 'white',
     },

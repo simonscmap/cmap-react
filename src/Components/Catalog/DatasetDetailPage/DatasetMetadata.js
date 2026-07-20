@@ -4,12 +4,12 @@ import { Search } from '@material-ui/icons';
 import colors from '../../../enums/colors';
 import { BlobRender } from '../VariablesTable/MetadataToolPanel';
 
-const TABLE_BG_COLOR = '#184562';
+const TABLE_BG_COLOR = colors.surface;
 
 const styles = () => ({
   root: {
     border: `2px solid ${colors.primary}`,
-    borderRadius: '4px',
+    borderRadius: '6px',
     background: 'rbga(0,0,0,0.4)',
     '& input': {
       width: '260px',

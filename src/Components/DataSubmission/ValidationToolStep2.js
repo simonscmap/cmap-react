@@ -36,7 +36,7 @@ const useStyles = makeStyles((theme) => ({
   },
   paper: {
     padding: '10px',
-    borderRadius: '5px',
+    borderRadius: '6px',
     margin: '2em 0',
   },
 }));

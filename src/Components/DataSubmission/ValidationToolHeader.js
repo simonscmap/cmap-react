@@ -33,7 +33,7 @@ const useHeaderStyles = makeStyles((theme) => ({
     fontSize: '1.4em',
   },
   bright: {
-    color: '#69FFF2',
+    color: 'var(--cmap-primary)',
   },
   title: {
     color: 'white',

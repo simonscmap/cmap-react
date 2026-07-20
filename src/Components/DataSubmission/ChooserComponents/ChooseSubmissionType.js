@@ -30,7 +30,7 @@ const useStyles = makeStyles((theme) => ({
   selectWrapper: {
     // border: `1px solid ${theme.palette.primary.light}`,
     marginLeft: '35px',
-    borderRadius: '4px',
+    borderRadius: '6px',
     display: 'flex',
     flexDirection: 'column',
     padding: '.25em 1em',
@@ -47,7 +47,7 @@ const useStyles = makeStyles((theme) => ({
     },
     '& .MuiFilledInput-root': {
       background: 'rgba(0,0,0,0.1)',
-      borderRadius: '5px',
+      borderRadius: '6px',
     },
   },
   selectFormControl: {

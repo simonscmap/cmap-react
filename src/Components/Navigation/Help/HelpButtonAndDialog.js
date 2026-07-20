@@ -14,7 +14,7 @@ import z from '../../../enums/zIndex';
 
 const styles = (theme) => ({
   dialogPaper: {
-    backgroundColor: '#1B445C',
+    backgroundColor: 'var(--cmap-surface)',
   },
 
   dialogPaperViz: {

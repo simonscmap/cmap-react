@@ -54,7 +54,7 @@ const useStyles = makeStyles((theme) => ({
       position: 'relative',
       display: 'flex',
       alignItems: 'center',
-      color: '#9dd162',
+      color: 'var(--cmap-green)',
       fontSize: '.9em',
       height: `${ROW_HEIGHT}px`,
       width: `${ROW_HEIGHT}px`,
@@ -67,7 +67,7 @@ const useStyles = makeStyles((theme) => ({
       },
     },
     '& .radio-select.selected': {
-      color: '#22A3B9',
+      color: 'var(--cmap-primary)',
     },
   },
   agGridStyles: {
@@ -100,7 +100,7 @@ const useStyles = makeStyles((theme) => ({
     gap: '20px',
     paddingLeft: '10px',
     transition: 'all 0.5s ease',
-    borderRadius: '5px',
+    borderRadius: '6px',
     '& svg': {
       paddingRight: '10px',
     },
@@ -113,15 +113,15 @@ const useStyles = makeStyles((theme) => ({
   },
   searchActive: {
     width: 'calc(100% - 10px)',
-    borderRadius: '5px',
+    borderRadius: '6px',
     background: 'rgba(0,0,0,0.3)',
     '& .MuiOutlinedInput-input': {
       background: 'rgba(0,0,0,1)',
-      borderRadius: '5px',
-      border: '2px solid #22A3B9', // #3f51b5 // #22A3B9
+      borderRadius: '6px',
+      border: '2px solid var(--cmap-primary)', // var(--cmap-primary) // var(--cmap-primary)
     },
     '& fieldset': {
-      borderRadius: '5px',
+      borderRadius: '6px',
     },
     '& .MuiFormControl-root': {
       flexGrow: 3,
@@ -130,13 +130,13 @@ const useStyles = makeStyles((theme) => ({
   selectVarInstruction: {
     margin: '.5em 0',
     padding: '.5em',
-    border: '2px solid #d16265',
+    border: '2px solid var(--cmap-error)',
     background: 'rgba(0,0,0,0.2)',
   },
   noVarsIndicator: {
     margin: '.5em 0',
     padding: '.5em',
-    border: '2px solid #d16265',
+    border: '2px solid var(--cmap-error)',
     background: 'rgba(0,0,0,0.2)',
   },
   mark: {
@@ -148,7 +148,7 @@ const useStyles = makeStyles((theme) => ({
     height: 0,
     borderLeft: '5px solid transparent',
     borderRight: '5px solid transparent',
-    borderTop: '5px solid #d16265',
+    borderTop: '5px solid var(--cmap-error)',
   },
 }));
 

@@ -55,7 +55,7 @@ const styles = (theme) => ({
     },
     '&::-webkit-scrollbar-thumb': {
       backgroundColor: theme.palette.secondary.main,
-      borderRadius: '5px',
+      borderRadius: '6px',
       border: 'none',
     },
   },

@@ -68,7 +68,7 @@ const useStyles = makeStyles((theme) => ({
     color: 'white',
     margin: '16px 0 16px 0',
     fontWeight: 100,
-    fontFamily: '"roboto", Serif',
+    fontFamily: 'Lato, sans-serif',
   },
   container: {
     backgroundColor: 'rgba(16, 43, 60, 0.6)',

@@ -47,7 +47,7 @@ const useStyles = makeStyles((theme) => ({
   story: {
     background: 'rgba(0,0,0,0.2)',
     padding: '1em',
-    borderRadius: '5px',
+    borderRadius: '6px',
     marginRight: '10px',
     '& > span': {
       fontSize: '1rem',
@@ -58,7 +58,7 @@ const useStyles = makeStyles((theme) => ({
       fontWeight: 400,
       fontFamily: 'Montserrat,sans-serif',
       '& a': {
-        color: '#69FFF2',
+        color: 'var(--cmap-primary)',
         fontSize: '1.2rem',
         textTransform: 'uppercase',
       },
@@ -69,7 +69,7 @@ const useStyles = makeStyles((theme) => ({
         color: '#fff',
         textDecoration: 'underline',
         '&:hover': {
-          color: '#69FFF2',
+          color: 'var(--cmap-primary)',
         },
       },
     },

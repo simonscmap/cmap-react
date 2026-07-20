@@ -54,7 +54,7 @@ const useStyles = makeStyles((theme) => ({
     '& em': {
       fontWeight: 'bold',
       fontStyle: 'normal',
-      color: '#69FFF2', // theme.palette.secondary.main,
+      color: 'var(--cmap-primary)', // theme.palette.secondary.main,
     },
   },
   cardTitleWrapper: {
@@ -95,7 +95,7 @@ const useStyles = makeStyles((theme) => ({
     },
   },
   bright: {
-    color: '#69FFF2',
+    color: 'var(--cmap-primary)',
   },
 }));
 

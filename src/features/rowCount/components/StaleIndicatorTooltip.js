@@ -34,19 +34,19 @@ const useStyles = makeStyles(() => ({
     lineHeight: 1.5,
   },
   button: {
-    backgroundColor: '#bbdefb',
-    color: '#1565c0',
+    backgroundColor: 'var(--cmap-primary-tint)',
+    color: 'var(--cmap-primary)',
     fontWeight: 700,
     fontSize: '0.75rem',
     textTransform: 'none',
     marginTop: 4,
     marginBottom: 4,
     '&:hover': {
-      backgroundColor: '#90caf9',
+      backgroundColor: 'var(--cmap-primary)',
     },
     '&:disabled': {
-      backgroundColor: '#e3f2fd',
-      color: '#64b5f6',
+      backgroundColor: 'var(--cmap-primary-tint)',
+      color: 'var(--cmap-primary)',
     },
   },
   footer: {

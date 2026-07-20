@@ -1,28 +1,51 @@
-import { colors as homeColors } from '../Components/Home/theme';
-
-// TODO Gradually consolidate scattered color/font/design definitions to reference the home theme
-
-const errorYellow = '#ffe336';
+/**
+ * Legacy color enum, retargeted onto the design tokens.
+ *
+ * Historically this module defined its own palette. It now derives every
+ * value from src/theme/tokens.json so that a palette change in the token
+ * file propagates to every component that imports this enum. The legacy
+ * key names are preserved for backward compatibility; canonical keys are
+ * added for new code. New code should prefer importing from src/theme.
+ *
+ * Semantic notes on the legacy names:
+ *  - `primary` and `secondary` now both resolve to the interactive teal.
+ *  - `errorYellow` and `blockingError` historically rendered errors in
+ *    yellow. Blocking errors now resolve to the semantic red; the yellow
+ *    name maps to the amber warning color for non-blocking cautions.
+ */
+import { color } from '../theme/tokens';
 
 const colors = {
-  // Primitive colors
-  primary: '#9dd162', //rgb(157, 209, 98)
-  // primary: homeColors.green.lime,
-  solidPaper: '#184562',
-  backgroundGray: '#424242',
-  secondary: '#22A3B9',
-  errorYellow,
-  greenHover: 'rgba(97, 149, 38, .4)',
-  blueHover: 'rgb(105, 255, 242, 0.4)',
-  teal: homeColors.blue.teal,
-  slate: homeColors.blue.slate,
-  deeps: '#03172F',
-  blockingError: errorYellow,
-  nonBlockingInfo: homeColors.blue.teal,
-  lightGreen: '#8bc34a',
-  darkBlue: '#102B3C',
-  darkBlueLight: '#19354B',
-  deepSlate: '#1E4371',
+  // Canonical keys (mirror src/theme/tokens.json)
+  background: color.background,
+  surface: color.surface,
+  elevated: color.elevated,
+  primary: color.primary,
+  green: color.green,
+  error: color.error,
+  warning: color.warning,
+  info: color.info,
+  success: color.success,
+  textMuted: color.textMuted,
+  divider: color.divider,
+  hover: color.hover,
+
+  // Legacy keys (values retargeted to tokens)
+  solidPaper: color.surface,
+  backgroundGray: color.surface,
+  secondary: color.primary,
+  errorYellow: color.warning,
+  greenHover: color.hover,
+  blueHover: color.hoverStrong,
+  teal: color.primary,
+  slate: color.elevated,
+  deeps: color.background,
+  blockingError: color.error,
+  nonBlockingInfo: color.info,
+  lightGreen: color.green,
+  darkBlue: color.surface,
+  darkBlueLight: color.elevated,
+  deepSlate: color.elevated,
 };
 
 export default Object.freeze(colors);

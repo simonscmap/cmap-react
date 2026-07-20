@@ -34,7 +34,7 @@ const useStyles = makeStyles((theme) => ({
     color: 'grey',
     border: `2px solid #ccc`,
     '&:hover': {
-      color: '#69FFF2',
+      color: 'var(--cmap-primary)',
       background: 'transparent',
       border: `2px solid ${theme.palette.secondary.main}`,
     },
@@ -43,7 +43,7 @@ const useStyles = makeStyles((theme) => ({
     fontSize: '20px',
     color: 'rgb(179, 247, 102)',
     '&:hover': {
-      color: '#69FFF2',
+      color: 'var(--cmap-primary)',
       background: 'transparent',
     },
   },

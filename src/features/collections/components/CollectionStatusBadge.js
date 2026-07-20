@@ -14,25 +14,25 @@ const baseChipStyles = {
 const useStyles = makeStyles(() => ({
   publicChip: {
     ...baseChipStyles,
-    backgroundColor: '#c8e6c9',
-    color: '#2e7d32',
+    backgroundColor: 'var(--cmap-green-tint)',
+    color: 'var(--cmap-green-basil)',
     minWidth: 56,
   },
   privateChip: {
     ...baseChipStyles,
-    backgroundColor: '#ffcdd2',
-    color: '#c62828',
+    backgroundColor: 'var(--cmap-error-tint)',
+    color: 'var(--cmap-error)',
     minWidth: 56,
   },
   followingChip: {
     ...baseChipStyles,
-    backgroundColor: '#bbdefb',
-    color: '#1565c0',
+    backgroundColor: 'var(--cmap-primary-tint)',
+    color: 'var(--cmap-primary)',
   },
   newChip: {
     ...baseChipStyles,
-    backgroundColor: '#ffe0b2',
-    color: '#e65100',
+    backgroundColor: 'var(--cmap-warning-tint)',
+    color: 'var(--cmap-warning)',
     minWidth: 56,
   },
 }));

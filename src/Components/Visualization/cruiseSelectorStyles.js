@@ -9,7 +9,7 @@ const styles = (theme) => ({
     maxWidth: '360px',
     backgroundColor: 'transparent',
     color: esriFontColor,
-    borderRadius: '4px',
+    borderRadius: '6px',
     boxShadow: '2px',
     backdropFilter: 'blur(2px)',
     transform: 'translateY(35px)',
@@ -69,7 +69,7 @@ const styles = (theme) => ({
   },
   openSearchButtonPaper: {
     backgroundColor: theme.palette.background.paper,
-    boxShadow: '1px 1px 1px 1px #242424',
+    boxShadow: '1px 1px 1px 1px var(--cmap-background)',
   },
   openSearchButton: {
     textTransform: 'none',

@@ -48,7 +48,7 @@ const styles = (theme) => ({
       margin: '16px auto 16px auto',
       width: '90%',
     },
-    fontFamily: '"roboto", Serif',
+    fontFamily: 'Lato, sans-serif',
     backgroundColor: 'rgba(0,0,0,.4)',
     marginBottom: '20px',
   },
@@ -60,7 +60,7 @@ const styles = (theme) => ({
   sectionHeader: {
     margin: '16px 0 2px 0',
     fontWeight: 100,
-    fontFamily: '"roboto", Serif',
+    fontFamily: 'Lato, sans-serif',
   },
 
   sampleTableRow: {

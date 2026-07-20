@@ -43,7 +43,7 @@ const styles = (theme) => ({
     },
     cursor: 'pointer',
     height: '38px',
-    boxShadow: '0px 0px 0px 1px #242424',
+    boxShadow: '0px 0px 0px 1px var(--cmap-background)',
     marginTop: '8px',
   },
   dropdownContentWrapper: {
@@ -61,7 +61,7 @@ const styles = (theme) => ({
     },
     '&::-webkit-scrollbar-thumb': {
       backgroundColor: theme.palette.primary.main,
-      borderRadius: '5px',
+      borderRadius: '6px',
       border: 'none',
     },
   },

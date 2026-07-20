@@ -234,7 +234,7 @@ const useCrossProgramInfoStyles = makeStyles((theme) => ({
     cursor: 'default',
     '&:hover': {
       // color: ''
-      textDecoration: '#22A3B9 underline',
+      textDecoration: 'var(--cmap-primary) underline',
     },
   },
 }));

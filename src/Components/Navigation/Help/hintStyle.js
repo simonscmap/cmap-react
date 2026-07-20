@@ -166,7 +166,7 @@ const pageNameToStyle = (pageName) => {
     default:
       return Object.assign({}, template, {
         hint: {
-          backgroundColor: '#1F4A63',
+          backgroundColor: 'var(--cmap-elevated)',
         },
       });
   }
@@ -221,7 +221,7 @@ export const useHintStyles = makeStyles({
         position: 'absolute',
         border: 'none',
         borderRadius: '1em',
-        backgroundColor: '#9dd162',
+        backgroundColor: 'var(--cmap-green)',
         lineHeight: '1em',
         width: '1em',
         height: '1em',
@@ -241,8 +241,8 @@ export const useHintStyles = makeStyles({
         fontSize: '.8em',
         textAlign: 'left',
         padding: '.5em',
-        border: '1px solid #9dd162',
-        borderRadius: '5px',
+        border: '1px solid var(--cmap-green)',
+        borderRadius: '6px',
         minWidth: '200px',
         zIndex: 9999,
       },
@@ -258,7 +258,7 @@ export const useHintStyles = makeStyles({
         height: 0,
         borderLeft: '.5em solid transparent',
         borderRight: '.5em solid transparent',
-        borderBottom: '1em solid #9dd162',
+        borderBottom: '1em solid var(--cmap-green)',
       },
       overrides ? overrides.arrow : {},
     ),

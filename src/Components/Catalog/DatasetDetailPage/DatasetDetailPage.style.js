@@ -8,11 +8,11 @@ const scrollableStyles = {
   },
   '&::-webkit-scrollbar-track': {
     background: 'rgba(255, 255, 255, 0.1)',
-    borderRadius: '4px',
+    borderRadius: '6px',
   },
   '&::-webkit-scrollbar-thumb': {
     background: 'rgba(255, 255, 255, 0.2)',
-    borderRadius: '4px',
+    borderRadius: '6px',
     '&:hover': {
       background: 'rgba(255, 255, 255, 0.3)',
     },
@@ -31,14 +31,14 @@ const styles = (theme) => ({
       margin: '16px auto 16px auto',
       width: '90%',
     },
-    fontFamily: '"roboto", Serif',
+    fontFamily: 'Lato, sans-serif',
     backgroundColor: 'rgba(0,0,0,.4)',
     marginBottom: '20px',
   },
   sectionHeader: {
     margin: '16px 0 2px 0',
     fontWeight: 100,
-    fontFamily: '"roboto", Serif',
+    fontFamily: 'Lato, sans-serif',
   },
   sectionHeadRow: {
     display: 'flex',

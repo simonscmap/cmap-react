@@ -9,6 +9,7 @@ import store from './Redux/store';
 import App from './App';
 import { addBreadcrumb } from './shared/errorCapture/breadcrumbs';
 import './Stylesheets/index.css';
+import './theme/cssVariables';
 import 'ag-grid-enterprise';
 
 LicenseManager.setLicenseKey(

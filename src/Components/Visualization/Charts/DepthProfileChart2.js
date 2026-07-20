@@ -69,7 +69,7 @@ const DepthProfileChart = (props) => {
           type: 'data',
           array: stds,
           opacity: 0.3,
-          color: errorBarState ? '#f2f2f2' : 'transparent',
+          color: errorBarState ? 'var(--cmap-neutral-light)' : 'transparent',
           visible: true,
         },
         name: `${

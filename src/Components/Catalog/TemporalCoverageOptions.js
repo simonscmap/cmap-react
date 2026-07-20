@@ -34,7 +34,7 @@ export const TemporalCoverageOptions = (props) => {
           InputLabelProps={{
             shrink: true,
             style: {
-              color: '#96CE57',
+              color: 'var(--cmap-green)',
             },
           }}
           value={timeStart}
@@ -54,7 +54,7 @@ export const TemporalCoverageOptions = (props) => {
           type="date"
           InputLabelProps={{
             shrink: true,
-            style: { color: '#96CE57' },
+            style: { color: 'var(--cmap-green)' },
           }}
           inputProps={{
             style: { fontSize: '16px' },

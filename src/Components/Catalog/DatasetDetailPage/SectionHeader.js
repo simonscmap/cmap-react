@@ -8,7 +8,7 @@ const useStyles = makeStyles((theme) => ({
     color: 'white',
     margin: '16px 0 16px 0',
     fontWeight: 100,
-    fontFamily: '"roboto", Serif',
+    fontFamily: 'Lato, sans-serif',
   },
 }));
 

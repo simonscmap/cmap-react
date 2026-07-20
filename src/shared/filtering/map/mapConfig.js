@@ -1,3 +1,5 @@
+import { rgbArray as cmapRgbArray } from '../../../theme/tokens';
+
 let SPATIAL_REFERENCE = { wkid: 4326 };
 
 let WORLD_EXTENT = {
@@ -29,16 +31,16 @@ let RECTANGLE_SYMBOL = {
 
 let CREATE_SYMBOL = {
   type: 'simple-fill',
-  color: [157, 209, 98, 0.3],
-  outline: { color: [157, 209, 98, 1], width: 2 },
+  color: cmapRgbArray.green.concat(0.3),
+  outline: { color: cmapRgbArray.green.concat(1), width: 2 },
 };
 
 let STATIC_SYMBOL = CREATE_SYMBOL;
 
 let HIGHLIGHT_OPTIONS = {
-  color: [157, 209, 98, .3],
+  color: cmapRgbArray.green.concat(0.3),
   fillOpacity: 0.1,
-  haloOpacity: .5,
+  haloOpacity: 0.5,
 };
 
 let ESRI_VERSION = '4.24';

@@ -16,7 +16,7 @@ let useStyles = makeStyles(() => ({
     minWidth: 140,
     maxWidth: 200,
     '& .MuiOutlinedInput-notchedOutline': {
-      borderColor: 'rgba(157, 209, 98, 0.4)',
+      borderColor: 'rgba(var(--cmap-green-rgb), 0.4)',
     },
     '& .MuiOutlinedInput-root:hover .MuiOutlinedInput-notchedOutline': {
       borderColor: colors.primary,

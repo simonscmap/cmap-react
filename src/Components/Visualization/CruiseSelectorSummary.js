@@ -18,7 +18,7 @@ const useStyles = makeStyles((theme) => ({
     alignItems: 'flex-start',
     padding: '.5em',
     margin: '0',
-    border: '1px solid #242424', // mimics "box-shadow" style of selctor input fields
+    border: '1px solid var(--cmap-background)', // mimics "box-shadow" style of selctor input fields
     '& > div': {
       textAlign: 'left',
     },
@@ -38,8 +38,8 @@ const useStyles = makeStyles((theme) => ({
     whiteSpace: 'nowrap',
     padding: '0, 1em',
     '&.Mui-disabled': {
-      color: '#7e7e7e',
-      borderColor: '#393939',
+      color: 'var(--cmap-neutral-steel)',
+      borderColor: 'var(--cmap-surface)',
     },
   },
   summaryHeader: {

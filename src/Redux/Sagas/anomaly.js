@@ -25,7 +25,7 @@ const processData = (data, unitString, color) => {
       y: data[k].y,
       name,
       line: {
-        color: color || 'rgba(161, 246, 64, 1)',
+        color: color || 'rgba(var(--cmap-green-rgb), 1)',
         width: 5,
       },
     });
@@ -68,7 +68,7 @@ export function* requestAvgADTAnomalyDataSend(action) {
   yield put(dataActions.adtAnomalyDataProcessing());
   if (response && response.ok) {
     const jsonResponse = yield response.json();
-    const data = processData(jsonResponse, 'm', 'rgba(105, 255, 242, 1)');
+    const data = processData(jsonResponse, 'm', 'rgba(var(--cmap-primary-rgb), 1)');
     // console.log ('assigning adt to window');
     // window.adtAnomalyData = data;
     // console.log ('done assigning adt');

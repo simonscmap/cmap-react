@@ -2,7 +2,7 @@ const styles = () => ({
   resultPaper: {
     background: 'rgba(0,0,0,0.2)',
     boxShadow: 'none',
-    border: '1px solid #69FFF2',
+    border: '1px solid var(--cmap-primary)',
   },
   wrapper: {
     padding: '.9em',

@@ -67,7 +67,7 @@ export default function ScrollHintOverlay({ children, style }) {
             right: 2,
             width: '7px',
             height: `${scrollbarHeight}px`,
-            backgroundColor: '#5F9B2B',
+            backgroundColor: 'var(--cmap-green)',
             borderRadius: '3px',
             animation: animateFadeOut
               ? 'fadeOut 0.75s ease-out forwards'

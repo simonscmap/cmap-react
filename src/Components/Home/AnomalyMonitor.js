@@ -12,6 +12,7 @@ import { Skeleton } from '@material-ui/lab';
 // } from '../../Redux/actions/data';
 import dayjs from 'dayjs';
 import Papa from 'papaparse';
+import { rgb as cmapRgb } from '../../theme/tokens';
 
 const useStyles = makeStyles((theme) => ({
   mainWrapper: {
@@ -66,7 +67,7 @@ const layout = {
     text: 'Globally Averaged Anomalies',
     font: {
       size: 24,
-      color: 'rgb(105, 255, 242)',
+      color: 'rgb(' + cmapRgb.primary + ')',
     },
   },
   margin,
@@ -81,8 +82,8 @@ const layout = {
       standoff: 30,
     },
     titlefont: { size: 16 },
-    color: 'rgb(105, 255, 242)',
-    gridcolor: 'rgba(105, 255, 242, 0)',
+    color: 'rgb(' + cmapRgb.primary + ')',
+    gridcolor: 'rgba(' + cmapRgb.primary + ', 0)',
     layer: 'above traces',
     zeroline: false,
     showline: true,
@@ -108,8 +109,8 @@ const layout = {
     },
     automargin: true,
     titlefont: { size: 16 },
-    color: 'rgb(105, 255, 242)',
-    gridcolor: 'rgba(105, 255, 242, 0)',
+    color: 'rgb(' + cmapRgb.primary + ')',
+    gridcolor: 'rgba(' + cmapRgb.primary + ', 0)',
     zeroline: false,
     zerolinecolor: '#ffffff',
     zerolinewidth: '2px',
@@ -204,7 +205,7 @@ const AnomalyMonitor = (props) => {
         x: dates,
         y: values,
         line: {
-          color: color || 'rgba(161, 246, 64, 1)',
+          color: color || 'rgba(' + cmapRgb.green + ', 1)',
           width: 5,
         },
       },
@@ -242,7 +243,7 @@ const AnomalyMonitor = (props) => {
         const adtData = processCSVData(
           results.data,
           'm',
-          'rgba(105, 255, 242, 1)',
+          'rgba(' + cmapRgb.primary + ', 1)',
         );
         setAvgADTData(adtData);
         setIsLoading(false);
@@ -277,7 +278,7 @@ const AnomalyMonitor = (props) => {
         },
         yaxis: {
           ...dualLayoutTemplate.yaxis,
-          color: 'rgba(161, 246, 64, 1)',
+          color: 'rgba(' + cmapRgb.green + ', 1)',
         },
         yaxis2: {
           ...dualLayoutTemplate.yaxis,

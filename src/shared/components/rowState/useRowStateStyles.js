@@ -78,19 +78,19 @@ const useStyles = makeStyles(() => ({
   },
   // Invalid dataset label (yellow)
   invalidLabel: {
-    color: '#ffc107',
+    color: 'var(--cmap-warning)',
   },
   // Newly added label (purple)
   addedLabel: {
-    color: '#9c27b0',
+    color: 'var(--cmap-purple)',
   },
   // Marked for removal label (red)
   removedLabel: {
-    color: '#d32f2f',
+    color: 'var(--cmap-error)',
   },
   // Already present label (gray)
   alreadyPresentLabel: {
-    color: '#808080',
+    color: 'var(--cmap-neutral-steel)',
     textAlign: 'center',
   },
 }));

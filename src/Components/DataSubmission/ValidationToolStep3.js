@@ -68,7 +68,7 @@ const useStyles = makeStyles((theme) => ({
     fontSize: '1.4em',
   },
   bright: {
-    color: '#69FFF2',
+    color: 'var(--cmap-primary)',
   },
   spinnerContainer: {
     height: '400px',

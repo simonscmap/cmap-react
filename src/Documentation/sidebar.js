@@ -44,8 +44,8 @@ let styles = (theme) => ({
     margin: '84px auto 0 auto',
   },
   drawerOpen: {
-    backgroundColor: '#1F4A63',
-    borderRight: '4px solid #143445',
+    backgroundColor: 'var(--cmap-elevated)',
+    borderRight: '4px solid var(--cmap-surface)',
     width: drawerWidth,
     transition: theme.transitions.create('width', {
       easing: theme.transitions.easing.sharp,
@@ -53,7 +53,7 @@ let styles = (theme) => ({
     }),
   },
   drawerClose: {
-    backgroundColor: '#1F4A63',
+    backgroundColor: 'var(--cmap-elevated)',
     transition: theme.transitions.create('width', {
       easing: theme.transitions.easing.sharp,
       duration: theme.transitions.duration.leavingScreen,

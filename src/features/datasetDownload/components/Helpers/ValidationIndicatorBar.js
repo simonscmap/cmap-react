@@ -9,18 +9,20 @@ import ValidationStatusBar from '../DownloadDialog/StatusBar';
 const useStyles = makeStyles({
   root: {
     width: '100%',
-    backgroundColor: '#13374e',
+    backgroundColor: colors.surface,
     paddingBottom: '.5em',
   },
 });
 
 const WarningTheme = createTheme({
   palette: {
+    // Semantic mapping from the design tokens: red for blocking errors,
+    // amber for warnings.
     primary: {
-      main: colors.blockingError,
+      main: colors.error,
     },
     secondary: {
-      main: colors.blockingError,
+      main: colors.warning,
     },
   },
 });

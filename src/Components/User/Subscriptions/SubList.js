@@ -85,7 +85,7 @@ const useTableStyles = makeStyles({
     margin: '1em 0',
     fontSize: '16px',
     textTransform: 'uppercase',
-    color: '#69FFF2',
+    color: 'var(--cmap-primary)',
   },
   controlWrapper: {
     margin: '1em 0',

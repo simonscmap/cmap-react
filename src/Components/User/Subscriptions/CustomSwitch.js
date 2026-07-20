@@ -32,7 +32,7 @@ const useStyles = makeStyles((theme) => ({
   dotOn: {
     left: 'unset',
     right: 3,
-    backgroundColor: '#69FFF2',
+    backgroundColor: 'var(--cmap-primary)',
   },
   dotOff: {
     right: 'unset',

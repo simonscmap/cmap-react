@@ -129,7 +129,7 @@ const useStyles = makeStyles((theme) => ({
     margin: '-4px 0 0 0',
     '& > svg': {
       fontSize: '.9em',
-      color: '#9dd162',
+      color: colors.green,
     },
   },
 }));

@@ -14,7 +14,7 @@ const useStyles = makeStyles((theme) => ({
     border: 'none',
     boxShadow: 'none',
     '&:hover': {
-      backgroundColor: 'rgba(105,255,242,0.08)',
+      backgroundColor: 'rgba(var(--cmap-primary-rgb),0.08)',
     },
     borderRadius: '36px',
     boxSizing: 'border-box',
@@ -35,7 +35,7 @@ const useStyles = makeStyles((theme) => ({
     color: '#333',
     fontSize: '12px',
     padding: '4px 8px',
-    borderRadius: '4px',
+    borderRadius: '6px',
     boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
     fontWeight: 600,
   },

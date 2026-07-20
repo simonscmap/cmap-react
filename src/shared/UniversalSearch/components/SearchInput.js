@@ -35,7 +35,7 @@ const useStyles = makeStyles((theme) => ({
     color: theme.palette.text.secondary,
   },
   autocompleteListbox: {
-    backgroundColor: '#1B4156',
+    backgroundColor: colors.surface,
     maxHeight: '400px',
     overflowY: 'auto',
     paddingBottom: '44px',
@@ -43,10 +43,10 @@ const useStyles = makeStyles((theme) => ({
     '& .MuiAutocomplete-option': {
       color: '#ffffff',
       '&:hover': {
-        backgroundColor: 'rgba(157, 209, 98, 0.2)',
+        backgroundColor: 'rgba(var(--cmap-green-rgb), 0.2)',
       },
       '&[data-focus="true"]': {
-        backgroundColor: 'rgba(157, 209, 98, 0.15)',
+        backgroundColor: 'rgba(var(--cmap-green-rgb), 0.15)',
       },
       '&[aria-disabled="true"]': {
         pointerEvents: 'auto',
@@ -71,8 +71,8 @@ const useStyles = makeStyles((theme) => ({
     },
   },
   autocompletePaper: {
-    backgroundColor: '#1B4156',
-    border: '1px solid rgba(157, 209, 98, 0.3)',
+    backgroundColor: colors.surface,
+    border: '1px solid rgba(var(--cmap-green-rgb), 0.3)',
     minHeight: '48px',
     maxHeight: '444px',
     position: 'relative',
@@ -88,7 +88,7 @@ const useStyles = makeStyles((theme) => ({
     fontSize: '0.875rem',
     fontStyle: 'italic',
     color: 'rgba(255, 255, 255, 0.6)',
-    backgroundColor: '#1B4156',
+    backgroundColor: colors.surface,
     borderTop: '1px solid rgba(255, 255, 255, 0.12)',
     pointerEvents: 'none',
     zIndex: 2,
@@ -100,7 +100,7 @@ const useStyles = makeStyles((theme) => ({
   stickyHeader: {
     position: 'sticky',
     top: 0,
-    backgroundColor: '#1B4156',
+    backgroundColor: colors.surface,
     zIndex: 3,
     flexShrink: 0,
     display: 'contents',
@@ -108,13 +108,13 @@ const useStyles = makeStyles((theme) => ({
   stickyHeaderCell: {
     position: 'sticky',
     top: 0,
-    backgroundColor: '#1B4156',
+    backgroundColor: colors.surface,
     zIndex: 3,
   },
   scrollableContent: {
     overflowY: 'auto',
     flexGrow: 1,
-    backgroundColor: '#1B4156',
+    backgroundColor: colors.surface,
   },
   textFieldRoot: {
     '& .MuiOutlinedInput-root': {
