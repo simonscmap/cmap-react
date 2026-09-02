@@ -80,7 +80,7 @@ const generateDisabledButtonMessage = (
     return disableVisualizeMessage || 'Create Visualization';
   } else {
     if (checkQuerySizeStatus === states.failed) {
-      return 'Unable to determine size of visulization.';
+      return 'Unable to determine size of visualization.';
     } else if (checkQuerySizeStatus === states.inProgress) {
       return 'Checking query size...';
     } else if (checkQuerySizeStatus === states.notTried) {
