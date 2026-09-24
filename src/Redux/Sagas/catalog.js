@@ -48,12 +48,13 @@ export function* getFullPageDataForDownload(action) {
   const shortName = action.payload.shortName;
 
   const detailPageData = yield select(
-    (state) => state.datasetDetailPage && state.datasetDetailPage.dataset.data,
+    (state) => state.datasetDetailsPage && state.datasetDetailsPage.data,
   );
   const dialogData = yield select((state) => state.downloadDialog.data);
 
-  const detailPageShortName =
-    detailPageData && detailPageData.dataset.Short_Name;
+  const detailPageShortName = detailPageData && detailPageData.Short_Name;
+  const hasMatchingDialogData = dialogData && dialogData.Short_Name === shortName;
+  
   // now get dropbox vault files directly
   try {
     const vaultResponse = yield call(
@@ -86,7 +87,7 @@ export function* getFullPageDataForDownload(action) {
     yield put(dropboxActions.fetchVaultFilesPageFailure(error.message));
   }
 
-  if (!dialogData && detailPageShortName !== shortName) {
+  if (!hasMatchingDialogData && detailPageShortName !== shortName) {
     log.info('fetching dataset metadata for download dialog', {
       dialogShortName: shortName,
       detailPageShortName,
