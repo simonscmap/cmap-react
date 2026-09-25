@@ -268,7 +268,10 @@ export default function (state, action) {
             ...state.datasetDetailsPage,
             visualizableVariablesLoadingState: states.succeeded,
             visualizableVariables: action.payload,
-            visualizationSelection: action.payload.variables[0].Short_Name,
+            visualizationSelection:
+              action.payload.variables.length > 0
+                ? action.payload.variables[0].Short_Name
+                : null,
             visualizableDataByName: dataByName,
           },
         };

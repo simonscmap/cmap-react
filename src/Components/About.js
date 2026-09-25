@@ -114,7 +114,10 @@ const About = ({ classes }) => {
                   Tansy Burns, Research Coordinator
                 </Typography>
                 <Typography variant="body1">
-                  Howard Wayne Kim, Web Engineer
+                  Shawn Thomas, Web Engineer
+                </Typography>
+                <Typography variant="body1">
+                  Howard Wayne Kim, Web Engineer (On-leave)
                 </Typography>
               </Group>
               <Group title="University of Washington, Department of Human Centered Design and Engineering">
