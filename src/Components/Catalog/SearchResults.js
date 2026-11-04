@@ -1,6 +1,5 @@
 import { Paper, Typography, withStyles } from '@material-ui/core';
 import { CloudDownload } from '@material-ui/icons';
-import stringify from 'csv-stringify/lib/sync';
 import React, { useEffect, useState } from 'react';
 import { connect } from 'react-redux';
 import { withRouter } from 'react-router-dom';
@@ -19,6 +18,7 @@ import Hint from '../Navigation/Help/Hint';
 import SearchResultsStatusHint from './help/SearchResultsStatusHint';
 import downloadHint from './help/downloadSearchResults';
 import styles from './searchResultsStyles';
+import stringifyCatalogSearchResults from './catalogSearchResultsCsv';
 
 const log = initLogger('Catalog/SearchResults.js');
 
@@ -69,7 +69,7 @@ const SearchResults = (props) => {
   }, [props.location.search]);
 
   const handleDownloadSearchResults = () => {
-    let csv = stringify(searchResults, { header: true });
+    let csv = stringifyCatalogSearchResults(searchResults);
     const blob = new Blob([csv], { type: 'text/csv' });
     const url = window.URL.createObjectURL(blob);
     const a = document.createElement('a');
