@@ -155,14 +155,59 @@ function buildDataTypeFilter(datasetType, tableAlias = 'd') {
  * @returns {{ sql: string, bindings: object }}
  */
 function buildRegionFilter(region, tableAlias = 'd') {
-  if (!region || region === FILTER_VALUES.ALL_REGIONS) {
+  const regions = Array.isArray(region) ? region : [region];
+  const selectedRegions = regions.filter(
+    (value) => value && value !== FILTER_VALUES.ALL_REGIONS,
+  );
+  if (!selectedRegions.length) {
     return { sql: '', bindings: {} };
   }
 
-  const sql = `\n  AND ${tableAlias}.regions LIKE $region`;
-  const bindings = { $region: `%${region}%` };
+  const bindings = {};
+  const conditions = selectedRegions.map((value, index) => {
+    const key = `$region${index}`;
+    bindings[key] = `%${value}%`;
+    return `${tableAlias}.regions LIKE ${key}`;
+  });
+
+  // The legacy catalog search treats globally distributed datasets as matching
+  // every selected region.
+  conditions.push(`${tableAlias}.regions = 'Global'`);
+  const sql = `\n  AND (${conditions.join(' OR ')})`;
 
   return { sql, bindings };
+}
+
+function buildListFilter(
+  values,
+  column,
+  parameter,
+  tableAlias = 'd',
+  match = 'like',
+) {
+  if (!values || values.length === 0) {
+    return { sql: '', bindings: {} };
+  }
+
+  const bindings = {};
+  const conditions = values.map((value, index) => {
+    const key = `$${parameter}${index}`;
+    bindings[key] = match === 'like' ? `%${value}%` : value;
+    return match === 'like'
+      ? `${tableAlias}.${column} LIKE ${key}`
+      : `LOWER(${tableAlias}.${column}) = LOWER(${key})`;
+  });
+  return { sql: `\n  AND (${conditions.join(' OR ')})`, bindings };
+}
+
+function buildHasDepthFilter(hasDepth, tableAlias = 'd') {
+  if (hasDepth === undefined || hasDepth === null) {
+    return { sql: '', bindings: {} };
+  }
+  return {
+    sql: `\n  AND ${tableAlias}.hasDepth = $hasDepth`,
+    bindings: { $hasDepth: hasDepth ? 1 : 0 },
+  };
 }
 
 /**
@@ -357,6 +402,9 @@ function buildCombinedFilters(params, tableAlias = 'd') {
     depth,
     region,
     datasetType,
+    sensors,
+    makes,
+    hasDepth,
     includePartialOverlaps = true,
   } = params;
 
@@ -367,6 +415,9 @@ function buildCombinedFilters(params, tableAlias = 'd') {
   const filters = [
     buildDataTypeFilter(datasetType, tableAlias),
     buildRegionFilter(region, tableAlias),
+    buildListFilter(sensors, 'sensors', 'sensor', tableAlias),
+    buildListFilter(makes, 'make', 'make', tableAlias, 'equals'),
+    buildHasDepthFilter(hasDepth, tableAlias),
     buildSpatialFilter(spatial, includePartialOverlaps, tableAlias),
     buildTemporalFilter(temporal, includePartialOverlaps, tableAlias),
     buildDepthFilter(depth, includePartialOverlaps, tableAlias),

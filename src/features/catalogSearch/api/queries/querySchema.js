@@ -124,6 +124,29 @@ export function validateQuery(query) {
     }
   }
 
+  if (
+    query.region !== undefined &&
+    typeof query.region !== 'string' &&
+    (!Array.isArray(query.region) ||
+      query.region.some((value) => typeof value !== 'string'))
+  ) {
+    errors.push('Invalid region: Must be a string or an array of strings.');
+  }
+
+  ['sensors', 'makes'].forEach((field) => {
+    if (
+      query[field] !== undefined &&
+      (!Array.isArray(query[field]) ||
+        query[field].some((value) => typeof value !== 'string'))
+    ) {
+      errors.push(`Invalid ${field}: Must be an array of strings.`);
+    }
+  });
+
+  if (query.hasDepth !== undefined && typeof query.hasDepth !== 'boolean') {
+    errors.push('Invalid hasDepth: Must be a boolean.');
+  }
+
   // Validate limit
   if (query.limit !== undefined && query.limit !== null) {
     if (typeof query.limit !== 'number' || query.limit < 1) {

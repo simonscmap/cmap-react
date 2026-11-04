@@ -141,6 +141,9 @@ async function initializeDatabase(dbBlob) {
  * @param {boolean} includePartialOverlaps - If true, partial overlap mode; if false, full containment mode
  * @param {string} region - Region filter (null or region name)
  * @param {string} datasetType - Dataset type filter (null or 'Model'/'Satellite'/'In-Situ')
+ * @param {array} sensors - Sensor filter (array of sensor names)
+ * @param {array} makes - Make filter (array of make names)
+ * @param {boolean} hasDepth - If true, only include datasets with depth;
  * @returns {object} - SQL query and bindings { sql, bindings }
  */
 function buildLikeSearch(
@@ -152,7 +155,10 @@ function buildLikeSearch(
   phraseMatch = false,
   includePartialOverlaps = true,
   region = null,
-  datasetType = null
+  datasetType = null,
+  sensors = null,
+  makes = null,
+  hasDepth = null
 ) {
   // Searchable fields (excludes 'description' to match backend)
   const searchableFields = excludeFields
@@ -174,6 +180,9 @@ function buildLikeSearch(
     depth,
     region,
     datasetType,
+    sensors,
+    makes,
+    hasDepth,
     includePartialOverlaps,
   }, 'd');
   filterSql += combinedFilters.sql;
@@ -214,6 +223,9 @@ async function executeSearch(query, searchId) {
       includePartialOverlaps = QUERY_DEFAULTS.includePartialOverlaps,
       region = null,
       datasetType = null,
+      sensors = null,
+      makes = null,
+      hasDepth = null,
       sortMode = null,
       sortDirection = 'desc',
     } = query;
@@ -259,7 +271,10 @@ async function executeSearch(query, searchId) {
         phraseMatch,
         includePartialOverlaps,
         region,
-        datasetType
+        datasetType,
+        sensors,
+        makes,
+        hasDepth
       );
 
       // Compose complete query using template
@@ -287,6 +302,9 @@ async function executeSearch(query, searchId) {
         depth,
         region,
         datasetType,
+        sensors,
+        makes,
+        hasDepth,
         includePartialOverlaps,
       }, 'd');
 
@@ -314,6 +332,9 @@ async function executeSearch(query, searchId) {
         depth,
         region,
         datasetType,
+        sensors,
+        makes,
+        hasDepth,
         includePartialOverlaps,
       });
 
