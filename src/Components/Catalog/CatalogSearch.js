@@ -18,7 +18,6 @@ import {
 import ToggleButton from '@material-ui/lab/ToggleButton';
 import { Search } from '@material-ui/icons';
 import FilterListIcon from '@material-ui/icons/FilterList';
-import { debounce } from 'throttle-debounce';
 import queryString from 'query-string';
 import colors from '../../enums/colors';
 import Hint from '../Navigation/Help/Hint';
@@ -139,9 +138,7 @@ class CatalogSearch extends React.Component {
     });
 
     // log.debug ('push history', { qstring });
-
-    // update the browser url
-    this.pushHistory(qstring);
+    this.props.history.push('/catalog?' + qstring);
   };
 
   handleClickCheckbox = (e, checked) => {
@@ -173,11 +170,7 @@ class CatalogSearch extends React.Component {
       target: { name: statePiece, value: new Set() },
     });
   };
-
-  // TODO :(
-  pushHistory = debounce(1500, (qstring) => {
-    this.props.history.push('/catalog?' + qstring);
-  });
+  
 
   render = () => {
     const { classes, submissionOptions } = this.props;

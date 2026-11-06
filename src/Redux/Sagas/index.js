@@ -18,6 +18,16 @@ import buildSearchOptionsFromVariablesList from '../../Utility/Catalog/buildSear
 import groupDatasetsByMake from '../../Utility/Catalog/groupDatasetsByMake';
 import groupVariablesByDataset from '../../Utility/Catalog/groupVariablesByDataset';
 import ammendSearchResults from '../../Utility/Catalog/ammendSearchResultsWithDatasetFeatures';
+import {
+  createCatalogDataset,
+  createCatalogUrlSearchQuery,
+  getCatalogUrlSearchPageSize,
+} from '../../features/catalogSearch/api/catalogUrlSearch';
+import {
+  initializeCatalogSearch,
+  isClientSideSearchAvailable,
+  searchCatalog,
+} from '../../features/catalogSearch/api';
 // import parseError from '../../Utility/parseError';
 
 // Action Creators
@@ -968,27 +978,58 @@ function* searchOptionsFetch() {
 // This saga is debounced in its watch function
 function* searchResultsFetch(action) {
   const tag = { tag: 'searchResultsFetch' };
+  try {
+    if (!isClientSideSearchAvailable()) {
+      yield call(initializeCatalogSearch);
+    }
 
-  let result = yield call(
-    api.catalog.searchResults,
-    action.payload.queryString,
-  );
-
-  if (result.ok) {
     const storedOptions = yield select((state) => state.submissionOptions);
     const params = queryString.parse(action.payload.queryString);
-    const datasetFeatures = yield select(
+    let datasetFeatures = yield select(
       (state) => state.catalog.datasetFeatures,
     );
 
-    let results = yield result.json();
+    const selectedFeatures = Array.isArray(params.dataFeatures)
+      ? params.dataFeatures
+      : params.dataFeatures
+        ? [params.dataFeatures]
+        : [];
+    if (selectedFeatures.length && !datasetFeatures) {
+      datasetFeatures = yield call(api.catalog.getDatasetFeatures);
+      if (!datasetFeatures) {
+        throw new Error('Failed to retrieve dataset features for catalog search');
+      }
+      yield put({
+        type: catalogActionTypes.FETCH_DATASET_FEATURES_SUCCESS,
+        payload: datasetFeatures,
+      });
+    }
 
-    // if the dataset features data has already loaded, ammend the results
-    // otherwise this will be performed when the data loaded;
-    // see fetchDatasetFeatures and updateCatalogWithDatasetFeatures
+    const pageSize = getCatalogUrlSearchPageSize();
+    let rawResults = [];
+    let offset = 0;
+    let page;
+    do {
+      const query = createCatalogUrlSearchQuery(params, offset);
+      page = yield call(searchCatalog, query);
+      rawResults = rawResults.concat(page);
+      offset += pageSize;
+    } while (page.length === pageSize);
+
+    let results = rawResults.map((result) => createCatalogDataset(result));
     if (datasetFeatures) {
       results = ammendSearchResults(results, datasetFeatures);
     }
+
+    if (selectedFeatures.length) {
+      results = results.filter((dataset) =>
+        selectedFeatures.every((feature) =>
+          dataset.DataFeatures.includes(feature),
+        ),
+      );
+    }
+
+    results.sort((a, b) => b.Dataset_ID - a.Dataset_ID);
 
     let options = buildSearchOptionsFromDatasetList(
       results,
@@ -997,15 +1038,19 @@ function* searchResultsFetch(action) {
     );
 
     yield put(catalogActions.searchResultsStore(results, options));
-  } else {
+    yield put(catalogActions.searchResultsSetLoadingState(states.succeeded));
+  } catch (error) {
+    log.error('client-side catalog search failed', {
+      error: error.message,
+    });
     yield put(
       interfaceActions.snackbarOpen(
         'Failed to retrieve search results. Please try again later.',
         tag,
       ),
     );
+    yield put(catalogActions.searchResultsSetLoadingState(states.failed));
   }
-  yield put(catalogActions.searchResultsSetLoadingState(states.succeeded));
 }
 
 /* fetch data for recommendations */

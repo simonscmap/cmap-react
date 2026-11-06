@@ -86,6 +86,15 @@ function MyComponent() {
 }
 ```
 
+### Main Catalog Page
+
+The `/catalog` page uses the same SQLite worker and IndexedDB cache. Its URL
+filters are translated by `api/catalogUrlSearch.js`, and the Catalog saga reads
+all result pages locally before adapting results to the existing Catalog card
+format. Sensor, make, region, depth-presence, text, spatial, and temporal
+filters are applied in SQLite; dataset feature filters are applied using the
+dataset feature metadata.
+
 ## Data Contracts
 
 ### SearchQuery

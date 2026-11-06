@@ -198,6 +198,26 @@ class SearchQueryBuilder {
     return this;
   }
 
+  withRegions(regions) {
+    this.query.region = regions;
+    return this;
+  }
+
+  withSensors(sensors) {
+    this.query.sensors = sensors;
+    return this;
+  }
+
+  withMakes(makes) {
+    this.query.makes = makes;
+    return this;
+  }
+
+  withHasDepth(hasDepth) {
+    this.query.hasDepth = hasDepth;
+    return this;
+  }
+
   /**
    * Set dataset type filter
    * @param {string|string[]} datasetType - Dataset type(s): single string ('Model', 'Satellite', 'In-Situ') or array of types
