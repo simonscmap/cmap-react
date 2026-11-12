@@ -17,6 +17,7 @@ import { formatCompactNumber } from '../../../shared/utility/formatCompactNumber
 import UniversalButton from '../../../shared/components/UniversalButton';
 import CollectionDownloadButton from '../shared/CollectionDownloadButton';
 import CollectionDownloadModal from '../myCollections/CollectionDownloadModal';
+import EditCollectionModal from '../editCollection/EditCollectionModal';
 import CollectionDatasetsTable from '../components/CollectionDatasetsTable';
 import useCollectionsStore from '../state/collectionsStore';
 import { snackbarOpen } from '../../../Redux/actions/ui';
@@ -31,10 +32,12 @@ const PreviewModal = ({ open, onClose, collection }) => {
 
   // Zustand store selectors
   const copyCollection = useCollectionsStore((state) => state.copyCollection);
+  const userCollections = useCollectionsStore((state) => state.userCollections);
 
   // Local state (UI-specific)
   const [copying, setCopying] = useState(false);
   const [downloadModalOpen, setDownloadModalOpen] = useState(false);
+  const [editModalOpen, setEditModalOpen] = useState(false);
   const [totalRows, setTotalRows] = useState(0);
   const [warningDialogOpen, setWarningDialogOpen] = useState(false);
   const [warningDialogData, setWarningDialogData] = useState(null);
@@ -69,6 +72,10 @@ const PreviewModal = ({ open, onClose, collection }) => {
     );
   };
 
+  const isAlreadyInUserCollections = () =>
+    collection.isOwner ||
+    userCollections.some((userCollection) => userCollection.id === collection.id);
+
   // Prepare statistics for CollectionStatistics component
   const stats = [
     {
@@ -90,6 +97,10 @@ const PreviewModal = ({ open, onClose, collection }) => {
   ];
 
   const handleCopy = async () => {
+    if (isAlreadyInUserCollections()) {
+      return false;
+    }
+
     // Check for invalid datasets using shared helper
     const { invalidDatasets, validDatasets, hasInvalidDatasets } =
       checkInvalidDatasets(collection);
@@ -111,6 +122,10 @@ const PreviewModal = ({ open, onClose, collection }) => {
   };
 
   const performCopy = async () => {
+    if (isAlreadyInUserCollections()) {
+      return false;
+    }
+
     setCopying(true);
     try {
       const result = await copyCollection(collection.id);
@@ -152,6 +167,14 @@ const PreviewModal = ({ open, onClose, collection }) => {
     setDownloadModalOpen(false);
   };
 
+  const handleEdit = () => {
+    setEditModalOpen(true);
+  };
+
+  const handleCloseEditModal = () => {
+    setEditModalOpen(false);
+  };
+
   return (
     <>
       <Dialog
@@ -188,7 +211,7 @@ const PreviewModal = ({ open, onClose, collection }) => {
               Created by {collection.ownerName}
               {collection.ownerAffiliation &&
                 ` (${collection.ownerAffiliation})`}{' '}
-              • Public Collection
+              • {collection.isPublic ? 'Public Collection' : 'Private Collection'}
             </Typography>
             {collection.description && (
               <Box className={classes.descriptionBox}>
@@ -238,7 +261,7 @@ const PreviewModal = ({ open, onClose, collection }) => {
             onClick={handleCopy}
             variant="primary"
             size="large"
-            disabled={copying}
+            disabled={copying || isAlreadyInUserCollections()}
           >
             {copying ? (
               <CircularProgress
@@ -249,6 +272,15 @@ const PreviewModal = ({ open, onClose, collection }) => {
               'COPY TO MY COLLECTIONS'
             )}
           </UniversalButton>
+          {isAlreadyInUserCollections() && (
+            <UniversalButton
+              onClick={handleEdit}
+              variant="primary"
+              size="large"
+            >
+              EDIT
+            </UniversalButton>
+          )}
           <CollectionDownloadButton
             disabled={!collection.datasets || collection.datasets.length === 0}
             onClick={handleDownload}
@@ -263,6 +295,14 @@ const PreviewModal = ({ open, onClose, collection }) => {
         onClose={handleCloseDownloadModal}
         collection={collection}
       />
+
+      {editModalOpen && (
+        <EditCollectionModal
+          open={editModalOpen}
+          onClose={handleCloseEditModal}
+          collectionId={collection.id}
+        />
+      )}
 
       <InvalidDatasetConfirmationDialog
         open={warningDialogOpen}

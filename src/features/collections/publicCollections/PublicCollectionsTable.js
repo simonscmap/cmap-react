@@ -22,8 +22,17 @@ import {
   checkInvalidDatasets,
   InvalidDatasetConfirmationDialog,
 } from '../shared/copyCollectionDialogConfig';
+import colors from '../../../enums/colors';
 
 const useStyles = makeStyles((theme) => ({
+  collectionLink: {
+    color: colors.primary,
+    textDecoration: 'underline',
+    whiteSpace: 'normal',
+    wordBreak: 'break-word',
+    display: 'inline',
+    cursor: 'pointer',
+  },
   tableContainer: {
     maxHeight: 'none',
     backgroundColor: 'rgba(16, 43, 60, 0.6)',
@@ -387,8 +396,8 @@ const PublicCollectionsTable = ({ collections = [] }) => {
                     <Box>
                       <Typography
                         variant="body2"
-                        style={{ color: '#ffffff', fontWeight: 500 }}
-                        noWrap
+                        className={classes.collectionLink}
+                        onClick={() => handlePreview(collection)}
                       >
                         {collection.name}
                       </Typography>

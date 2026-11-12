@@ -18,6 +18,7 @@ import CollectionDownloadButton from '../shared/CollectionDownloadButton';
 import useCollectionsStore from '../state/collectionsStore';
 import CollectionDownloadModal from './CollectionDownloadModal';
 import EditCollectionModal from '../editCollection/EditCollectionModal';
+import PreviewModal from '../previewModal';
 import CollectionStatusBadge from '../components/CollectionStatusBadge';
 import { snackbarOpen } from '../../../Redux/actions/ui';
 
@@ -83,8 +84,15 @@ const useStyles = makeStyles((theme) => ({
     flexGrow: 1,
     minWidth: 0,
     fontSize: '1.4em',
-    color: colors.teal,
+    fontFamily: 'inherit',
+    color: colors.primary,
     overflowWrap: 'break-word',
+    textAlign: 'left',
+    textDecoration: 'underline',
+    background: 'none',
+    border: 0,
+    padding: 0,
+    cursor: 'pointer',
   },
   statusChips: {
     display: 'flex',
@@ -116,6 +124,7 @@ const CollectionCard = ({ collection, isPending = false }) => {
   const justCreatedId = useCollectionsStore((state) => state.justCreatedId);
   const [downloadModalOpen, setDownloadModalOpen] = useState(false);
   const [editModalOpen, setEditModalOpen] = useState(false);
+  const [previewModalOpen, setPreviewModalOpen] = useState(false);
 
   // Check if this collection is the newly created one
   const isNew = collection.id === justCreatedId;
@@ -151,6 +160,14 @@ const CollectionCard = ({ collection, isPending = false }) => {
     setDownloadModalOpen(true);
   };
 
+  const handlePreview = () => {
+    setPreviewModalOpen(true);
+  };
+
+  const handleClosePreview = () => {
+    setPreviewModalOpen(false);
+  };
+
   const handleCloseDownloadModal = () => {
     setDownloadModalOpen(false);
   };
@@ -183,7 +200,13 @@ const CollectionCard = ({ collection, isPending = false }) => {
       <Card className={classes.card}>
         <CardContent className={classes.cardContent}>
           <Box className={classes.titleRow}>
-            <Typography variant="h5" className={classes.title}>
+            <Typography
+              variant="h5"
+              component="button"
+              type="button"
+              className={classes.title}
+              onClick={handlePreview}
+            >
               {collection.name}
             </Typography>
             <Box className={classes.statusChips}>
@@ -272,6 +295,13 @@ const CollectionCard = ({ collection, isPending = false }) => {
           collection={collection}
         />
       </Card>
+
+      <PreviewModal
+        key={collection.id}
+        open={previewModalOpen}
+        onClose={handleClosePreview}
+        collection={collection}
+      />
 
       {isPending && (
         <Box className={classes.pendingOverlay}>
