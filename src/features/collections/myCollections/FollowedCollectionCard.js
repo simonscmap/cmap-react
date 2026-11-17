@@ -17,6 +17,7 @@ import ConfirmationPopover from '../../../shared/components/ConfirmationPopover'
 import CollectionDownloadButton from '../shared/CollectionDownloadButton';
 import useCollectionsStore from '../state/collectionsStore';
 import CollectionDownloadModal from './CollectionDownloadModal';
+import PreviewModal from '../previewModal';
 import CollectionStatusBadge from '../components/CollectionStatusBadge';
 import { snackbarOpen } from '../../../Redux/actions/ui';
 
@@ -82,8 +83,14 @@ const useStyles = makeStyles((theme) => ({
     flexGrow: 1,
     minWidth: 0,
     fontSize: '1.4em',
+    fontFamily: 'inherit',
     color: 'rgb(105, 255, 242)',
     overflowWrap: 'break-word',
+    textAlign: 'left',
+    background: 'none',
+    border: 0,
+    padding: 0,
+    cursor: 'pointer',
   },
   statusChips: {
     display: 'flex',
@@ -99,6 +106,7 @@ const FollowedCollectionCard = ({ collection, isPending }) => {
   const unfollowCollection = useCollectionsStore((state) => state.unfollowCollection);
   const followPendingIds = useCollectionsStore((state) => state.followPendingIds);
   const [downloadModalOpen, setDownloadModalOpen] = useState(false);
+  const [previewModalOpen, setPreviewModalOpen] = useState(false);
   const [unfollowAnchor, setUnfollowAnchor] = useState(null);
 
   const isUnfollowPending = followPendingIds.has(collection.id);
@@ -146,6 +154,14 @@ const FollowedCollectionCard = ({ collection, isPending }) => {
     setDownloadModalOpen(true);
   };
 
+  const handlePreview = () => {
+    setPreviewModalOpen(true);
+  };
+
+  const handleClosePreview = () => {
+    setPreviewModalOpen(false);
+  };
+
   const handleCloseDownloadModal = () => {
     setDownloadModalOpen(false);
   };
@@ -155,7 +171,13 @@ const FollowedCollectionCard = ({ collection, isPending }) => {
       <Card className={classes.card}>
         <CardContent className={classes.cardContent}>
           <Box className={classes.titleRow}>
-            <Typography variant="h5" className={classes.title}>
+            <Typography
+              variant="h5"
+              component="button"
+              type="button"
+              className={classes.title}
+              onClick={handlePreview}
+            >
               {collection.name}
             </Typography>
             <Box className={classes.statusChips}>
@@ -233,6 +255,13 @@ const FollowedCollectionCard = ({ collection, isPending }) => {
           ]}
         />
       </Card>
+
+      <PreviewModal
+        key={collection.id}
+        open={previewModalOpen}
+        onClose={handleClosePreview}
+        collection={collection}
+      />
 
       {isPending && (
         <Box className={classes.pendingOverlay}>
