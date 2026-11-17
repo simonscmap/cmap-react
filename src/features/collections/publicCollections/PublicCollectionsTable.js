@@ -18,6 +18,8 @@ import UniversalButton from '../../../shared/components/UniversalButton';
 import useCollectionsStore from '../state/collectionsStore';
 import { snackbarOpen } from '../../../Redux/actions/ui';
 import PreviewModal from '../previewModal';
+import CollectionDownloadButton from '../shared/CollectionDownloadButton';
+import CollectionDownloadModal from '../myCollections/CollectionDownloadModal';
 import {
   checkInvalidDatasets,
   InvalidDatasetConfirmationDialog,
@@ -26,8 +28,7 @@ import colors from '../../../enums/colors';
 
 const useStyles = makeStyles((theme) => ({
   collectionLink: {
-    color: colors.primary,
-    textDecoration: 'underline',
+    color: colors.teal,
     whiteSpace: 'normal',
     wordBreak: 'break-word',
     display: 'inline',
@@ -118,6 +119,9 @@ const PublicCollectionsTable = ({ collections = [] }) => {
   const [copyingId, setCopyingId] = useState(null);
   const [previewModalOpen, setPreviewModalOpen] = useState(false);
   const [selectedCollection, setSelectedCollection] = useState(null);
+  const [downloadModalOpen, setDownloadModalOpen] = useState(false);
+  const [selectedDownloadCollection, setSelectedDownloadCollection] =
+    useState(null);
   const [warningDialogOpen, setWarningDialogOpen] = useState(false);
   const [warningDialogData, setWarningDialogData] = useState(null);
 
@@ -214,6 +218,11 @@ const PublicCollectionsTable = ({ collections = [] }) => {
     }
   };
 
+  const handleDownload = (collection) => {
+    setSelectedDownloadCollection(collection);
+    setDownloadModalOpen(true);
+  };
+
   const handlePreview = (collection) => {
     setSelectedCollection(collection);
     setPreviewModalOpen(true);
@@ -222,6 +231,11 @@ const PublicCollectionsTable = ({ collections = [] }) => {
   const handleClosePreview = () => {
     setPreviewModalOpen(false);
     setSelectedCollection(null);
+  };
+
+  const handleCloseDownload = () => {
+    setDownloadModalOpen(false);
+    setSelectedDownloadCollection(null);
   };
 
   const tableContainerStyle = {
@@ -242,6 +256,12 @@ const PublicCollectionsTable = ({ collections = [] }) => {
         open={previewModalOpen}
         onClose={handleClosePreview}
         collection={selectedCollection}
+      />
+      <CollectionDownloadModal
+        key={selectedDownloadCollection?.id}
+        open={downloadModalOpen}
+        onClose={handleCloseDownload}
+        collection={selectedDownloadCollection}
       />
       <InvalidDatasetConfirmationDialog
         open={warningDialogOpen}
@@ -483,13 +503,14 @@ const PublicCollectionsTable = ({ collections = [] }) => {
                   </TableCell>
                   <TableCell className={classes.statsCell}>
                     <Box display="flex" flexDirection="row" alignItems="center" style={{ gap: '4px', flexWrap: 'nowrap' }}>
-                      <UniversalButton
-                        variant="primary"
+                      <CollectionDownloadButton
+                        disabled={
+                          !collection.datasets || collection.datasets.length === 0
+                        }
+                        onClick={() => handleDownload(collection)}
                         size="medium"
-                        onClick={() => handlePreview(collection)}
-                      >
-                        Preview
-                      </UniversalButton>
+                        label="Download"
+                      />
                       <UniversalButton
                         variant="primary"
                         size="medium"
@@ -507,7 +528,7 @@ const PublicCollectionsTable = ({ collections = [] }) => {
                       </UniversalButton>
                       {!collection.isOwner && (
                         <UniversalButton
-                          variant={collection.isFollowing ? 'secondary' : 'primary'}
+                          variant={collection.isFollowing ? 'primary' : 'primary'}
                           size="medium"
                           onClick={() => handleFollow(collection)}
                           disabled={collection.isFollowing || followPendingIds.has(collection.id)}

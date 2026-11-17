@@ -32,6 +32,15 @@ const PreviewModal = ({ open, onClose, collection }) => {
 
   // Zustand store selectors
   const copyCollection = useCollectionsStore((state) => state.copyCollection);
+  const followCollection = useCollectionsStore(
+    (state) => state.followCollection,
+  );
+  const followPendingIds = useCollectionsStore(
+    (state) => state.followPendingIds,
+  );
+  const followedCollections = useCollectionsStore(
+    (state) => state.followedCollections,
+  );
   const userCollections = useCollectionsStore((state) => state.userCollections);
 
   // Local state (UI-specific)
@@ -75,6 +84,12 @@ const PreviewModal = ({ open, onClose, collection }) => {
   const isAlreadyInUserCollections = () =>
     collection.isOwner ||
     userCollections.some((userCollection) => userCollection.id === collection.id);
+
+  const isFollowing =
+    collection.isFollowing ||
+    followedCollections.some(
+      (followedCollection) => followedCollection.id === collection.id,
+    );
 
   // Prepare statistics for CollectionStatistics component
   const stats = [
@@ -145,6 +160,25 @@ const PreviewModal = ({ open, onClose, collection }) => {
       );
     } finally {
       setCopying(false);
+    }
+  };
+
+  const handleFollow = async () => {
+    try {
+      await followCollection(collection.id);
+      dispatch(
+        snackbarOpen(`Now following "${collection.name}"`, {
+          severity: 'success',
+          position: 'top',
+        }),
+      );
+    } catch (error) {
+      dispatch(
+        snackbarOpen(error.message || 'Failed to follow collection', {
+          severity: 'error',
+          position: 'top',
+        }),
+      );
     }
   };
 
@@ -257,6 +291,25 @@ const PreviewModal = ({ open, onClose, collection }) => {
           <UniversalButton onClick={onClose} variant="default" size="large">
             CLOSE
           </UniversalButton>
+           {!collection.isOwner && (
+            <UniversalButton
+              onClick={handleFollow}
+              variant={isFollowing ? 'secondary' : 'primary'}
+              size="large"
+              disabled={isFollowing || followPendingIds.has(collection.id)}
+            >
+              {followPendingIds.has(collection.id) ? (
+                <CircularProgress
+                  size={14}
+                  style={{ color: 'rgba(105, 255, 242, 0.2)' }}
+                />
+              ) : isFollowing ? (
+                'FOLLOWING'
+              ) : (
+                'FOLLOW'
+              )}
+            </UniversalButton>
+          )}
           <UniversalButton
             onClick={handleCopy}
             variant="primary"
